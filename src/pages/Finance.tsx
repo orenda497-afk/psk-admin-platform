@@ -7,15 +7,11 @@ import {
   ChevronDown,
   CircleDollarSign,
   ClipboardList,
-  CreditCard,
   FileCheck2,
-  FileMinus2,
-  FilePlus2,
   FileText,
-  Landmark,
   MoreHorizontal,
   Plus,
-  ReceiptText,
+  Receipt,
   Search,
   Send,
   WalletCards,
@@ -25,7 +21,6 @@ type DocumentType = 'quotation' | 'invoice' | 'receipt' | 'credit_note' | 'debit
 type ViewMode = 'overview' | 'studio'
 
 type LineItem = {
-  id: number
   description: string
   quantity: number
   rate: number
@@ -88,11 +83,6 @@ const RECENT_DOCUMENTS = [
 
 const formatKES = (value: number) => `KES ${value.toLocaleString('en-KE')}`
 
-function DocumentBadge({ type }: { type: DocumentType }) {
-  const config = DOCUMENT_CONFIG[type]
-  return <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${config.accent}`}>{config.label}</span>
-}
-
 export default function Finance() {
   const [view, setView] = useState<ViewMode>('overview')
   const [documentType, setDocumentType] = useState<DocumentType>('invoice')
@@ -103,7 +93,7 @@ export default function Finance() {
   const [notes, setNotes] = useState(DOCUMENT_CONFIG.invoice.note)
   const [isGenerated, setIsGenerated] = useState(false)
   const [items, setItems] = useState<LineItem[]>([
-    { id: 1, description: 'KDE hire on 28 January 2026', quantity: 1, rate: 3500 },
+    { description: 'KDE hire on 28 January 2026', quantity: 1, rate: 3500 },
   ])
 
   const config = DOCUMENT_CONFIG[documentType]
@@ -120,11 +110,11 @@ export default function Finance() {
 
   const addLineItem = () => setItems((current) => [
     ...current,
-    { id: Date.now(), description: 'Additional service', quantity: 1, rate: 0 },
+    { description: 'Additional service', quantity: 1, rate: 0 },
   ])
 
-  const updateItem = (id: number, key: keyof Omit<LineItem, 'id'>, value: string | number) => {
-    setItems((current) => current.map((item) => ({ ...item, [key]: value } as LineItem)))
+  const updateItem = (index: number, key: keyof Omit<LineItem, 'id'>, value: string | number) => {
+    setItems((current) => current.map((item, i) => (i === index ? { ...item, [key]: value } : item) as LineItem))
   }
 
   return (
@@ -219,8 +209,8 @@ export default function Finance() {
                 <div className="grid gap-4 md:grid-cols-3"><InputField label="Issue date" value={issueDate} onChange={setIssueDate} /><InputField label={documentType === 'invoice' ? 'Due date' : 'Valid until'} value={dueDate} onChange={setDueDate} /><SelectField label="Currency" value="KES" onChange={() => undefined} options={['KES', 'USD', 'EUR']} disabled /></div>
               </FormSection>
 
-              <FormSection icon={<ReceiptText size={17} />} title="Line items" action={<button onClick={addLineItem} className="inline-flex items-center gap-1 text-xs font-bold text-amber-300 hover:text-amber-200"><Plus size={14} /> Add line</button>}>
-                <div className="overflow-x-auto rounded-xl border border-slate-700"><table className="w-full min-w-[660px] text-left text-sm"><thead className="bg-[#0e151f] text-[10px] font-bold uppercase tracking-[0.13em] text-slate-500"><tr><th className="px-3 py-3">Description</th><th className="px-3 py-3 text-center">Qty</th><th className="px-3 py-3 text-right">Rate</th><th className="px-3 py-3 text-right">Amount</th><th className="w-10 px-2" /></tr></thead><tbody>{items.map((item) => <tr key={item.id} className="border-t border-slate-800"><td className="px-3 py-3"><input value={item.description} onChange={(event) => updateItem(item.id, 'description', event.target.value)} className="w-full bg-transparent text-slate-200 outline-none placeholder:text-slate-600" /></td><td className="px-3 py-3 text-center"><input type="number" value={item.quantity} onChange={(event) => updateItem(item.id, 'quantity', Number(event.target.value))} className="w-14 bg-transparent text-center text-slate-200 outline-none" /></td><td className="px-3 py-3 text-right"><input type="number" value={item.rate} onChange={(event) => updateItem(item.id, 'rate', Number(event.target.value))} className="w-24 bg-transparent text-right text-slate-200 outline-none" /></td><td className="px-3 py-3 text-right font-semibold text-white">{formatKES(item.quantity * item.rate)}</td><td className="px-2 text-right"><button onClick={() => setItems((current) => current.filter((line) => line.id !== item.id))} className="rounded p-1.5 text-slate-500 hover:bg-slate-700 hover:text-rose-300"><MoreHorizontal size={16} /></button></td></tr>)}</tbody></table></div>
+              <FormSection icon={<Receipt size={17} />} title="Line items" action={<button onClick={addLineItem} className="inline-flex items-center gap-1 text-xs font-bold text-amber-300 hover:text-amber-200"><Plus size={14} /> Add line</button>}>
+                <div className="overflow-x-auto rounded-xl border border-slate-700"><table className="w-full min-w-[660px] text-left text-sm"><thead className="bg-[#0e151f] text-[10px] font-bold uppercase tracking-[0.13em] text-slate-500"><tr><th className="px-3 py-3">Description</th><th className="px-3 py-3 text-center">Qty</th><th className="px-3 py-3 text-right">Rate</th><th className="px-3 py-3 text-right">Amount</th><th className="w-10 px-2" /></tr></thead><tbody>{items.map((item, index) => <tr key={index} className="border-t border-slate-800"><td className="px-3 py-3"><input value={item.description} onChange={(event) => updateItem(index, 'description', event.target.value)} className="w-full bg-transparent text-slate-200 outline-none placeholder:text-slate-600" /></td><td className="px-3 py-3 text-center"><input type="number" value={item.quantity} onChange={(event) => updateItem(index, 'quantity', Number(event.target.value))} className="w-14 bg-transparent text-center text-slate-200 outline-none" /></td><td className="px-3 py-3 text-right"><input type="number" value={item.rate} onChange={(event) => updateItem(index, 'rate', Number(event.target.value))} className="w-24 bg-transparent text-right text-slate-200 outline-none" /></td><td className="px-3 py-3 text-right font-semibold text-white">{formatKES(item.quantity * item.rate)}</td><td className="px-2 text-right"><button onClick={() => setItems((current) => current.filter((_, i) => i !== index))} className="rounded p-1.5 text-slate-500 hover:bg-slate-700 hover:text-rose-300"><MoreHorizontal size={16} /></button></td></tr>)}</tbody></table></div>
               </FormSection>
 
               <div className="grid gap-5 lg:grid-cols-[1fr_260px]">
@@ -268,7 +258,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) { return
 
 function DocumentPreview({ type, reference, customer, booking, issueDate, dueDate, items, subtotal, vat, total, notes }: { type: DocumentType; reference: string; customer: string; booking: string; issueDate: string; dueDate: string; items: LineItem[]; subtotal: number; vat: number; total: number; notes: string }) {
   const config = DOCUMENT_CONFIG[type]
-  return <div className="overflow-hidden rounded-lg bg-[#f9faf7] text-slate-800 shadow-[0_22px_45px_rgba(0,0,0,0.32)]"><div className="border-t-[7px] border-[#0b2545] px-7 pb-7 pt-6"><div className="flex items-start justify-between gap-4 border-b border-slate-300 pb-5"><div className="flex items-center gap-3"><img src="/branding/psk-logo.png" alt="PSK Safaris" className="h-12 w-12 object-contain" /><div><p className="text-sm font-extrabold tracking-tight text-[#0b2545]">PSK SAFARIS</p><p className="text-[10px] font-semibold tracking-wide text-[#647048]">& CAR RENTALS</p><p className="mt-1 text-[8px] leading-3 text-slate-500">Sixty Four Plaza · P.O. Box 5079–30100, Eldoret<br />+254 751 855 180 · PIN P051664556P</p></div></div><div className="text-right"><span className="inline-flex bg-[#0b2545] px-3 py-1.5 text-[10px] font-bold tracking-[0.12em] text-white">{config.label.toUpperCase()}</span><p className="mt-3 text-[9px] text-slate-500">REFERENCE</p><p className="font-mono text-[10px] font-bold text-[#0b2545]">{reference}</p></div></div><div className="grid grid-cols-2 gap-4 py-5 text-[9px]"><div><p className="font-bold uppercase tracking-[0.12em] text-[#a06512]">Bill to</p><p className="mt-2 text-[11px] font-bold">{customer}</p><p className="mt-0.5 text-slate-500">Customer account · PSK Safaris</p></div><div className="border-l border-slate-300 pl-4"><p className="font-bold uppercase tracking-[0.12em] text-[#a06512]">Travel reference</p><p className="mt-2 text-[11px] font-bold">{booking}</p><p className="mt-0.5 text-slate-500">Issued {issueDate} · Due {dueDate}</p></div></div><table className="w-full border-collapse text-left text-[8px]"><thead className="bg-[#0b2545] text-white"><tr><th className="px-2 py-2 font-bold">Description</th><th className="px-2 py-2 text-center">Qty</th><th className="px-2 py-2 text-right">Rate</th><th className="px-2 py-2 text-right">Amount</th></tr></thead><tbody>{items.map((item) => <tr key={item.id} className="border-b border-slate-300"><td className="px-2 py-2.5">{item.description || 'Service item'}</td><td className="px-2 py-2.5 text-center">{item.quantity}</td><td className="px-2 py-2.5 text-right">{formatKES(item.rate)}</td><td className="px-2 py-2.5 text-right font-semibold">{formatKES(item.quantity * item.rate)}</td></tr>)}</tbody></table><div className="ml-auto mt-5 w-[55%] border border-slate-300 text-[9px]"><PreviewTotal label="Subtotal" value={formatKES(subtotal)} /><PreviewTotal label="VAT (16%)" value={formatKES(vat)} /><div className="flex justify-between bg-[#0b2545] px-3 py-2.5 font-bold text-white"><span>GRAND TOTAL</span><span>{formatKES(total)}</span></div></div><div className="mt-6 border-t border-slate-300 pt-4 text-[8px] leading-3 text-slate-500"><p className="font-bold uppercase tracking-[0.1em] text-[#a06512]">Notes & terms</p><p className="mt-1.5">{notes}</p></div></div><div className="border-t border-slate-300 px-7 py-3 text-center text-[8px] font-semibold tracking-wide text-[#0b2545]">SELF DRIVE · CHAUFFEUR DRIVEN · AIRPORT TRANSFERS · SAFARIS & EXCURSIONS</div></div>
+  return <div className="overflow-hidden rounded-lg bg-[#f9faf7] text-slate-800 shadow-[0_22px_45px_rgba(0,0,0,0.32)]"><div className="border-t-[7px] border-[#0b2545] px-7 pb-7 pt-6"><div className="flex items-start justify-between gap-4 border-b border-slate-300 pb-5"><div className="flex items-center gap-3"><img src="/branding/psk-logo.png" alt="PSK Safaris" className="h-12 w-12 object-contain" /><div><p className="text-sm font-extrabold tracking-tight text-[#0b2545]">PSK SAFARIS</p><p className="text-[10px] font-semibold tracking-wide text-[#647048]">& CAR RENTALS</p><p className="mt-1 text-[8px] leading-3 text-slate-500">Sixty Four Plaza · P.O. Box 5079–30100, Eldoret<br />+254 751 855 180 · PIN P051664556P</p></div></div><div className="text-right"><span className="inline-flex bg-[#0b2545] px-3 py-1.5 text-[10px] font-bold tracking-[0.12em] text-white">{config.label.toUpperCase()}</span><p className="mt-3 text-[9px] text-slate-500">REFERENCE</p><p className="font-mono text-[10px] font-bold text-[#0b2545]">{reference}</p></div></div><div className="grid grid-cols-2 gap-4 py-5 text-[9px]"><div><p className="font-bold uppercase tracking-[0.12em] text-[#a06512]">Bill to</p><p className="mt-2 text-[11px] font-bold">{customer}</p><p className="mt-0.5 text-slate-500">Customer account · PSK Safaris</p></div><div className="border-l border-slate-300 pl-4"><p className="font-bold uppercase tracking-[0.12em] text-[#a06512]">Travel reference</p><p className="mt-2 text-[11px] font-bold">{booking}</p><p className="mt-0.5 text-slate-500">Issued {issueDate} · Due {dueDate}</p></div></div><table className="w-full border-collapse text-left text-[8px]"><thead className="bg-[#0b2545] text-white"><tr><th className="px-2 py-2 font-bold">Description</th><th className="px-2 py-2 text-center">Qty</th><th className="px-2 py-2 text-right">Rate</th><th className="px-2 py-2 text-right">Amount</th></tr></thead><tbody>{items.map((item, index) => <tr key={index} className="border-b border-slate-300"><td className="px-2 py-2.5">{item.description || 'Service item'}</td><td className="px-2 py-2.5 text-center">{item.quantity}</td><td className="px-2 py-2.5 text-right">{formatKES(item.rate)}</td><td className="px-2 py-2.5 text-right font-semibold">{formatKES(item.quantity * item.rate)}</td></tr>)}</tbody></table><div className="ml-auto mt-5 w-[55%] border border-slate-300 text-[9px]"><PreviewTotal label="Subtotal" value={formatKES(subtotal)} /><PreviewTotal label="VAT (16%)" value={formatKES(vat)} /><div className="flex justify-between bg-[#0b2545] px-3 py-2.5 font-bold text-white"><span>GRAND TOTAL</span><span>{formatKES(total)}</span></div></div><div className="mt-6 border-t border-slate-300 pt-4 text-[8px] leading-3 text-slate-500"><p className="font-bold uppercase tracking-[0.1em] text-[#a06512]">Notes & terms</p><p className="mt-1.5">{notes}</p></div></div><div className="border-t border-slate-300 px-7 py-3 text-center text-[8px] font-semibold tracking-wide text-[#0b2545]">SELF DRIVE · CHAUFFEUR DRIVEN · AIRPORT TRANSFERS · SAFARIS & EXCURSIONS</div></div>
 }
 
 function PreviewTotal({ label, value }: { label: string; value: string }) { return <div className="flex justify-between border-b border-slate-300 px-3 py-2"><span className="text-slate-500">{label}</span><span className="font-medium">{value}</span></div> }
