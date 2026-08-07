@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: psk-admin-platform
+    runtime: node
+    region: frankfurt
+    branch: main
+    buildCommand: npm install && npm run build
+    startCommand: npx serve -s dist -l $PORT
+    envVars:
+      - key: NODE_VERSION
+        value: "18"
