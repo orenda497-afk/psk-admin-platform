@@ -216,51 +216,7 @@ body {
 
 
 
-.psk-safari-animal {
-  position: absolute;
-  z-index: 2;
-  font-size: 1.4em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
-.psk-safari-animal--lion {
-  top: -8px;
-  left: 50%;
-  margin-left: -0.7em;
-  animation: bobbing 2.5s ease-in-out infinite;
-}
-
-.psk-safari-animal--elephant {
-  bottom: -8px;
-  left: 50%;
-  margin-left: -0.7em;
-  animation: bobbing 2.5s ease-in-out infinite 0.3s;
-}
-
-.psk-safari-animal--giraffe {
-  left: -8px;
-  top: 50%;
-  margin-top: -0.7em;
-  animation: bobbing 2.5s ease-in-out infinite 0.6s;
-}
-
-.psk-safari-animal--zebra {
-  right: -8px;
-  top: 50%;
-  margin-top: -0.7em;
-  animation: bobbing 2.5s ease-in-out infinite 0.9s;
-}
-
-@keyframes bobbing {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
 
 .psk-login-shell {
   position: relative;

@@ -21,10 +21,6 @@ export default function PskLogoOrbit({
         <>
           <span className="psk-logo-orbit-ring psk-logo-orbit-ring--outer" aria-hidden="true" />
           <span className="psk-logo-orbit-ring psk-logo-orbit-ring--inner" aria-hidden="true" />
-          <span className="psk-safari-animal psk-safari-animal--lion" aria-hidden="true">🦁</span>
-          <span className="psk-safari-animal psk-safari-animal--elephant" aria-hidden="true">🐘</span>
-          <span className="psk-safari-animal psk-safari-animal--giraffe" aria-hidden="true">🦒</span>
-          <span className="psk-safari-animal psk-safari-animal--zebra" aria-hidden="true">🦓</span>
         </>
       )}
       <img
