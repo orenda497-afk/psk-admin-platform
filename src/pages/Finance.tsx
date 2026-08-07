@@ -87,7 +87,7 @@ export default function Finance() {
   const [view, setView] = useState<ViewMode>('overview')
   const [documentType, setDocumentType] = useState<DocumentType>('invoice')
   const [customer, setCustomer] = useState('Kevin Indrassen')
-  const [booking, setBooking] = useState('BK-2026-00187 · KDE hire')
+  const [booking, setBooking] = useState('BK-2026-00187 · Kevin Indrassen · Toyota KDE')
   const [issueDate, setIssueDate] = useState('02 Feb 2026')
   const [dueDate, setDueDate] = useState('09 Feb 2026')
   const [notes, setNotes] = useState(DOCUMENT_CONFIG.invoice.note)
@@ -202,7 +202,7 @@ export default function Finance() {
 
             <div className="space-y-6 p-6">
               <FormSection icon={<FileCheck2 size={17} />} title="Customer & booking">
-                <div className="grid gap-4 md:grid-cols-2"><SelectField label="Customer" value={customer} onChange={setCustomer} options={['Kevin Indrassen', 'Mary Ochieng', 'Safari M. Ltd', 'Amani Tours']} /><SelectField label="Linked booking" value={booking} onChange={setBooking} options={['BK-2026-00187 · KDE hire', 'BK-2026-00192 · Amboseli safari', 'BK-2026-00204 · Airport transfer']} /></div>
+                <div className="grid gap-4 md:grid-cols-2"><SelectField label="Customer" value={customer} onChange={setCustomer} options={['Kevin Indrassen', 'Mary Ochieng', 'Safari M. Ltd', 'Amani Tours']} />                <SelectField label="Linked booking" value={booking} onChange={setBooking} options={['BK-2026-00187 · Kevin Indrassen · Toyota KDE', 'BK-2026-00192 · Mary Ochieng · Land Cruiser Safari', 'BK-2026-00204 · Safari M. Ltd · Toyota Hiace Van', 'BK-2026-00201 · Amani Tours · Toyota Fortuner']} /></div>
               </FormSection>
 
               <FormSection icon={<CalendarDays size={17} />} title="Document details">
