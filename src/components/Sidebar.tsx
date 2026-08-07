@@ -42,7 +42,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
   }
 
   return (
-    <div className="w-56 glass-lg border-r border-psk-border flex flex-col">
+    <div style={{ width: '210px', minWidth: '210px', flexShrink: 0 }} className="glass-lg border-r border-psk-border flex flex-col">
       {/* Logo */}
       <div className="p-4 border-b border-psk-border">
         <div className="flex items-center gap-3">

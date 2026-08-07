@@ -37,17 +37,21 @@ export default function Layout({ children, onLogout }: LayoutProps) {
   const pageInfo = getPageTitle()
 
   return (
-    <div className="flex h-screen bg-psk-bg-base overflow-hidden">
-      {/* Sidebar */}
-      <Sidebar onLogout={onLogout} />
+    <div style={{ display: 'flex', height: '100vh' }} className="bg-psk-bg-base overflow-hidden">
+      {/* Sidebar — fixed width 210px, full height */}
+      <aside style={{ width: '210px', minWidth: '210px', flexShrink: 0 }}>
+        <Sidebar onLogout={onLogout} />
+      </aside>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top bar */}
-        <TopBar title={pageInfo.title} subtitle={pageInfo.subtitle} />
+      {/* Main — takes remaining width, flex column layout */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {/* TopBar — only inside main, never over sidebar */}
+        <header style={{ flexShrink: 0 }}>
+          <TopBar title={pageInfo.title} subtitle={pageInfo.subtitle} />
+        </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-auto">
+        <main style={{ flex: 1, overflowY: 'auto' }}>
           <div className="p-6">
             {children}
           </div>
