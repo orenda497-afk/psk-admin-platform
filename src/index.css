@@ -17,13 +17,8 @@ html, body, #root {
 }
 
 body {
-  background: 
-    radial-gradient(ellipse 70% 60% at 75% 5%,  rgba(25,70,90,0.22) 0%, transparent 55%),
-    radial-gradient(ellipse 55% 55% at 15% 85%, rgba(30,60,45,0.15)   0%, transparent 55%),
-    radial-gradient(ellipse 45% 45% at 50% 45%, rgba(180,110,40,0.02)  0%, transparent 55%),
-    linear-gradient(145deg, #0d1620 0%, #0f1c2a 35%, #0d1620 70%, #0c1820 100%);
-  background-attachment: fixed;
-  color: rgba(255,255,255,0.96);
+  background-color: #0b1118; /* Solid, premium deep navy */
+  color: #f8fafc;
   overflow: hidden;
 }
 
@@ -32,38 +27,25 @@ body {
   flex-direction: column;
 }
 
-/* Ultra-glossy liquid glass effect */
+/* Premium solid-colour panel design (No gradients, precise borders) */
 .glass {
-  background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
-  backdrop-filter: blur(32px) saturate(1.2);
-  border: 1.5px solid rgba(255,255,255,0.22);
-  border-radius: 14px;
-  box-shadow: 
-    0 12px 48px rgba(0,0,0,0.45),
-    inset 0 1px 0 rgba(255,255,255,0.18),
-    inset 0 -1px 0 rgba(0,0,0,0.12),
-    0 0 1px rgba(255,255,255,0.08);
+  background-color: #121a24;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
 }
 
 .glass-lg {
-  background: linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.09));
-  backdrop-filter: blur(40px) saturate(1.3);
-  border: 1.5px solid rgba(255,255,255,0.26);
+  background-color: #121a24;
+  border: 1px solid #1e293b;
   border-radius: 16px;
-  box-shadow: 
-    0 16px 64px rgba(0,0,0,0.5),
-    inset 0 1px 0 rgba(255,255,255,0.22),
-    inset 0 -1px 0 rgba(0,0,0,0.15),
-    0 0 2px rgba(255,255,255,0.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
 }
 
 .glass-glossy {
-  background: linear-gradient(135deg, rgba(80,150,190,0.16), rgba(60,130,170,0.10));
-  border: 1.5px solid rgba(80,150,190,0.32);
-  box-shadow: 
-    0 12px 48px rgba(80,150,190,0.08),
-    inset 0 1px 0 rgba(255,255,255,0.18),
-    inset 0 -1px 0 rgba(0,0,0,0.08);
+  background-color: #1a2533;
+  border: 1px solid #29384d;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
 }
 
 /* Scrollbar styling */
@@ -85,41 +67,41 @@ body {
   background: rgba(80,150,190,0.30);
 }
 
-/* Status colors - vivid but refined */
+/* Status colors - solid and professional */
 .status-available {
-  color: rgba(110,210,140,1);
-  border-color: rgba(110,210,140,0.38);
-  background-color: rgba(110,210,140,0.13);
+  color: #34d399; /* Emerald 400 */
+  border-color: #059669; /* Emerald 600 */
+  background-color: rgba(16, 185, 129, 0.1);
 }
 
 .status-chauffeured {
-  color: rgba(100,180,240,1);
-  border-color: rgba(100,180,240,0.35);
-  background-color: rgba(100,180,240,0.13);
+  color: #60a5fa; /* Blue 400 */
+  border-color: #2563eb; /* Blue 600 */
+  background-color: rgba(59, 130, 246, 0.1);
 }
 
 .status-safari {
-  color: rgba(190,160,220,1);
-  border-color: rgba(190,160,220,0.35);
-  background-color: rgba(190,160,220,0.13);
+  color: #a78bfa; /* Blue 400 */
+  border-color: #7c3aed; /* Violet 600 */
+  background-color: rgba(139, 92, 246, 0.1);
 }
 
 .status-service {
-  color: rgba(240,170,80,1);
-  border-color: rgba(240,170,80,0.35);
-  background-color: rgba(240,170,80,0.13);
+  color: #fbbf24; /* Amber 400 */
+  border-color: #d97706; /* Amber 600 */
+  background-color: rgba(245, 158, 11, 0.1);
 }
 
 .status-overdue {
-  color: rgba(240,140,140,1);
-  border-color: rgba(240,140,140,0.40);
-  background-color: rgba(240,140,140,0.13);
+  color: #f87171; /* Red 400 */
+  border-color: #dc2626; /* Red 600 */
+  background-color: rgba(239, 68, 68, 0.1);
 }
 
 .status-returning {
-  color: rgba(120,220,240,1);
-  border-color: rgba(120,220,240,0.35);
-  background-color: rgba(120,220,240,0.13);
+  color: #38bdf8; /* Cyan 400 */
+  border-color: #0891b2; /* Cyan 600 */
+  background-color: rgba(6, 182, 212, 0.1);
 }
 
 .status-grounded {
@@ -159,21 +141,21 @@ body {
   animation: slideOutRight 0.28s cubic-bezier(0.4,0,0.2,1);
 }
 
-/* Enhanced text visibility */
+/* Enhanced text visibility - solid hex colours */
 .text-psk-text-primary {
-  color: rgba(255,255,255,0.96) !important;
+  color: #f8fafc !important; /* Slate 50 */
 }
 
 .text-psk-text-secondary {
-  color: rgba(255,255,255,0.72) !important;
+  color: #94a3b8 !important; /* Slate 400 */
 }
 
 .text-psk-text-tertiary {
-  color: rgba(255,255,255,0.48) !important;
+  color: #64748b !important; /* Slate 500 */
 }
 
 .text-psk-text-gold {
-  color: rgba(200,160,100,0.90) !important;
+  color: #fbbf24 !important; /* Amber 400 */
 }
 
 

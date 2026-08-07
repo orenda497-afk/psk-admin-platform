@@ -25,19 +25,11 @@ export default function RegistryBoard() {
   const getStatusColor = (status: string) => statusConfig[status] || statusConfig.available
 
   return (
-    <div className="space-y-6 relative min-h-screen" style={{
-      backgroundImage: 'url(/branding/registry-landrover-bg.jpg)',
-      backgroundSize: 'cover',
-      backgroundPosition: 'right center',
-      backgroundAttachment: 'fixed'
-    }}>
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0d1620]/92 via-[#0f1c2a]/88 to-[#0c1820]/92 pointer-events-none"></div>
-      
+    <div className="space-y-6 min-h-screen">
       {/* Content */}
-      <div className="relative space-y-6">
+      <div className="space-y-6">
       {/* Status Strip */}
-      <div className="glass-lg p-6 grid grid-cols-5 gap-0 divide-x divide-psk-border border-psk-border rounded-16">
+      <div className="glass-lg p-6 grid grid-cols-5 gap-0 divide-x divide-slate-800 border-slate-800 rounded-2xl">
         <div className="px-4 text-center">
           <p className="text-xs text-psk-text-secondary uppercase tracking-wider font-semibold mb-2">Total Fleet</p>
           <p className="text-3xl font-bold text-white">20</p>
@@ -80,7 +72,7 @@ export default function RegistryBoard() {
       {/* Two-column section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Needs Action */}
-        <div className="glass-lg p-6 border border-psk-border">
+        <div className="glass-lg p-6 border border-slate-800">
           <h3 className="text-xs font-bold uppercase tracking-widest text-psk-text-primary mb-4">Needs Action</h3>
           <div className="space-y-2">
             {[
@@ -108,7 +100,7 @@ export default function RegistryBoard() {
         {/* Right: Returning Today + Stats */}
         <div className="lg:col-span-2 space-y-4">
           {/* Returning Today */}
-          <div className="glass-lg p-6 border border-psk-border">
+          <div className="glass-lg p-6 border border-slate-800">
             <h3 className="text-xs font-bold uppercase tracking-widest text-psk-text-primary mb-4">
               Returning Today <span className="ml-2 px-2 py-1 bg-cyan-500/20 text-cyan-400 rounded-full text-xs">2</span>
             </h3>
@@ -144,7 +136,7 @@ export default function RegistryBoard() {
       </div>
 
       {/* Fleet Table */}
-      <div className="glass-lg p-4">
+      <div className="glass-lg p-4 border border-slate-800">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-psk-text-secondary">Fleet Inventory</h3>
           <div className="flex gap-2">
