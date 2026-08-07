@@ -229,11 +229,20 @@ body {
 }
 
 @keyframes pskCarEmojiOrbit {
-  from {
+  0% {
     transform: rotate(0deg) translateY(-55px) rotate(0deg);
   }
-  to {
-    transform: rotate(360deg) translateY(-55px) rotate(-360deg);
+  25% {
+    transform: rotate(90deg) translateY(-55px) rotate(90deg);
+  }
+  50% {
+    transform: rotate(180deg) translateY(-55px) rotate(180deg);
+  }
+  75% {
+    transform: rotate(270deg) translateY(-55px) rotate(270deg);
+  }
+  100% {
+    transform: rotate(360deg) translateY(-55px) rotate(360deg);
   }
 }
 
