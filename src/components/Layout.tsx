@@ -27,6 +27,8 @@ export default function Layout({ children, onLogout }: LayoutProps) {
         return { title: 'Finance', subtitle: 'Financial overview' }
       case '/quotations':
         return { title: 'Quotations', subtitle: 'Quote management' }
+      case '/analytics':
+        return { title: 'Fleet Intelligence', subtitle: 'Utilization & maintenance analytics' }
       default:
         return { title: 'Dashboard', subtitle: '' }
     }

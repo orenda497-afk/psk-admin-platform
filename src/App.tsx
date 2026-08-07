@@ -9,6 +9,7 @@ import Drivers from './pages/Drivers'
 import Investors from './pages/Investors'
 import Finance from './pages/Finance'
 import Quotations from './pages/Quotations'
+import Analytics from './pages/Analytics'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -36,6 +37,7 @@ function App() {
           <Route path="/investors" element={<Investors />} />
           <Route path="/finance" element={<Finance />} />
           <Route path="/quotations" element={<Quotations />} />
+          <Route path="/analytics" element={<Analytics />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>

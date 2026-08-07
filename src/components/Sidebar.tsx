@@ -26,9 +26,7 @@ const navGroups = [
   {
     name: 'INTELLIGENCE',
     items: [
-      { icon: '🔔', label: 'Reminders', path: '#', badge: '9' },
-      { icon: '📊', label: 'Analytics', path: '#', badge: null },
-      { icon: '⚙️', label: 'Settings', path: '#', badge: null },
+      { icon: '📊', label: 'Fleet Intelligence', path: '/analytics', badge: null },
     ]
   }
 ]
