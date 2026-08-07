@@ -25,7 +25,17 @@ export default function RegistryBoard() {
   const getStatusColor = (status: string) => statusConfig[status] || statusConfig.available
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative min-h-screen" style={{
+      backgroundImage: 'url(/branding/registry-landrover-bg.jpg)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'right center',
+      backgroundAttachment: 'fixed'
+    }}>
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0d1620]/92 via-[#0f1c2a]/88 to-[#0c1820]/92 pointer-events-none"></div>
+      
+      {/* Content */}
+      <div className="relative space-y-6">
       {/* Status Strip */}
       <div className="glass-lg p-6 grid grid-cols-5 gap-0 divide-x divide-psk-border border-psk-border rounded-16">
         <div className="px-4 text-center">
@@ -35,22 +45,34 @@ export default function RegistryBoard() {
         </div>
         <div className="px-4 text-center">
           <p className="text-xs text-psk-text-secondary uppercase tracking-wider font-semibold mb-2">Available</p>
-          <p className="text-2xl font-bold text-status-available">12</p>
+          <p className="text-2xl font-bold text-status-available flex items-center gap-2">
+            <span className="inline-block w-2 h-2 rounded-full bg-status-available status-pulse"></span>
+            12
+          </p>
           <p className="text-xs text-psk-text-secondary mt-2">Ready for booking</p>
         </div>
         <div className="px-4 text-center">
           <p className="text-xs text-psk-text-secondary uppercase tracking-wider font-semibold mb-2">Out on Hire</p>
-          <p className="text-2xl font-bold text-status-chauffeured">6</p>
+          <p className="text-2xl font-bold text-status-chauffeured flex items-center gap-2">
+            <span className="inline-block w-2 h-2 rounded-full bg-status-chauffeured status-pulse"></span>
+            6
+          </p>
           <p className="text-xs text-psk-text-secondary mt-2">3 chauf · 2 safari · 1 self</p>
         </div>
         <div className="px-4 text-center">
           <p className="text-xs text-psk-text-secondary uppercase tracking-wider font-semibold mb-2">In Service</p>
-          <p className="text-2xl font-bold text-status-service">2</p>
+          <p className="text-2xl font-bold text-status-service flex items-center gap-2">
+            <span className="inline-block w-2 h-2 rounded-full bg-status-service status-pulse"></span>
+            2
+          </p>
           <p className="text-xs text-psk-text-secondary mt-2">At workshop</p>
         </div>
         <div className="px-4 text-center">
           <p className="text-xs text-psk-text-secondary uppercase tracking-wider font-semibold mb-2">Attention Needed</p>
-          <p className="text-2xl font-bold text-status-overdue">2</p>
+          <p className="text-2xl font-bold text-status-overdue flex items-center gap-2">
+            <span className="inline-block w-2 h-2 rounded-full bg-status-overdue status-pulse"></span>
+            2
+          </p>
           <p className="text-xs text-psk-text-secondary mt-2">Act immediately</p>
         </div>
       </div>
@@ -207,6 +229,7 @@ export default function RegistryBoard() {
           </table>
         </div>
       </div>
+    </div>
     </div>
   )
 }
