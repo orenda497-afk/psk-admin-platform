@@ -22,6 +22,7 @@ export default function PskLogoOrbit({
           <span className="psk-logo-orbit-ring psk-logo-orbit-ring--outer" aria-hidden="true" />
           <span className="psk-logo-orbit-ring psk-logo-orbit-ring--inner" aria-hidden="true" />
           <span className="psk-logo-orbit-glint" aria-hidden="true" />
+          <span className="psk-logo-safari-car" aria-hidden="true" />
         </>
       )}
       <img

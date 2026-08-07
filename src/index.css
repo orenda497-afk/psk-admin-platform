@@ -232,6 +232,43 @@ body {
   to { transform: rotate(360deg) translateY(-7px) rotate(-360deg); }
 }
 
+.psk-logo-safari-car {
+  position: absolute;
+  z-index: 2;
+  width: 14px;
+  height: 10px;
+  top: 50%;
+  left: 50%;
+  margin-left: -7px;
+  margin-top: -5px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #f5bc32 0%, #f99a28 100%);
+  box-shadow: 0 2px 6px rgba(242,112,24,0.60), inset 0 1px 2px rgba(255,255,255,0.40);
+  transform-origin: 50% calc(50% + 55%);
+  animation: pskSafariCarOrbit 8s linear infinite;
+}
+
+.psk-logo-safari-car::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 4px;
+  height: 3px;
+  background: rgba(255,255,255,0.70);
+  border-radius: 1px;
+  box-shadow: 8px 0 0 -2px rgba(255,255,255,0.60);
+}
+
+@keyframes pskSafariCarOrbit {
+  from {
+    transform: rotate(0deg) translateY(-55px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateY(-55px) rotate(-360deg);
+  }
+}
+
 .psk-login-shell {
   position: relative;
   background:
