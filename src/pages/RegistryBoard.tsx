@@ -28,44 +28,32 @@ export default function RegistryBoard() {
     <div className="space-y-6 min-h-screen">
       {/* Content */}
       <div className="space-y-6">
-      {/* Status Strip */}
-      <div className="glass-lg p-6 grid grid-cols-5 gap-0 divide-x divide-slate-800 border-slate-800 rounded-2xl">
-        <div className="px-4 text-center">
-          <p className="text-xs text-psk-text-secondary uppercase tracking-wider font-semibold mb-2">Total Fleet</p>
-          <p className="text-3xl font-bold text-white">20</p>
-          <p className="text-xs text-psk-text-secondary mt-2">Eldoret 14 · Kisumu 6</p>
+      {/* Status Strip — each metric follows the exact same vertical rhythm */}
+      <div className="glass-lg grid grid-cols-5 divide-x divide-slate-800 border-slate-800 rounded-2xl">
+        <div className="flex min-h-[132px] flex-col items-center justify-center px-4 text-center">
+          <p className="min-h-[32px] text-xs text-psk-text-secondary uppercase tracking-wider font-semibold">Total Fleet</p>
+          <p className="min-h-[42px] text-3xl leading-none font-bold text-white">20</p>
+          <p className="min-h-[20px] text-xs text-psk-text-secondary">Eldoret 14 · Kisumu 6</p>
         </div>
-        <div className="px-4 text-center">
-          <p className="text-xs text-psk-text-secondary uppercase tracking-wider font-semibold mb-2">Available</p>
-          <p className="text-2xl font-bold text-status-available flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-status-available status-pulse"></span>
-            12
-          </p>
-          <p className="text-xs text-psk-text-secondary mt-2">Ready for booking</p>
+        <div className="flex min-h-[132px] flex-col items-center justify-center px-4 text-center">
+          <p className="min-h-[32px] text-xs text-psk-text-secondary uppercase tracking-wider font-semibold">Available</p>
+          <p className="min-h-[42px] text-3xl leading-none font-bold text-status-available">12</p>
+          <p className="min-h-[20px] text-xs text-psk-text-secondary">Ready for booking</p>
         </div>
-        <div className="px-4 text-center">
-          <p className="text-xs text-psk-text-secondary uppercase tracking-wider font-semibold mb-2">Out on Hire</p>
-          <p className="text-2xl font-bold text-status-chauffeured flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-status-chauffeured status-pulse"></span>
-            6
-          </p>
-          <p className="text-xs text-psk-text-secondary mt-2">3 chauf · 2 safari · 1 self</p>
+        <div className="flex min-h-[132px] flex-col items-center justify-center px-4 text-center">
+          <p className="min-h-[32px] text-xs text-psk-text-secondary uppercase tracking-wider font-semibold">Out on Hire</p>
+          <p className="min-h-[42px] text-3xl leading-none font-bold text-status-chauffeured">6</p>
+          <p className="min-h-[20px] text-xs text-psk-text-secondary">3 chauf · 2 safari · 1 self</p>
         </div>
-        <div className="px-4 text-center">
-          <p className="text-xs text-psk-text-secondary uppercase tracking-wider font-semibold mb-2">In Service</p>
-          <p className="text-2xl font-bold text-status-service flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-status-service status-pulse"></span>
-            2
-          </p>
-          <p className="text-xs text-psk-text-secondary mt-2">At workshop</p>
+        <div className="flex min-h-[132px] flex-col items-center justify-center px-4 text-center">
+          <p className="min-h-[32px] text-xs text-psk-text-secondary uppercase tracking-wider font-semibold">In Service</p>
+          <p className="min-h-[42px] text-3xl leading-none font-bold text-status-service">2</p>
+          <p className="min-h-[20px] text-xs text-psk-text-secondary">At workshop</p>
         </div>
-        <div className="px-4 text-center">
-          <p className="text-xs text-psk-text-secondary uppercase tracking-wider font-semibold mb-2">Attention Needed</p>
-          <p className="text-2xl font-bold text-status-overdue flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-status-overdue status-pulse"></span>
-            2
-          </p>
-          <p className="text-xs text-psk-text-secondary mt-2">Act immediately</p>
+        <div className="flex min-h-[132px] flex-col items-center justify-center px-4 text-center">
+          <p className="min-h-[32px] text-xs text-psk-text-secondary uppercase tracking-wider font-semibold">Attention Needed</p>
+          <p className="min-h-[42px] text-3xl leading-none font-bold text-status-overdue">2</p>
+          <p className="min-h-[20px] text-xs text-psk-text-secondary">Act immediately</p>
         </div>
       </div>
 

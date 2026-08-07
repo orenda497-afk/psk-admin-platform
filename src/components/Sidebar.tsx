@@ -84,15 +84,15 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                   <button
                     key={item.path}
                     onClick={() => handleNavClick(item.path)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-glass transition relative group ${
+                    className={`w-full min-w-0 max-w-full box-border flex items-center gap-3 px-3 py-2.5 rounded-lg border transition relative group ${
                       isActive
-                        ? 'glass-glossy text-psk-text-gold font-medium'
-                        : 'text-psk-text-secondary hover:text-psk-text-primary hover:bg-psk-bg-surface'
+                        ? 'bg-slate-800 border-amber-500/45 text-psk-text-gold font-medium shadow-md shadow-black/20'
+                        : 'border-transparent text-psk-text-secondary hover:text-psk-text-primary hover:bg-slate-800 hover:border-slate-700'
                     }`}
                   >
                     {/* Active bar */}
                     {isActive && (
-                      <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-psk-gold to-psk-gold-warm rounded-r"></div>
+                      <div className="absolute left-0 top-2 bottom-2 w-0.5 bg-amber-400 rounded-r"></div>
                     )}
 
                     {/* Icon */}
