@@ -216,33 +216,49 @@ body {
 
 
 
-.psk-logo-car-emoji {
+.psk-safari-animal {
   position: absolute;
   z-index: 2;
-  font-size: 1.2em;
-  top: 50%;
-  left: 50%;
-  margin-left: -0.6em;
-  margin-top: -0.6em;
-  transform-origin: 50% calc(50% + 55%);
-  animation: pskCarEmojiOrbit 8s linear infinite;
+  font-size: 1.4em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-@keyframes pskCarEmojiOrbit {
-  0% {
-    transform: rotate(0deg) translateY(-55px) rotate(0deg);
-  }
-  25% {
-    transform: rotate(90deg) translateY(-55px) rotate(90deg);
+.psk-safari-animal--lion {
+  top: -8px;
+  left: 50%;
+  margin-left: -0.7em;
+  animation: bobbing 2.5s ease-in-out infinite;
+}
+
+.psk-safari-animal--elephant {
+  bottom: -8px;
+  left: 50%;
+  margin-left: -0.7em;
+  animation: bobbing 2.5s ease-in-out infinite 0.3s;
+}
+
+.psk-safari-animal--giraffe {
+  left: -8px;
+  top: 50%;
+  margin-top: -0.7em;
+  animation: bobbing 2.5s ease-in-out infinite 0.6s;
+}
+
+.psk-safari-animal--zebra {
+  right: -8px;
+  top: 50%;
+  margin-top: -0.7em;
+  animation: bobbing 2.5s ease-in-out infinite 0.9s;
+}
+
+@keyframes bobbing {
+  0%, 100% {
+    transform: translateY(0px);
   }
   50% {
-    transform: rotate(180deg) translateY(-55px) rotate(180deg);
-  }
-  75% {
-    transform: rotate(270deg) translateY(-55px) rotate(270deg);
-  }
-  100% {
-    transform: rotate(360deg) translateY(-55px) rotate(360deg);
+    transform: translateY(-8px);
   }
 }
 
