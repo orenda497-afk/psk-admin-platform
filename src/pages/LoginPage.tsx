@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { LockKeyhole, Mail, ShieldCheck } from 'lucide-react'
 import PskLogoOrbit from '../components/PskLogoOrbit'
-import SafariCarSVG from '../components/SafariCarSVG'
 
 interface LoginPageProps {
   onLogin: (email: string) => void
@@ -29,23 +28,21 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   }
 
   return (
-    <main className="psk-login-shell min-h-screen flex items-center justify-center overflow-hidden p-5 sm:p-8 relative">
+    <main 
+      className="psk-login-shell min-h-screen flex items-center justify-center overflow-hidden p-5 sm:p-8 relative"
+      style={{
+        backgroundImage: 'url(/branding/safari-car-background.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}
+    >
+      {/* Overlay for better readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70 z-0" />
+      
       <div className="psk-login-sunrise psk-login-sunrise--top" aria-hidden="true" />
       <div className="psk-login-sunrise psk-login-sunrise--bottom" aria-hidden="true" />
       <div className="psk-login-sweep" aria-hidden="true" />
-
-      {/* Safari Car SVG Background */}
-      <div className="psk-safari-car-container" aria-hidden="true">
-        <div className="psk-safari-car-item psk-safari-car-item--1">
-          <SafariCarSVG />
-        </div>
-        <div className="psk-safari-car-item psk-safari-car-item--2">
-          <SafariCarSVG />
-        </div>
-        <div className="psk-safari-car-item psk-safari-car-item--3">
-          <SafariCarSVG />
-        </div>
-      </div>
 
       <section className="psk-login-card relative z-10 w-full max-w-[520px] p-7 sm:p-10">
         <header className="flex flex-col items-center text-center">
