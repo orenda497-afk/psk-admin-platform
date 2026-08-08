@@ -75,26 +75,26 @@ export default function Sidebar({ onLogout, currentUser = '' }: SidebarProps) {
       )}
 
       {/* Sidebar */}
-      <div className={`
-        h-full glass-lg border-r border-psk-border flex flex-col overflow-hidden
+      <aside className={`
+        h-full bg-[#0a1118] border-r border-slate-700 flex flex-col overflow-hidden
         fixed lg:static left-0 top-0 bottom-0 z-40 lg:z-0
         transition-all duration-300
         ${isMobileOpen ? 'w-64' : 'w-16 lg:w-64'}
       `}>
-        {/* Logo */}
-        <div className="p-4 border-b border-psk-border flex-shrink-0">
-          <div className="flex items-center gap-3">
+        {/* Logo Section */}
+        <div className="p-3 lg:p-4 border-b border-slate-700 flex-shrink-0">
+          <div className="flex items-center gap-3 justify-center lg:justify-start">
             <PskLogoOrbit size="sm" showOrbit={false} />
-            <div className={`min-w-0 ${isMobileOpen ? 'block' : 'hidden lg:block'}`}>
+            <div className={`hidden lg:block min-w-0`}>
               <p className="text-xs font-bold text-white truncate">PSK</p>
               <p className="text-[10px] text-slate-400 truncate">Safaris</p>
             </div>
           </div>
         </div>
 
-        {/* User Info - Mobile Hidden */}
+        {/* User Info - Desktop Only */}
         {staffInfo && (
-          <div className={`px-4 py-3 border-b border-psk-border bg-slate-800/30 flex-shrink-0 ${isMobileOpen ? 'block' : 'hidden lg:block'}`}>
+          <div className={`hidden lg:block px-4 py-3 border-b border-slate-700 bg-slate-800/20 flex-shrink-0`}>
             <p className="text-xs font-semibold text-white truncate">{staffInfo.name}</p>
             <p className="text-[10px] text-slate-400 truncate">{staffInfo.email}</p>
             <p className="text-[10px] text-amber-400 mt-1 capitalize">{staffInfo.role}</p>
@@ -113,7 +113,7 @@ export default function Sidebar({ onLogout, currentUser = '' }: SidebarProps) {
               ? [] 
               : category.subcategories.filter(sub => {
                   // Hide Owner Payouts for non-owner roles
-                  if (sub.roleRestricted === 'owner' && staffInfo?.role !== 'owner' && staffInfo?.role !== undefined) {
+                  if (sub.roleRestricted === 'owner' && staffInfo?.role !== 'owner') {
                     return false
                   }
                   return true
@@ -125,16 +125,16 @@ export default function Sidebar({ onLogout, currentUser = '' }: SidebarProps) {
                 <button
                   onClick={() => handleCategoryClick(category.id)}
                   title={category.label}
-                  className={`cat-btn w-full flex items-center gap-2 px-2 lg:px-3 py-2 rounded-lg text-xs font-medium transition-all relative justify-center lg:justify-start ${
+                  className={`w-full flex items-center gap-2 px-2 lg:px-3 py-2 rounded-lg text-xs font-medium transition-all relative justify-center lg:justify-start whitespace-nowrap lg:whitespace-normal ${
                     isActive || isOpen
                       ? 'bg-gradient-to-r from-amber-500/15 to-amber-500/5 text-amber-300 border border-amber-500/30'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/40'
                   }`}
                 >
                   <span className="text-base flex-shrink-0">{category.icon}</span>
-                  <span className={`flex-1 text-left truncate ${isMobileOpen ? 'block' : 'hidden lg:block'}`}>{category.label}</span>
+                  <span className={`hidden lg:block flex-1 text-left truncate`}>{category.label}</span>
                   {hasSubcats && (
-                    <span className={`cat-arrow text-xs transition-transform ${isMobileOpen ? 'block' : 'hidden lg:block'} ${isOpen ? 'rotate-90' : ''}`}>
+                    <span className={`hidden lg:block text-xs transition-transform ${isOpen ? 'rotate-90' : ''}`}>
                       ›
                     </span>
                   )}
@@ -143,10 +143,12 @@ export default function Sidebar({ onLogout, currentUser = '' }: SidebarProps) {
                   )}
                 </button>
 
-                {/* Subcategories */}
+                {/* Subcategories - Only show when open on desktop or when mobile is open */}
                 {hasSubcats && (
                   <div
-                    className={`subcats transition-all duration-200 ${isMobileOpen ? 'open max-h-96' : 'hidden lg:block'} ${isOpen ? 'open max-h-96' : 'max-h-0'}`}
+                    className={`transition-all duration-200 overflow-hidden ${
+                      (isMobileOpen || isOpen) ? 'max-h-96' : 'max-h-0 hidden lg:block'
+                    }`}
                     style={{
                       maxHeight: (isMobileOpen || isOpen) ? `${visibleSubcats.length * 32 + 8}px` : '0px'
                     }}
@@ -156,16 +158,16 @@ export default function Sidebar({ onLogout, currentUser = '' }: SidebarProps) {
                         key={subcat.id}
                         onClick={() => handleSubcategoryClick(subcat.route)}
                         title={subcat.label}
-                        className={`subcat w-full flex items-center gap-2 px-2 lg:px-3 py-2 rounded-lg text-xs transition-all justify-center lg:justify-start ${
+                        className={`w-full flex items-center gap-2 px-2 lg:px-3 py-2 rounded-lg text-xs transition-all justify-center lg:justify-start whitespace-nowrap lg:whitespace-normal ${
                           isSubcategoryActive(subcat.route)
                             ? 'text-amber-300 bg-amber-500/10 border-l-2 border-amber-400'
                             : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/40 border-l border-slate-600'
                         }`}
                       >
                         <span className="text-sm flex-shrink-0">{subcat.icon}</span>
-                        <span className={`flex-1 text-left truncate ${isMobileOpen ? 'block' : 'hidden lg:block'}`}>{subcat.label}</span>
+                        <span className={`hidden lg:block flex-1 text-left truncate`}>{subcat.label}</span>
                         {subcat.badge && (
-                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${isMobileOpen ? 'block' : 'hidden lg:block'} ${
+                          <span className={`hidden lg:block text-[9px] font-bold px-1.5 py-0.5 rounded flex-shrink-0 ${
                             subcat.badgeColor === 'red'
                               ? 'bg-red-500/30 text-red-300'
                               : 'bg-amber-500/30 text-amber-300'
@@ -182,8 +184,8 @@ export default function Sidebar({ onLogout, currentUser = '' }: SidebarProps) {
           })}
         </nav>
 
-        {/* Logout */}
-        <div className={`p-2 lg:p-3 border-t border-psk-border flex-shrink-0 ${isMobileOpen ? 'block' : 'hidden lg:block'}`}>
+        {/* Logout - Desktop Only */}
+        <div className={`hidden lg:block p-3 border-t border-slate-700 flex-shrink-0`}>
           <button
             onClick={onLogout}
             className="w-full px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-700/40 transition"
@@ -192,14 +194,14 @@ export default function Sidebar({ onLogout, currentUser = '' }: SidebarProps) {
           </button>
         </div>
 
-        {/* Mobile Toggle Button */}
+        {/* Mobile Menu Toggle */}
         <button
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="lg:hidden absolute top-4 right-4 p-2 text-slate-400 hover:text-white"
+          className="lg:hidden absolute top-4 right-4 p-2 text-slate-400 hover:text-white z-50"
         >
           {isMobileOpen ? '✕' : '☰'}
         </button>
-      </div>
+      </aside>
     </>
   )
 }
