@@ -28,21 +28,21 @@ export default function CategoryOverview({ emoji, title, description, buttons }:
       </div>
 
       {/* Quick Access Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
         {buttons.map((btn, idx) => (
           <button
             key={idx}
             onClick={() => navigate(btn.route)}
-            className="group relative p-6 rounded-2xl bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 hover:border-amber-500/50 transition-all hover:shadow-lg hover:shadow-amber-500/20"
+            className="group relative p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 hover:border-amber-500/50 transition-all hover:shadow-lg hover:shadow-amber-500/20"
           >
             {/* Background gradient on hover */}
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-500/5 to-amber-500/0 opacity-0 group-hover:opacity-100 transition" />
             
             {/* Content */}
-            <div className="relative z-10 flex items-start gap-4">
-              <div className="text-4xl">{btn.icon}</div>
-              <div className="flex-1 text-left">
-                <h3 className="font-semibold text-white group-hover:text-amber-300 transition mb-1">{btn.label}</h3>
+            <div className="relative z-10 flex items-start gap-2 sm:gap-4">
+              <div className="text-3xl sm:text-4xl flex-shrink-0">{btn.icon}</div>
+              <div className="flex-1 text-left min-w-0">
+                <h3 className="font-semibold text-white group-hover:text-amber-300 transition mb-1 text-sm sm:text-base truncate">{btn.label}</h3>
                 {btn.badge && (
                   <div className={`inline-block text-xs font-bold px-2 py-1 rounded ${
                     btn.badgeColor === 'red'
