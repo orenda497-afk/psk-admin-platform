@@ -37,17 +37,17 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
         backgroundAttachment: 'fixed'
       }}
     >
-      {/* Subtle overlay for form contrast */}
-      <div className="absolute inset-0 bg-black/20 z-0" />
+      {/* Minimal overlay for form contrast */}
+      <div className="absolute inset-0 bg-black/10 z-0" />
 
       <section 
         className="psk-login-card-transparent relative z-10 w-full max-w-[520px] p-7 sm:p-10"
         style={{
-          backgroundColor: 'rgba(9, 26, 41, 0.65)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(160, 218, 239, 0.3)',
+          backgroundColor: 'rgba(9, 26, 41, 0.40)',
+          backdropFilter: 'blur(25px)',
+          border: '1px solid rgba(160, 218, 239, 0.4)',
           borderRadius: '24px',
-          boxShadow: '0 28px 90px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05) inset'
+          boxShadow: '0 28px 90px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.08) inset'
         }}
       >
         <header className="flex flex-col items-center text-center">
