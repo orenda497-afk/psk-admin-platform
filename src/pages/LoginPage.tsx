@@ -31,23 +31,23 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     <main 
       className="min-h-screen flex items-center justify-center overflow-hidden p-5 sm:p-8 relative"
       style={{
-        backgroundImage: 'url(/branding/mount-kenya-defender.png)',
+        backgroundImage: 'url(/branding/kilimanjaro-defender-bg.png)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed'
       }}
     >
-      {/* Minimal overlay for form contrast */}
-      <div className="absolute inset-0 bg-black/10 z-0" />
+      {/* Ultra-minimal overlay for form contrast */}
+      <div className="absolute inset-0 bg-black/5 z-0" />
 
       <section 
         className="psk-login-card-transparent relative z-10 w-full max-w-[520px] p-7 sm:p-10"
         style={{
-          backgroundColor: 'rgba(9, 26, 41, 0.40)',
-          backdropFilter: 'blur(25px)',
-          border: '1px solid rgba(160, 218, 239, 0.4)',
+          backgroundColor: 'rgba(9, 26, 41, 0.15)',
+          backdropFilter: 'blur(30px)',
+          border: '1px solid rgba(160, 218, 239, 0.5)',
           borderRadius: '24px',
-          boxShadow: '0 28px 90px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.08) inset'
+          boxShadow: '0 8px 32px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.1) inset'
         }}
       >
         <header className="flex flex-col items-center text-center">
