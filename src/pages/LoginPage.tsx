@@ -28,10 +28,17 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   }
 
   return (
-    <main className="psk-login-shell min-h-screen flex items-center justify-center overflow-hidden p-5 sm:p-8">
+    <main className="psk-login-shell min-h-screen flex items-center justify-center overflow-hidden p-5 sm:p-8 relative">
       <div className="psk-login-sunrise psk-login-sunrise--top" aria-hidden="true" />
       <div className="psk-login-sunrise psk-login-sunrise--bottom" aria-hidden="true" />
       <div className="psk-login-sweep" aria-hidden="true" />
+
+      {/* Safari Car Background */}
+      <div className="psk-safari-car-container" aria-hidden="true">
+        <div className="psk-safari-car">🚙</div>
+        <div className="psk-safari-car">🚙</div>
+        <div className="psk-safari-car">🚙</div>
+      </div>
 
       <section className="psk-login-card relative z-10 w-full max-w-[520px] p-7 sm:p-10">
         <header className="flex flex-col items-center text-center">
