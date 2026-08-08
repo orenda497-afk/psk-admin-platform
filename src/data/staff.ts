@@ -2,7 +2,7 @@ export interface StaffMember {
   id: string
   name: string
   email: string
-  role: 'admin' | 'manager' | 'staff'
+  role: 'admin' | 'manager' | 'staff' | 'owner'
   branch: 'eldoret' | 'kisumu'
   permissions: string[]
 }
