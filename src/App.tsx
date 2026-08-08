@@ -10,16 +10,29 @@ import Investors from './pages/Investors'
 import Finance from './pages/Finance'
 import Quotations from './pages/Quotations'
 import Analytics from './pages/Analytics'
+import { getStaffBranch } from './data/staff'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [currentUser, setCurrentUser] = useState<string>('')
+  const [currentBranch, setCurrentBranch] = useState<'eldoret' | 'kisumu'>('eldoret')
 
-  const handleLogin = () => {
+  const handleLogin = (email: string) => {
     setIsAuthenticated(true)
+    setCurrentUser(email)
+    // Set branch based on staff member's assigned branch
+    const userBranch = getStaffBranch(email)
+    setCurrentBranch(userBranch)
   }
 
   const handleLogout = () => {
     setIsAuthenticated(false)
+    setCurrentUser('')
+    setCurrentBranch('eldoret')
+  }
+
+  const handleBranchChange = (branchId: 'eldoret' | 'kisumu') => {
+    setCurrentBranch(branchId)
   }
 
   if (!isAuthenticated) {
@@ -28,14 +41,19 @@ function App() {
 
   return (
     <Router>
-      <Layout onLogout={handleLogout}>
+      <Layout 
+        onLogout={handleLogout}
+        currentBranch={currentBranch}
+        onBranchChange={handleBranchChange}
+        currentUser={currentUser}
+      >
         <Routes>
           <Route path="/" element={<RegistryBoard />} />
           <Route path="/bookings" element={<Bookings />} />
           <Route path="/clients" element={<Clients />} />
           <Route path="/drivers" element={<Drivers />} />
           <Route path="/investors" element={<Investors />} />
-          <Route path="/finance" element={<Finance />} />
+          <Route path="/finance" element={<Finance currentBranch={currentBranch} />} />
           <Route path="/quotations" element={<Quotations />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="*" element={<Navigate to="/" replace />} />

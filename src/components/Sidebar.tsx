@@ -1,8 +1,10 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import PskLogoOrbit from './PskLogoOrbit'
+import { getStaffByEmail } from '../data/staff'
 
 interface SidebarProps {
   onLogout: () => void
+  currentUser?: string
 }
 
 const navGroups = [
@@ -31,9 +33,10 @@ const navGroups = [
   }
 ]
 
-export default function Sidebar({ onLogout }: SidebarProps) {
+export default function Sidebar({ onLogout, currentUser = '' }: SidebarProps) {
   const navigate = useNavigate()
   const location = useLocation()
+  const staffInfo = currentUser ? getStaffByEmail(currentUser) : null
 
   const handleNavClick = (path: string) => {
     if (path !== '#') {
@@ -48,31 +51,27 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         <div className="flex items-center gap-3">
           {/* Authentic PSK Safari brand mark */}
           <PskLogoOrbit size="sm" showOrbit={false} />
-
-          {/* Text */}
-          <div>
-            <p className="text-sm font-bold text-white">PSK Safaris</p>
-            <p className="text-xs text-psk-text-gold">Admin Platform</p>
+          <div className="min-w-0">
+            <p className="text-xs font-bold text-white truncate">PSK</p>
+            <p className="text-[10px] text-slate-400 truncate">Safaris</p>
           </div>
         </div>
       </div>
 
-      {/* Branch selector */}
-      <div className="p-4 border-b border-psk-border">
-        <button className="w-full flex items-center justify-between px-3 py-2 bg-psk-bg-surface border border-psk-border rounded-glass hover:border-psk-border-gold transition text-sm text-psk-text-primary">
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-psk-gold shadow-glow-gold"></div>
-            <span>Eldoret branch</span>
-          </div>
-          <span className="text-xs">▼</span>
-        </button>
-      </div>
+      {/* User Info */}
+      {staffInfo && (
+        <div className="px-4 py-3 border-b border-psk-border bg-slate-800/30">
+          <p className="text-xs font-semibold text-white truncate">{staffInfo.name}</p>
+          <p className="text-[10px] text-slate-400 truncate">{staffInfo.email}</p>
+          <p className="text-[10px] text-amber-400 mt-1 capitalize">{staffInfo.role}</p>
+        </div>
+      )}
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto p-4 space-y-6">
+      <nav className="flex-1 overflow-y-auto p-3 space-y-5">
         {navGroups.map((group) => (
           <div key={group.name}>
-            <p className="text-xs font-semibold uppercase tracking-widest text-psk-text-tertiary mb-3 px-2">
+            <p className="px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">
               {group.name}
             </p>
             <div className="space-y-1">
@@ -82,28 +81,16 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                   <button
                     key={item.path}
                     onClick={() => handleNavClick(item.path)}
-                    className={`w-full min-w-0 max-w-full box-border flex items-center gap-3 px-3 py-2.5 rounded-lg border transition relative group ${
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${
                       isActive
-                        ? 'bg-slate-800 border-amber-500/45 text-psk-text-gold font-medium shadow-md shadow-black/20'
-                        : 'border-transparent text-psk-text-secondary hover:text-psk-text-primary hover:bg-slate-800 hover:border-slate-700'
+                        ? 'bg-amber-400/15 text-amber-300 border border-amber-400/30 shadow-[0_0_12px_rgba(251,191,36,0.15)]'
+                        : 'text-slate-300 hover:bg-slate-700/40 hover:text-white'
                     }`}
                   >
-                    {/* Active bar */}
-                    {isActive && (
-                      <div className="absolute left-0 top-2 bottom-2 w-0.5 bg-amber-400 rounded-r"></div>
-                    )}
-
-                    {/* Icon */}
-                    <div className="w-7 h-7 flex items-center justify-center text-lg rounded-glass bg-psk-bg-surface group-hover:bg-psk-bg-elevated transition">
-                      {item.icon}
-                    </div>
-
-                    {/* Label */}
-                    <span className="text-sm flex-1 text-left">{item.label}</span>
-
-                    {/* Badge */}
+                    <span className="text-base">{item.icon}</span>
+                    <span className="flex-1 text-left truncate">{item.label}</span>
                     {item.badge && (
-                      <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30">
+                      <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-bold">
                         {item.badge}
                       </span>
                     )}
@@ -115,13 +102,13 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         ))}
       </nav>
 
-      {/* Logout button */}
-      <div className="p-4 border-t border-psk-border">
+      {/* Logout */}
+      <div className="p-3 border-t border-psk-border">
         <button
           onClick={onLogout}
-          className="w-full py-2.5 px-3 bg-red-500/15 hover:bg-red-500/25 border border-red-500/40 rounded-glass text-red-300 text-sm font-medium transition"
+          className="w-full px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700/40 hover:text-white transition"
         >
-          Logout
+          🚪 Logout
         </button>
       </div>
     </div>

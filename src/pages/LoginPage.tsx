@@ -3,7 +3,7 @@ import { LockKeyhole, Mail, ShieldCheck } from 'lucide-react'
 import PskLogoOrbit from '../components/PskLogoOrbit'
 
 interface LoginPageProps {
-  onLogin: () => void
+  onLogin: (email: string) => void
 }
 
 export default function LoginPage({ onLogin }: LoginPageProps) {
@@ -19,7 +19,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
 
     window.setTimeout(() => {
       if (email && password) {
-        onLogin()
+        onLogin(email)
       } else {
         setError('Enter your email address and password to continue.')
       }
@@ -98,7 +98,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
 
         <div className="psk-login-demo-note">
           <ShieldCheck size={18} aria-hidden="true" />
-          <span>Demo credentials are pre-filled</span>
+          <span>Demo: admin@psksafaris.com or faith@psksafaris.co.ke</span>
         </div>
       </section>
     </main>

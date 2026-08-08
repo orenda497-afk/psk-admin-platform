@@ -2,15 +2,37 @@ import { ReactNode, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
+import { getStaffBranch } from '../data/staff'
 
 interface LayoutProps {
   children: ReactNode
   onLogout: () => void
+  currentBranch?: 'eldoret' | 'kisumu'
+  onBranchChange?: (branchId: 'eldoret' | 'kisumu') => void
+  currentUser?: string
 }
 
-export default function Layout({ children, onLogout }: LayoutProps) {
+export default function Layout({ 
+  children, 
+  onLogout,
+  currentBranch = 'eldoret',
+  onBranchChange,
+  currentUser = ''
+}: LayoutProps) {
   const location = useLocation()
-  const [currentBranch, setCurrentBranch] = useState<'eldoret' | 'kisumu'>('eldoret')
+  const [localBranch, setLocalBranch] = useState<'eldoret' | 'kisumu'>(currentBranch)
+
+  // If user is assigned to a specific branch, lock them to that branch
+  const userBranch = currentUser ? getStaffBranch(currentUser) : null
+  const displayBranch = userBranch || localBranch
+
+  const handleBranchChange = (branchId: 'eldoret' | 'kisumu') => {
+    // Only allow branch change if user is not locked to a specific branch
+    if (!userBranch) {
+      setLocalBranch(branchId)
+      onBranchChange?.(branchId)
+    }
+  }
 
   const getPageTitle = () => {
     switch (location.pathname) {
@@ -41,7 +63,7 @@ export default function Layout({ children, onLogout }: LayoutProps) {
     <div style={{ display: 'flex', height: '100vh' }} className="bg-psk-bg-base overflow-hidden">
       {/* Sidebar — fixed width 210px, full height */}
       <aside style={{ width: '210px', minWidth: '210px', flexShrink: 0 }}>
-        <Sidebar onLogout={onLogout} />
+        <Sidebar onLogout={onLogout} currentUser={currentUser} />
       </aside>
 
       {/* Main — takes remaining width, flex column layout */}
@@ -51,19 +73,17 @@ export default function Layout({ children, onLogout }: LayoutProps) {
           <TopBar 
             title={pageInfo.title} 
             subtitle={pageInfo.subtitle}
-            currentBranch={currentBranch}
-            onBranchChange={setCurrentBranch}
+            currentBranch={displayBranch}
+            onBranchChange={handleBranchChange}
+            currentUser={currentUser}
+            isLockedBranch={!!userBranch}
           />
         </header>
 
         {/* Page content */}
         <main style={{ flex: 1, overflowY: 'auto' }}>
           <div className="p-6">
-            {/* Pass branch to children via context or props */}
-            {typeof children === 'object' && children !== null && 'props' in children 
-              ? { ...children, props: { ...children.props, currentBranch } }
-              : children
-            }
+            {children}
           </div>
         </main>
       </div>

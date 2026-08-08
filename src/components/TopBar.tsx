@@ -1,19 +1,24 @@
 import { Bell, MapPin } from 'lucide-react'
 import { useState } from 'react'
 import { BRANCHES } from '../data/branches'
+import { getStaffByEmail } from '../data/staff'
 
 interface TopBarProps {
   title: string
   subtitle: string
   currentBranch?: 'eldoret' | 'kisumu'
   onBranchChange?: (branchId: 'eldoret' | 'kisumu') => void
+  currentUser?: string
+  isLockedBranch?: boolean
 }
 
 export default function TopBar({ 
   title, 
   subtitle, 
   currentBranch = 'eldoret',
-  onBranchChange 
+  onBranchChange,
+  currentUser = '',
+  isLockedBranch = false
 }: TopBarProps) {
   const [showBranchMenu, setShowBranchMenu] = useState(false)
   
@@ -24,10 +29,13 @@ export default function TopBar({
   })
 
   const activeBranch = BRANCHES[currentBranch]
+  const staffInfo = currentUser ? getStaffByEmail(currentUser) : null
 
   const handleBranchSelect = (branchId: 'eldoret' | 'kisumu') => {
-    onBranchChange?.(branchId)
-    setShowBranchMenu(false)
+    if (!isLockedBranch) {
+      onBranchChange?.(branchId)
+      setShowBranchMenu(false)
+    }
   }
 
   return (
@@ -40,17 +48,32 @@ export default function TopBar({
 
       {/* Right */}
       <div className="flex items-center gap-4">
+        {/* User Info */}
+        {staffInfo && (
+          <div className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs">
+            <p className="text-slate-300 font-medium">{staffInfo.name}</p>
+            <p className="text-slate-500 text-[10px]">{staffInfo.role}</p>
+          </div>
+        )}
+
         {/* Branch Selector */}
         <div className="relative">
           <button
-            onClick={() => setShowBranchMenu(!showBranchMenu)}
-            className="flex items-center gap-2 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-psk-text-secondary hover:bg-slate-700 transition"
+            onClick={() => !isLockedBranch && setShowBranchMenu(!showBranchMenu)}
+            disabled={isLockedBranch}
+            className={`flex items-center gap-2 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-psk-text-secondary transition ${
+              isLockedBranch 
+                ? 'cursor-not-allowed opacity-75' 
+                : 'hover:bg-slate-700'
+            }`}
+            title={isLockedBranch ? `Locked to ${activeBranch.displayName}` : 'Select branch'}
           >
             <MapPin size={14} />
             <span className="font-medium">{activeBranch.displayName}</span>
+            {isLockedBranch && <span className="text-[10px] text-amber-400">🔒</span>}
           </button>
 
-          {showBranchMenu && (
+          {showBranchMenu && !isLockedBranch && (
             <div className="absolute top-full right-0 mt-2 w-56 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-50">
               {Object.values(BRANCHES).map((branch) => (
                 <button
