@@ -29,22 +29,27 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
 
   return (
     <main 
-      className="psk-login-shell min-h-screen flex items-center justify-center overflow-hidden p-5 sm:p-8 relative"
+      className="min-h-screen flex items-center justify-center overflow-hidden p-5 sm:p-8 relative"
       style={{
-        backgroundImage: 'url(/branding/safari-car-background.jpg)',
+        backgroundImage: 'url(/branding/mount-kenya-defender.png)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed'
       }}
     >
-      {/* Overlay for better readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70 z-0" />
-      
-      <div className="psk-login-sunrise psk-login-sunrise--top" aria-hidden="true" />
-      <div className="psk-login-sunrise psk-login-sunrise--bottom" aria-hidden="true" />
-      <div className="psk-login-sweep" aria-hidden="true" />
+      {/* Subtle overlay for form contrast */}
+      <div className="absolute inset-0 bg-black/20 z-0" />
 
-      <section className="psk-login-card relative z-10 w-full max-w-[520px] p-7 sm:p-10">
+      <section 
+        className="psk-login-card-transparent relative z-10 w-full max-w-[520px] p-7 sm:p-10"
+        style={{
+          backgroundColor: 'rgba(9, 26, 41, 0.65)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(160, 218, 239, 0.3)',
+          borderRadius: '24px',
+          boxShadow: '0 28px 90px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05) inset'
+        }}
+      >
         <header className="flex flex-col items-center text-center">
           <PskLogoOrbit size="lg" className="mb-7" />
           <h1 className="text-[2rem] sm:text-[2.35rem] font-extrabold tracking-[-0.03em] text-white leading-tight">
