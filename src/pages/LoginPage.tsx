@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { LockKeyhole, Mail, ShieldCheck } from 'lucide-react'
 import PskLogoOrbit from '../components/PskLogoOrbit'
+import SafariCarSVG from '../components/SafariCarSVG'
 
 interface LoginPageProps {
   onLogin: (email: string) => void
@@ -33,11 +34,17 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
       <div className="psk-login-sunrise psk-login-sunrise--bottom" aria-hidden="true" />
       <div className="psk-login-sweep" aria-hidden="true" />
 
-      {/* Safari Car Background */}
+      {/* Safari Car SVG Background */}
       <div className="psk-safari-car-container" aria-hidden="true">
-        <div className="psk-safari-car">🚙</div>
-        <div className="psk-safari-car">🚙</div>
-        <div className="psk-safari-car">🚙</div>
+        <div className="psk-safari-car-item psk-safari-car-item--1">
+          <SafariCarSVG />
+        </div>
+        <div className="psk-safari-car-item psk-safari-car-item--2">
+          <SafariCarSVG />
+        </div>
+        <div className="psk-safari-car-item psk-safari-car-item--3">
+          <SafariCarSVG />
+        </div>
       </div>
 
       <section className="psk-login-card relative z-10 w-full max-w-[520px] p-7 sm:p-10">
