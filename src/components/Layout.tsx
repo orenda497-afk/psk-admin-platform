@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
@@ -10,6 +10,7 @@ interface LayoutProps {
 
 export default function Layout({ children, onLogout }: LayoutProps) {
   const location = useLocation()
+  const [currentBranch, setCurrentBranch] = useState<'eldoret' | 'kisumu'>('eldoret')
 
   const getPageTitle = () => {
     switch (location.pathname) {
@@ -47,13 +48,22 @@ export default function Layout({ children, onLogout }: LayoutProps) {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* TopBar — only inside main, never over sidebar */}
         <header style={{ flexShrink: 0 }}>
-          <TopBar title={pageInfo.title} subtitle={pageInfo.subtitle} />
+          <TopBar 
+            title={pageInfo.title} 
+            subtitle={pageInfo.subtitle}
+            currentBranch={currentBranch}
+            onBranchChange={setCurrentBranch}
+          />
         </header>
 
         {/* Page content */}
         <main style={{ flex: 1, overflowY: 'auto' }}>
           <div className="p-6">
-            {children}
+            {/* Pass branch to children via context or props */}
+            {typeof children === 'object' && children !== null && 'props' in children 
+              ? { ...children, props: { ...children.props, currentBranch } }
+              : children
+            }
           </div>
         </main>
       </div>
