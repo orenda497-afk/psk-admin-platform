@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react'
+import { ReactNode } from 'react'
 import { useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
@@ -8,7 +8,6 @@ interface LayoutProps {
   children: ReactNode
   onLogout: () => void
   currentBranch?: 'eldoret' | 'kisumu'
-  onBranchChange?: (branchId: 'eldoret' | 'kisumu') => void
   currentUser?: string
 }
 
@@ -16,23 +15,15 @@ export default function Layout({
   children, 
   onLogout,
   currentBranch = 'eldoret',
-  onBranchChange,
   currentUser = ''
 }: LayoutProps) {
   const location = useLocation()
-  const [localBranch, setLocalBranch] = useState<'eldoret' | 'kisumu'>(currentBranch)
 
   // If user is assigned to a specific branch, lock them to that branch
   const userBranch = currentUser ? getStaffBranch(currentUser) : null
-  const displayBranch = userBranch || localBranch
+  const displayBranch = userBranch || currentBranch
 
-  const handleBranchChange = (branchId: 'eldoret' | 'kisumu') => {
-    // Only allow branch change if user is not locked to a specific branch
-    if (!userBranch) {
-      setLocalBranch(branchId)
-      onBranchChange?.(branchId)
-    }
-  }
+
 
   const getPageTitle = () => {
     switch (location.pathname) {
@@ -74,9 +65,6 @@ export default function Layout({
             title={pageInfo.title} 
             subtitle={pageInfo.subtitle}
             currentBranch={displayBranch}
-            onBranchChange={handleBranchChange}
-            currentUser={currentUser}
-            isLockedBranch={!!userBranch}
           />
         </header>
 

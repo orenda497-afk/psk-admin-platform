@@ -1,111 +1,90 @@
-import { Bell, MapPin } from 'lucide-react'
-import { useState } from 'react'
-import { BRANCHES } from '../data/branches'
-import { getStaffByEmail } from '../data/staff'
+import { Bell } from 'lucide-react'
 
 interface TopBarProps {
   title: string
   subtitle: string
   currentBranch?: 'eldoret' | 'kisumu'
-  onBranchChange?: (branchId: 'eldoret' | 'kisumu') => void
-  currentUser?: string
-  isLockedBranch?: boolean
 }
 
 export default function TopBar({ 
   title, 
   subtitle, 
-  currentBranch = 'eldoret',
-  onBranchChange,
-  currentUser = '',
-  isLockedBranch = false
+  currentBranch = 'eldoret'
 }: TopBarProps) {
-  const [showBranchMenu, setShowBranchMenu] = useState(false)
-  
   const today = new Date().toLocaleDateString('en-US', { 
     weekday: 'short', 
     month: 'short', 
-    day: 'numeric' 
+    day: 'numeric',
+    year: 'numeric'
   })
 
-  const activeBranch = BRANCHES[currentBranch]
-  const staffInfo = currentUser ? getStaffByEmail(currentUser) : null
-
-  const handleBranchSelect = (branchId: 'eldoret' | 'kisumu') => {
-    if (!isLockedBranch) {
-      onBranchChange?.(branchId)
-      setShowBranchMenu(false)
-    }
+  const branchNames: Record<string, string> = {
+    eldoret: 'Eldoret HQ',
+    kisumu: 'Kisumu Branch',
   }
 
   return (
-    <div className="h-16 glass-lg border-b border-slate-800 flex items-center justify-between px-6">
+    <div 
+      className="h-14 flex items-center justify-between px-6 border-b flex-shrink-0"
+      style={{
+        background: 'rgba(255,255,255,0.025)',
+        borderBottomColor: 'rgba(255,255,255,0.075)',
+        backdropFilter: 'blur(16px)',
+      }}
+    >
       {/* Left */}
       <div>
-        <h1 className="text-lg font-bold text-white">{title}</h1>
-        {subtitle && <p className="text-xs text-psk-text-secondary">{subtitle}</p>}
+        <h1 className="text-base font-semibold text-white">{title}</h1>
+        {subtitle && <p className="text-xs text-slate-400">{subtitle}</p>}
       </div>
 
       {/* Right */}
-      <div className="flex items-center gap-4">
-        {/* User Info */}
-        {staffInfo && (
-          <div className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs">
-            <p className="text-slate-300 font-medium">{staffInfo.name}</p>
-            <p className="text-slate-500 text-[10px]">{staffInfo.role}</p>
-          </div>
-        )}
-
-        {/* Branch Selector */}
-        <div className="relative">
-          <button
-            onClick={() => !isLockedBranch && setShowBranchMenu(!showBranchMenu)}
-            disabled={isLockedBranch}
-            className={`flex items-center gap-2 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-psk-text-secondary transition ${
-              isLockedBranch 
-                ? 'cursor-not-allowed opacity-75' 
-                : 'hover:bg-slate-700'
-            }`}
-            title={isLockedBranch ? `Locked to ${activeBranch.displayName}` : 'Select branch'}
-          >
-            <MapPin size={14} />
-            <span className="font-medium">{activeBranch.displayName}</span>
-            {isLockedBranch && <span className="text-[10px] text-amber-400">🔒</span>}
-          </button>
-
-          {showBranchMenu && !isLockedBranch && (
-            <div className="absolute top-full right-0 mt-2 w-56 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-50">
-              {Object.values(BRANCHES).map((branch) => (
-                <button
-                  key={branch.id}
-                  onClick={() => handleBranchSelect(branch.id as 'eldoret' | 'kisumu')}
-                  className={`w-full text-left px-4 py-3 text-sm border-b border-slate-800 last:border-b-0 transition ${
-                    currentBranch === branch.id
-                      ? 'bg-amber-600/20 text-amber-400'
-                      : 'text-psk-text-secondary hover:bg-slate-800'
-                  }`}
-                >
-                  <div className="font-medium">{branch.displayName}</div>
-                  <div className="text-xs text-slate-500 mt-1">{branch.address}</div>
-                </button>
-              ))}
-            </div>
-          )}
+      <div className="flex items-center gap-3">
+        {/* Branch Pill */}
+        <div 
+          className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300"
+          style={{
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.09)',
+          }}
+        >
+          <div className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
+          <span>{branchNames[currentBranch]}</span>
         </div>
 
-        {/* Date */}
-        <div className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-psk-text-secondary">
+        {/* Date Chip */}
+        <div 
+          className="px-3 py-1.5 rounded-lg text-xs text-slate-400"
+          style={{
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.07)',
+          }}
+        >
           {today}
         </div>
 
-        {/* Notifications */}
-        <button className="relative p-2 hover:bg-slate-800 rounded-lg transition">
+        {/* Bell Icon */}
+        <button 
+          className="relative p-2 rounded-lg transition flex-shrink-0"
+          style={{
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.09)',
+          }}
+        >
           <Bell size={18} className="text-slate-400 hover:text-slate-200 transition" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
         </button>
 
-        {/* New booking button */}
-        <button className="px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded-lg transition hover:bg-amber-500">
+        {/* New Booking Button */}
+        <button 
+          className="px-4 py-2 rounded-lg text-sm font-semibold transition flex-shrink-0"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,149,0,0.09))',
+            border: '1px solid rgba(255,215,0,0.3)',
+            color: 'rgba(255,215,0,0.92)',
+            boxShadow: '0 2px 12px rgba(255,215,0,0.08)',
+          }}
+        >
           + New booking
         </button>
       </div>

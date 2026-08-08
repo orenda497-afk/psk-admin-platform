@@ -40,9 +40,7 @@ function App() {
     setCurrentBranch('eldoret')
   }
 
-  const handleBranchChange = (branchId: 'eldoret' | 'kisumu') => {
-    setCurrentBranch(branchId)
-  }
+
 
   if (!isAuthenticated) {
     return <LoginPage onLogin={handleLogin} />
@@ -53,7 +51,6 @@ function App() {
       <Layout 
         onLogout={handleLogout}
         currentBranch={currentBranch}
-        onBranchChange={handleBranchChange}
         currentUser={currentUser}
       >
         <Routes>
