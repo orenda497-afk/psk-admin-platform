@@ -4,11 +4,12 @@ import FinancePINLock from './FinancePINLock'
 import { NAVIGATION_STRUCTURE } from '../data/navigation'
 
 interface SidebarProps {
+  userRole?: string
   onLogout: () => void
   currentUser?: string
 }
 
-export default function Sidebar({ onLogout }: SidebarProps) {
+export default function Sidebar({ userRole = 'owner', onLogout }: SidebarProps) {
   const navigate = useNavigate()
   const location = useLocation()
   const [openCategory, setOpenCategory] = useState<string | null>('operations')

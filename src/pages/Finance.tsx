@@ -10,7 +10,7 @@ const gl = {
 const EXPENSE_CATS = ['Fuel','Maintenance','Driver allowance','Insurance','Road licence','NTSA Inspection','Office supplies','Marketing','Utilities','Repairs','Tyres','Other']
 const MPESA_TYPES  = ['Customer payment','Deposit received','Refund sent','Owner payout','Expense payment','Other']
 
-export default function Finance({ currentBranch='eldoret', defaultTab='dashboard' }: { currentBranch?:string; defaultTab?:string }) {
+export default function Finance({ currentBranch='eldoret', defaultTab='dashboard', userRole='owner' }: { currentBranch?:string; defaultTab?:string; userRole?:string }) {
   const navigate = useNavigate()
   const [tab, setTab]           = useState(defaultTab)
   const [docs, setDocs]         = useState<any[]>([])
@@ -179,7 +179,7 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
   const I = (v:any,s:any,t='text',p='') => <input type={t} value={v} placeholder={p} onChange={e=>s(t==='number'?Number(e.target.value):e.target.value)} style={{width:'100%',padding:'10px 12px',borderRadius:'9px',fontSize:'12px',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.12)',color:'rgba(255,255,255,0.80)',outline:'none',fontFamily:'inherit'}} />
   const S = (v:any,s:any,opts:{value:string;label:string}[]) => <select value={v} onChange={e=>s(e.target.value)} style={{width:'100%',padding:'10px 12px',borderRadius:'9px',fontSize:'12px',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.12)',color:'rgba(255,255,255,0.80)',outline:'none',fontFamily:'inherit',cursor:'pointer'}}>{opts.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}</select>
 
-  const TABS = [{id:'dashboard',label:'Dashboard'},{id:'documents',label:'Documents',go:'/finance/documents'},{id:'mpesa',label:'M-Pesa Recon'},{id:'expenses',label:'Expenses'},{id:'pl',label:'P&L by Vehicle'},{id:'receivables',label:'Receivables'},{id:'payouts',label:'Owner Payouts'},{id:'reports',label:'Reports'}]
+  const TABS = [{id:'dashboard',label:'Dashboard'},{id:'documents',label:'Documents',go:'/finance/documents'},{id:'mpesa',label:'M-Pesa Recon'},{id:'expenses',label:'Expenses'},{id:'pl',label:'P&L by Vehicle'},{id:'receivables',label:'Receivables'},...(userRole==='owner'?[{id:'payouts',label:'Owner Payouts'}]:[]  ),{id:'reports',label:'Reports'}]
 
   return (
     <div style={{padding:'24px 28px 28px'}}>
@@ -268,6 +268,14 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
               {label:'Unmatched',      value:String(unmatched),                                               c:unmatched>0?'rgba(239,154,154,0.90)':'rgba(129,199,132,0.90)'},
               {label:'Receipts sent',  value:`${mpesa.filter(m=>m.receipt_sent).length}`,                    c:'rgba(100,181,246,0.90)'},
             ].map((s,i)=><div key={i} style={{...gl.panel,padding:'14px 16px'}}><div style={{...gl.lbl,marginBottom:'6px'}}>{s.label}</div><div style={{fontSize:'18px',fontWeight:800,color:s.c}}>{s.value}</div></div>)}
+          </div>
+          {/* Daraja integration info */}
+          <div style={{background:'rgba(129,199,132,0.06)',border:'1px solid rgba(129,199,132,0.18)',borderRadius:'10px',padding:'14px 16px',marginBottom:'14px'}}>
+            <div style={{fontSize:'11px',fontWeight:700,color:'rgba(129,199,132,0.85)',marginBottom:'6px'}}>🔗 Daraja Auto-capture — Paybill: 4563877</div>
+            <div style={{fontSize:'11px',color:'rgba(255,255,255,0.45)',lineHeight:'1.6'}}>
+              Webhook URL: <span style={{color:'rgba(129,199,132,0.70)',fontFamily:'monospace'}}>https://svijjousbophivmgsftm.supabase.co/functions/v1/mpesa-callback</span><br/>
+              When a customer pays to Paybill 4563877, it appears here instantly and auto-matches to a same-amount invoice.
+            </div>
           </div>
           <div style={{display:'flex',justifyContent:'space-between',marginBottom:'14px'}}>
             <div style={{fontSize:'13px',fontWeight:700,color:'rgba(255,255,255,0.88)'}}>M-Pesa Transactions {unmatched>0&&<span style={{fontSize:'11px',padding:'2px 8px',borderRadius:'20px',background:'rgba(239,154,154,0.10)',border:'1px solid rgba(239,154,154,0.25)',color:'rgba(239,154,154,0.90)',marginLeft:'8px'}}>{unmatched} unmatched</span>}</div>

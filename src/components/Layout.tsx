@@ -5,13 +5,15 @@ import TopBar from './TopBar'
 import { getStaffBranch } from '../data/staff'
 
 interface LayoutProps {
+  userRole?: string
+  userName?: string
   children: ReactNode
   onLogout: () => void
   currentBranch?: 'eldoret' | 'kisumu'
   currentUser?: string
 }
 
-export default function Layout({ 
+export default function Layout({ userRole = 'owner', userName = '', 
   children, 
   onLogout,
   currentBranch = 'eldoret',
@@ -33,7 +35,7 @@ export default function Layout({
     <div style={{ display: 'flex', height: '100vh' }} className="bg-psk-bg-base overflow-hidden">
       {/* Sidebar — fixed width 210px, full height */}
       <aside style={{ width: '210px', minWidth: '210px', flexShrink: 0 }}>
-        <Sidebar onLogout={onLogout} currentUser={currentUser} />
+        <Sidebar userRole={userRole} onLogout={onLogout} currentUser={currentUser} />
       </aside>
 
       {/* Main — takes remaining width, flex column layout */}
