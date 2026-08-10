@@ -10,6 +10,7 @@ import Drivers from './pages/Drivers'
 import Finance from './pages/Finance'
 import Documents from './pages/Documents'
 import Analytics from './pages/Analytics'
+import AuditLog from './pages/AuditLog'
 import VehicleOwners from './pages/VehicleOwners'
 import PSKFleet from './pages/PSKFleet'
 import Partners from './pages/Partners'
@@ -103,8 +104,8 @@ function App() {
           {/* INTELLIGENCE */}
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/intelligence/analytics" element={<Analytics />} />
-          <Route path="/audit" element={<ComingSoon title="Audit Log" />} />
-          <Route path="/intelligence/audit" element={<ComingSoon title="Audit Log" />} />
+          <Route path="/audit" element={<AuditLog />} />
+          <Route path="/intelligence/audit" element={<AuditLog />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/intelligence/settings" element={<Settings />} />
 
