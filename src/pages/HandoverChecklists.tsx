@@ -423,18 +423,28 @@ export default function HandoverChecklists() {
                 <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.40)', marginBottom:'10px' }}>
                   If a paper checklist was filled at the garage, upload a photo or scan of it here.
                 </div>
+                {/* Upload input - no capture, opens file browser */}
                 <input
                   type="file"
                   accept="image/*,application/pdf"
-                  ref={el => { cameraRefs.current['paper_form'] = el }}
+                  ref={el => { cameraRefs.current['paper_upload'] = el }}
+                  onChange={e => e.target.files?.[0] && handlePhotoCapture('paper_form', e.target.files[0])}
+                  style={{ display:'none' }}
+                />
+                {/* Camera input - capture=environment forces camera */}
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  ref={el => { cameraRefs.current['paper_camera'] = el }}
                   onChange={e => e.target.files?.[0] && handlePhotoCapture('paper_form', e.target.files[0])}
                   style={{ display:'none' }}
                 />
                 <div style={{ display:'flex', gap:'8px' }}>
-                  <button type="button" onClick={() => { if(cameraRefs.current['paper_form']) { const el = cameraRefs.current['paper_form']; el.removeAttribute('capture'); el.click() } }} style={{ padding:'8px 16px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,215,0,0.10)', border:'1px solid rgba(255,215,0,0.28)', color:'rgba(255,215,0,0.85)' }}>
+                  <button type="button" onClick={() => cameraRefs.current['paper_upload']?.click()} style={{ padding:'8px 16px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,215,0,0.10)', border:'1px solid rgba(255,215,0,0.28)', color:'rgba(255,215,0,0.85)' }}>
                     📁 Upload file / scan
                   </button>
-                  <button type="button" onClick={() => { if(cameraRefs.current['paper_form']) { cameraRefs.current['paper_form'].setAttribute('capture','environment'); cameraRefs.current['paper_form'].click() } }} style={{ padding:'8px 16px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.20)', color:'rgba(255,215,0,0.70)' }}>
+                  <button type="button" onClick={() => cameraRefs.current['paper_camera']?.click()} style={{ padding:'8px 16px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.20)', color:'rgba(255,215,0,0.70)' }}>
                     📷 Take photo of form
                   </button>
                   {photos['paper_form'] && <span style={{ fontSize:'11px', color:'rgba(129,199,132,0.90)', display:'flex', alignItems:'center' }}>✓ Form uploaded</span>}
@@ -445,26 +455,30 @@ export default function HandoverChecklists() {
               <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'10px', marginBottom:'20px' }}>
                 {PHOTO_SPOTS.map(spot => (
                   <div key={spot}>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      ref={el => { cameraRefs.current[spot] = el }}
+                    {/* Camera input for this spot */}
+                    <input type="file" accept="image/*" capture="environment"
+                      ref={el => { cameraRefs.current[spot + '_cam'] = el }}
                       onChange={e => e.target.files?.[0] && handlePhotoCapture(spot, e.target.files[0])}
-                      style={{ display:'none' }}
-                    />
+                      style={{ display:'none' }} />
+                    {/* Upload input for this spot */}
+                    <input type="file" accept="image/*"
+                      ref={el => { cameraRefs.current[spot + '_upl'] = el }}
+                      onChange={e => e.target.files?.[0] && handlePhotoCapture(spot, e.target.files[0])}
+                      style={{ display:'none' }} />
                     <div style={{ borderRadius:'10px', overflow:'hidden', background: photos[spot] ? 'transparent' : 'rgba(255,255,255,0.05)', border: photos[spot] ? '1px solid rgba(129,199,132,0.35)' : '1px dashed rgba(255,255,255,0.15)', aspectRatio:'1', position:'relative' }}>
                       {photos[spot] ? (
                         <>
                           <img src={photos[spot]} alt={spot} style={{ width:'100%', height:'100%', objectFit:'cover', position:'absolute', inset:0 }} />
                           <div style={{ position:'absolute', bottom:0, left:0, right:0, background:'rgba(0,0,0,0.55)', padding:'4px', fontSize:'8px', color:'rgba(255,255,255,0.85)', textAlign:'center' }}>✓ {spot}</div>
+                          <button type="button" onClick={() => { cameraRefs.current[spot+'_cam']?.click() }} style={{ position:'absolute', top:4, right:4, fontSize:'10px', padding:'2px 6px', borderRadius:'4px', cursor:'pointer', fontFamily:'inherit', background:'rgba(0,0,0,0.55)', border:'1px solid rgba(255,255,255,0.20)', color:'white' }}>📷</button>
                         </>
                       ) : (
                         <div style={{ height:'100%', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'4px', padding:'8px' }}>
                           <div style={{ fontSize:'16px' }}>📷</div>
                           <div style={{ fontSize:'8px', color:'rgba(255,255,255,0.35)', textAlign:'center' }}>{spot}</div>
                           <div style={{ display:'flex', gap:'3px', marginTop:'2px' }}>
-                            <button type="button" onClick={() => { cameraRefs.current[spot]?.setAttribute('capture','environment'); cameraRefs.current[spot]?.click() }} style={{ fontSize:'7px', padding:'2px 5px', borderRadius:'4px', cursor:'pointer', fontFamily:'inherit', background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.15)', color:'rgba(255,255,255,0.50)' }}>Camera</button>
-                            <button type="button" onClick={() => { cameraRefs.current[spot]?.removeAttribute('capture'); cameraRefs.current[spot]?.click() }} style={{ fontSize:'7px', padding:'2px 5px', borderRadius:'4px', cursor:'pointer', fontFamily:'inherit', background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.15)', color:'rgba(255,255,255,0.50)' }}>Upload</button>
+                            <button type="button" onClick={() => cameraRefs.current[spot+'_cam']?.click()} style={{ fontSize:'7px', padding:'2px 5px', borderRadius:'4px', cursor:'pointer', fontFamily:'inherit', background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.15)', color:'rgba(255,255,255,0.50)' }}>📷 Camera</button>
+                            <button type="button" onClick={() => cameraRefs.current[spot+'_upl']?.click()} style={{ fontSize:'7px', padding:'2px 5px', borderRadius:'4px', cursor:'pointer', fontFamily:'inherit', background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.15)', color:'rgba(255,255,255,0.50)' }}>📁 Upload</button>
                           </div>
                         </div>
                       )}
