@@ -1,611 +1,418 @@
-import { useMemo, useState } from 'react'
-import {
-  AlertCircle,
-  Calendar,
-  ChevronRight,
-  Clock,
-  FileText,
-  MapPin,
-  Plus,
-  Search,
-  Trash2,
-  User,
-  X,
-} from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 
-type BookingStatus = 'confirmed' | 'pending' | 'cancelled' | 'completed'
-type BookingType = 'self-drive' | 'chauffeur' | 'safari' | 'transfer'
+type TripType = 'chauffeured' | 'safari' | 'self-drive' | 'airport'
+type BookingStatus = 'confirmed' | 'active' | 'completed' | 'cancelled' | 'overdue'
 
 interface Booking {
   id: string
-  reference: string
-  customer: string
-  vehicle: string
-  vehicleReg: string
-  startDate: string
-  endDate: string
-  type: BookingType
+  booking_ref: string
+  branch: 'eldoret' | 'kisumu'
+  client_id: string
+  vehicle_id: string
+  driver_id?: string
+  trip_type: TripType
+  pickup_date: string
+  return_date: string
+  pickup_location: string
+  dropoff_location?: string
+  distance_band?: string
   status: BookingStatus
-  amount: number
-  notes: string
-  driver?: string
-  destination?: string
+  amount?: number
+  amount_paid?: number
+  notes?: string
+  created_at: string
+  // joined
+  client_name?: string
+  vehicle_reg?: string
+  vehicle_model?: string
+  driver_name?: string
 }
 
-interface NewBooking {
-  customer: string
-  vehicle: string
-  startDate: string
-  endDate: string
-  type: BookingType
-  notes: string
-  driver?: string
-  destination?: string
+const gl = {
+  panel: { background:'rgba(10,22,34,0.70)', border:'1.5px solid rgba(255,255,255,0.09)', borderRadius:'14px', backdropFilter:'blur(14px)', boxShadow:'0 4px 24px rgba(0,0,0,0.22)' } as React.CSSProperties,
+  label: { fontSize:'9px', fontWeight:600, letterSpacing:'1.2px', textTransform:'uppercase' as const, color:'rgba(255,255,255,0.32)' },
 }
 
-const MOCK_BOOKINGS: Booking[] = [
-  {
-    id: 'BK-001',
-    reference: 'BK-2026-00187',
-    customer: 'Kevin Indrassen',
-    vehicle: 'Toyota KDE',
-    vehicleReg: 'KDE 456',
-    startDate: '28 Jan 2026',
-    endDate: '30 Jan 2026',
-    type: 'self-drive',
-    status: 'completed',
-    amount: 3500,
-    notes: 'Eldoret to Kisumu trip. Returned in good condition.',
-  },
-  {
-    id: 'BK-002',
-    reference: 'BK-2026-00192',
-    customer: 'Mary Ochieng',
-    vehicle: 'Land Cruiser Safari',
-    vehicleReg: 'LCS 789',
-    startDate: '05 Feb 2026',
-    endDate: '08 Feb 2026',
-    type: 'safari',
-    status: 'confirmed',
-    amount: 87000,
-    notes: 'Amboseli National Park 3-day safari. Includes guide and fuel.',
-    driver: 'James Kipchoge',
-    destination: 'Amboseli NP',
-  },
-  {
-    id: 'BK-003',
-    reference: 'BK-2026-00204',
-    customer: 'Safari M. Ltd',
-    vehicle: 'Toyota Hiace Van',
-    vehicleReg: 'THV 234',
-    startDate: '03 Feb 2026',
-    endDate: '03 Feb 2026',
-    type: 'transfer',
-    status: 'confirmed',
-    amount: 4200,
-    notes: 'Airport transfer. Jomo Kenyatta to Eldoret. 6 passengers.',
-    driver: 'Peter Mwangi',
-    destination: 'JKIA → Eldoret',
-  },
-  {
-    id: 'BK-004',
-    reference: 'BK-2026-00201',
-    customer: 'Amani Tours',
-    vehicle: 'Toyota Fortuner',
-    vehicleReg: 'TF 567',
-    startDate: '10 Feb 2026',
-    endDate: '12 Feb 2026',
-    type: 'chauffeur',
-    status: 'pending',
-    amount: 12500,
-    notes: 'Chauffeur-driven city tour. Flexible itinerary.',
-    driver: 'David Kiplagat',
-    destination: 'Nairobi city',
-  },
-  {
-    id: 'BK-005',
-    reference: 'BK-2026-00205',
-    customer: 'John Smith',
-    vehicle: 'Land Cruiser Prado',
-    vehicleReg: 'LCP 890',
-    startDate: '02 Feb 2026',
-    endDate: '02 Feb 2026',
-    type: 'self-drive',
-    status: 'cancelled',
-    amount: 5600,
-    notes: 'Cancelled due to weather conditions.',
-  },
-]
-
-const CUSTOMERS = ['Kevin Indrassen', 'Mary Ochieng', 'Safari M. Ltd', 'Amani Tours', 'John Smith']
-const VEHICLES = [
-  { name: 'Toyota KDE', reg: 'KDE 456' },
-  { name: 'Land Cruiser Safari', reg: 'LCS 789' },
-  { name: 'Toyota Hiace Van', reg: 'THV 234' },
-  { name: 'Toyota Fortuner', reg: 'TF 567' },
-  { name: 'Land Cruiser Prado', reg: 'LCP 890' },
-]
-const DRIVERS = ['James Kipchoge', 'Peter Mwangi', 'David Kiplagat', 'Samuel Kipchoge']
-
-const statusConfig: Record<BookingStatus, { label: string; bg: string; text: string; dot: string }> = {
-  confirmed: { label: 'Confirmed', bg: 'bg-emerald-400/10', text: 'text-emerald-300', dot: 'bg-emerald-400' },
-  pending: { label: 'Pending', bg: 'bg-amber-400/10', text: 'text-amber-300', dot: 'bg-amber-400' },
-  cancelled: { label: 'Cancelled', bg: 'bg-rose-400/10', text: 'text-rose-300', dot: 'bg-rose-400' },
-  completed: { label: 'Completed', bg: 'bg-sky-400/10', text: 'text-sky-300', dot: 'bg-sky-400' },
+const TRIP_TYPES: Record<TripType, { label:string; color:string; bg:string; border:string }> = {
+  chauffeured: { label:'Chauffeur',   color:'rgba(100,181,246,0.95)', bg:'rgba(100,181,246,0.08)', border:'rgba(100,181,246,0.25)' },
+  safari:      { label:'Safari',      color:'rgba(206,147,216,0.95)', bg:'rgba(206,147,216,0.08)', border:'rgba(206,147,216,0.25)' },
+  'self-drive':{ label:'Self-drive',  color:'rgba(129,199,132,0.95)', bg:'rgba(129,199,132,0.09)', border:'rgba(129,199,132,0.28)' },
+  airport:     { label:'Airport',     color:'rgba(255,183,77,0.95)',  bg:'rgba(255,183,77,0.08)',  border:'rgba(255,183,77,0.25)'  },
 }
 
-const typeConfig: Record<BookingType, { label: string; icon: string }> = {
-  'self-drive': { label: 'Self-Drive', icon: '🚗' },
-  chauffeur: { label: 'Chauffeur', icon: '👔' },
-  safari: { label: 'Safari', icon: '🦁' },
-  transfer: { label: 'Transfer', icon: '🚐' },
+const STATUS_CFG: Record<BookingStatus, { label:string; color:string; bg:string; border:string }> = {
+  confirmed: { label:'Confirmed', color:'rgba(129,199,132,0.95)', bg:'rgba(129,199,132,0.09)', border:'rgba(129,199,132,0.25)' },
+  active:    { label:'Active',    color:'rgba(100,181,246,0.95)', bg:'rgba(100,181,246,0.08)', border:'rgba(100,181,246,0.25)' },
+  completed: { label:'Completed', color:'rgba(255,255,255,0.40)', bg:'rgba(255,255,255,0.04)', border:'rgba(255,255,255,0.12)' },
+  cancelled: { label:'Cancelled', color:'rgba(239,154,154,0.80)', bg:'rgba(231,76,60,0.07)',   border:'rgba(231,76,60,0.18)'   },
+  overdue:   { label:'Overdue',   color:'rgba(239,154,154,0.98)', bg:'rgba(239,154,154,0.09)', border:'rgba(239,154,154,0.32)' },
+}
+
+const RATECARD: Record<string, {driverOnly:number; fuel100:number; fuel300:number}> = {
+  'Saloon Car':        { driverOnly:5500,  fuel100:9500,  fuel300:13500 },
+  'Rav 4':             { driverOnly:8500,  fuel100:13500, fuel300:17500 },
+  'Noah':              { driverOnly:9500,  fuel100:14500, fuel300:18500 },
+  'Prado':             { driverOnly:15000, fuel100:20000, fuel300:25000 },
+  'Land Cruiser':      { driverOnly:20000, fuel100:26000, fuel300:32000 },
+  'Van 11-seater':     { driverOnly:12000, fuel100:17000, fuel300:24000 },
+  'Van 14-seater':     { driverOnly:18000, fuel100:24000, fuel300:28000 },
+  'Coaster 22-seater': { driverOnly:25000, fuel100:32000, fuel300:38000 },
 }
 
 export default function Bookings() {
-  const [bookings, setBookings] = useState<Booking[]>(MOCK_BOOKINGS)
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
-  const [showForm, setShowForm] = useState(false)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [filterStatus, setFilterStatus] = useState<BookingStatus | 'all'>('all')
-  const [filterType, setFilterType] = useState<BookingType | 'all'>('all')
-  const [newBooking, setNewBooking] = useState<NewBooking>({
-    customer: '',
-    vehicle: '',
-    startDate: '',
-    endDate: '',
-    type: 'self-drive',
+  const navigate = useNavigate()
+  const [bookings, setBookings]   = useState<Booking[]>([])
+  const [clients, setClients]     = useState<any[]>([])
+  const [vehicles, setVehicles]   = useState<any[]>([])
+  const [drivers, setDrivers]     = useState<any[]>([])
+  const [loading, setLoading]     = useState(true)
+  const [saving, setSaving]       = useState(false)
+  const [search, setSearch]       = useState('')
+  const [filterStatus, setFilterStatus] = useState<BookingStatus|'all'>('all')
+  const [filterType, setFilterType]     = useState<TripType|'all'>('all')
+  const [showAdd, setShowAdd]     = useState(false)
+  const [selected, setSelected]   = useState<Booking | null>(null)
+
+  const [form, setForm] = useState({
+    branch: 'eldoret', client_id: '', vehicle_id: '', driver_id: '',
+    trip_type: 'chauffeured' as TripType,
+    pickup_date: '', pickup_time: '08:00',
+    return_date: '', return_time: '17:00',
+    pickup_location: '', dropoff_location: '',
+    distance_band: 'driver_only',
+    overnight: false, overnight_nights: 1,
     notes: '',
   })
 
-  const filteredBookings = useMemo(() => {
-    return bookings.filter((booking) => {
-      const matchesSearch =
-        booking.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        booking.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        booking.vehicle.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesStatus = filterStatus === 'all' || booking.status === filterStatus
-      const matchesType = filterType === 'all' || booking.type === filterType
-      return matchesSearch && matchesStatus && matchesType
-    })
-  }, [bookings, searchTerm, filterStatus, filterType])
+  useEffect(() => { loadAll() }, [])
 
-  const handleCreateBooking = () => {
-    if (!newBooking.customer || !newBooking.vehicle || !newBooking.startDate || !newBooking.endDate) {
-      alert('Please fill in all required fields')
+  async function loadAll() {
+    setLoading(true)
+    const [b, c, v, d] = await Promise.all([
+      supabase.from('bookings').select('*').order('created_at', { ascending: false }),
+      supabase.from('clients').select('id, name, type, phone').order('name'),
+      supabase.from('vehicles').select('id, reg, make, model, vehicle_class, status').order('reg'),
+      supabase.from('drivers').select('id, name, phone').order('name'),
+    ])
+    if (b.data) setBookings(b.data as Booking[])
+    if (c.data) setClients(c.data)
+    if (v.data) setVehicles(v.data)
+    if (d.data) setDrivers(d.data)
+    setLoading(false)
+  }
+
+  // Auto-calculate rate
+  const selectedVehicle = vehicles.find(v => v.id === form.vehicle_id)
+  const vehicleClass = selectedVehicle?.vehicle_class || ''
+  const rates = RATECARD[vehicleClass]
+  const calcRate = () => {
+    if (!rates) return 0
+    if (form.trip_type === 'self-drive') return form.distance_band === 'within250' ? 4000 : 4500
+    const days = form.pickup_date && form.return_date
+      ? Math.max(1, Math.ceil((new Date(form.return_date).getTime() - new Date(form.pickup_date).getTime()) / 86400000))
+      : 1
+    const dayRate = form.distance_band === 'driver_only' ? rates.driverOnly : form.distance_band === 'fuel100' ? rates.fuel100 : rates.fuel300
+    const overnight = form.overnight ? form.overnight_nights * 2500 : 0
+    return (dayRate * days) + overnight
+  }
+
+  async function saveBooking() {
+    if (!form.client_id || !form.vehicle_id || !form.pickup_date || !form.return_date) {
+      alert('Please fill in: Client, Vehicle, Pickup date, Return date')
       return
     }
-
-    const vehicleData = VEHICLES.find((v) => v.name === newBooking.vehicle)
-    const booking: Booking = {
-      id: `BK-${String(bookings.length + 1).padStart(3, '0')}`,
-      reference: `BK-2026-${String(bookings.length + 1).padStart(5, '0')}`,
-      customer: newBooking.customer,
-      vehicle: newBooking.vehicle,
-      vehicleReg: vehicleData?.reg || '',
-      startDate: newBooking.startDate,
-      endDate: newBooking.endDate,
-      type: newBooking.type,
-      status: 'pending',
-      amount: 0,
-      notes: newBooking.notes,
-      driver: newBooking.driver,
-      destination: newBooking.destination,
-    }
-
-    setBookings([booking, ...bookings])
-    setNewBooking({ customer: '', vehicle: '', startDate: '', endDate: '', type: 'self-drive', notes: '' })
-    setShowForm(false)
+    setSaving(true)
+    const ref = `BK-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`
+    const { error } = await supabase.from('bookings').insert([{
+      booking_ref: ref,
+      branch: form.branch,
+      client_id: form.client_id,
+      vehicle_id: form.vehicle_id,
+      driver_id: form.driver_id || null,
+      trip_type: form.trip_type,
+      pickup_date: `${form.pickup_date}T${form.pickup_time}:00`,
+      return_date: `${form.return_date}T${form.return_time}:00`,
+      pickup_location: form.pickup_location || null,
+      dropoff_location: form.dropoff_location || null,
+      distance_band: form.distance_band,
+      status: 'confirmed',
+      amount: calcRate(),
+      amount_paid: 0,
+      notes: form.notes || null,
+    }])
+    setSaving(false)
+    if (!error) {
+      setShowAdd(false)
+      setForm({ branch:'eldoret', client_id:'', vehicle_id:'', driver_id:'', trip_type:'chauffeured', pickup_date:'', pickup_time:'08:00', return_date:'', return_time:'17:00', pickup_location:'', dropoff_location:'', distance_band:'driver_only', overnight:false, overnight_nights:1, notes:'' })
+      loadAll()
+    } else alert('Error: ' + error.message)
   }
 
-  const handleDeleteBooking = (id: string) => {
-    if (confirm('Are you sure you want to delete this booking?')) {
-      setBookings(bookings.filter((b) => b.id !== id))
-      if (selectedBooking?.id === id) setSelectedBooking(null)
-    }
-  }
+  const filtered = bookings.filter(b => {
+    const ms = filterStatus === 'all' || b.status === filterStatus
+    const mt = filterType === 'all' || b.trip_type === filterType
+    const mq = !search || b.booking_ref?.toLowerCase().includes(search.toLowerCase())
+    return ms && mt && mq
+  })
+
+  const fld = (label: string, children: React.ReactNode, required=false) => (
+    <div style={{ marginBottom:'14px' }}>
+      <div style={{ fontSize:'10px', fontWeight:600, color:'rgba(255,255,255,0.38)', letterSpacing:'0.5px', marginBottom:'6px', textTransform:'uppercase' }}>
+        {label}{required && <span style={{ color:'rgba(239,154,154,0.80)', marginLeft:'3px' }}>*</span>}
+      </div>
+      {children}
+    </div>
+  )
+
+  const inp = (key: string, type='text', placeholder='') => (
+    <input type={type} placeholder={placeholder} value={(form as any)[key]}
+      onChange={e => setForm(f => ({...f, [key]: e.target.value}))}
+      style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit' }} />
+  )
+
+  const sel = (key: string, options: {value:string; label:string}[]) => (
+    <select value={(form as any)[key]} onChange={e => setForm(f => ({...f, [key]: e.target.value}))}
+      style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', cursor:'pointer' }}>
+      {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+    </select>
+  )
 
   return (
-    <div className="space-y-6 pb-8">
-      <section className="flex flex-col gap-4 rounded-2xl border border-slate-700 bg-[#121a24] px-6 py-5 shadow-[0_18px_48px_rgba(0,0,0,0.22)] lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <div className="mb-2 flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_0_4px_rgba(16,185,129,0.08)]" />
-            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-300">Booking Management</span>
-          </div>
-          <h2 className="text-2xl font-semibold tracking-tight text-white">Manage all reservations in one place.</h2>
-          <p className="mt-1 text-sm text-slate-400">Create, track, and link bookings to financial documents. Real-time status updates for every trip.</p>
+    <div style={{ padding:'24px 28px 28px' }}>
+      <div onClick={() => navigate('/')} style={{ display:'flex', alignItems:'center', gap:'6px', color:'rgba(255,215,0,0.70)', fontSize:'12px', fontWeight:500, cursor:'pointer', marginBottom:'18px' }}>← Home</div>
+
+      {/* Toolbar */}
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'18px', flexWrap:'wrap', gap:'10px' }}>
+        <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
+          {(['all','confirmed','active','overdue','completed'] as const).map(s => (
+            <button key={s} onClick={() => setFilterStatus(s)} style={{ padding:'6px 14px', borderRadius:'20px', fontSize:'10px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:filterStatus===s?'rgba(255,215,0,0.12)':'rgba(255,255,255,0.05)', border:`1px solid ${filterStatus===s?'rgba(255,215,0,0.35)':'rgba(255,255,255,0.10)'}`, color:filterStatus===s?'rgba(255,215,0,0.90)':'rgba(255,255,255,0.40)' }}>
+              {s === 'all' ? `All (${bookings.length})` : STATUS_CFG[s]?.label}
+            </button>
+          ))}
+          {(['all','chauffeured','safari','self-drive','airport'] as const).map(t => (
+            <button key={t} onClick={() => setFilterType(t)} style={{ padding:'6px 14px', borderRadius:'20px', fontSize:'10px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:filterType===t?'rgba(100,181,246,0.12)':'rgba(255,255,255,0.04)', border:`1px solid ${filterType===t?'rgba(100,181,246,0.35)':'rgba(255,255,255,0.09)'}`, color:filterType===t?'rgba(100,181,246,0.90)':'rgba(255,255,255,0.35)' }}>
+              {t === 'all' ? 'All types' : TRIP_TYPES[t]?.label}
+            </button>
+          ))}
         </div>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-emerald-300"
-        >
-          <Plus size={16} /> New booking
-        </button>
-      </section>
-
-      {showForm && (
-        <section className="rounded-2xl border border-slate-700 bg-[#121a24] p-6 shadow-[0_18px_48px_rgba(0,0,0,0.22)]">
-          <div className="mb-5 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-white">Create new booking</h3>
-            <button onClick={() => setShowForm(false)} className="text-slate-400 hover:text-white">
-              <X size={20} />
-            </button>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <FormField label="Customer" required>
-              <select
-                value={newBooking.customer}
-                onChange={(e) => setNewBooking({ ...newBooking, customer: e.target.value })}
-                className="w-full rounded-xl border border-slate-700 bg-[#0e151f] px-3.5 py-3 text-sm text-slate-200 outline-none transition focus:border-emerald-400/60"
-              >
-                <option value="">Select customer...</option>
-                {CUSTOMERS.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </FormField>
-
-            <FormField label="Vehicle" required>
-              <select
-                value={newBooking.vehicle}
-                onChange={(e) => setNewBooking({ ...newBooking, vehicle: e.target.value })}
-                className="w-full rounded-xl border border-slate-700 bg-[#0e151f] px-3.5 py-3 text-sm text-slate-200 outline-none transition focus:border-emerald-400/60"
-              >
-                <option value="">Select vehicle...</option>
-                {VEHICLES.map((v) => (
-                  <option key={v.name} value={v.name}>
-                    {v.name} ({v.reg})
-                  </option>
-                ))}
-              </select>
-            </FormField>
-
-            <FormField label="Start date" required>
-              <input
-                type="date"
-                value={newBooking.startDate}
-                onChange={(e) => setNewBooking({ ...newBooking, startDate: e.target.value })}
-                className="w-full rounded-xl border border-slate-700 bg-[#0e151f] px-3.5 py-3 text-sm text-slate-200 outline-none transition focus:border-emerald-400/60"
-              />
-            </FormField>
-
-            <FormField label="End date" required>
-              <input
-                type="date"
-                value={newBooking.endDate}
-                onChange={(e) => setNewBooking({ ...newBooking, endDate: e.target.value })}
-                className="w-full rounded-xl border border-slate-700 bg-[#0e151f] px-3.5 py-3 text-sm text-slate-200 outline-none transition focus:border-emerald-400/60"
-              />
-            </FormField>
-
-            <FormField label="Booking type" required>
-              <select
-                value={newBooking.type}
-                onChange={(e) => setNewBooking({ ...newBooking, type: e.target.value as BookingType })}
-                className="w-full rounded-xl border border-slate-700 bg-[#0e151f] px-3.5 py-3 text-sm text-slate-200 outline-none transition focus:border-emerald-400/60"
-              >
-                {(Object.keys(typeConfig) as BookingType[]).map((type) => (
-                  <option key={type} value={type}>
-                    {typeConfig[type].label}
-                  </option>
-                ))}
-              </select>
-            </FormField>
-
-            <FormField label="Driver (optional)">
-              <select
-                value={newBooking.driver || ''}
-                onChange={(e) => setNewBooking({ ...newBooking, driver: e.target.value || undefined })}
-                className="w-full rounded-xl border border-slate-700 bg-[#0e151f] px-3.5 py-3 text-sm text-slate-200 outline-none transition focus:border-emerald-400/60"
-              >
-                <option value="">No driver assigned</option>
-                {DRIVERS.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
-            </FormField>
-
-            <FormField label="Destination (optional)">
-              <input
-                type="text"
-                value={newBooking.destination || ''}
-                onChange={(e) => setNewBooking({ ...newBooking, destination: e.target.value })}
-                placeholder="e.g., Amboseli NP, JKIA, Nairobi"
-                className="w-full rounded-xl border border-slate-700 bg-[#0e151f] px-3.5 py-3 text-sm text-slate-200 outline-none transition focus:border-emerald-400/60 placeholder:text-slate-600"
-              />
-            </FormField>
-          </div>
-
-          <FormField label="Notes">
-            <textarea
-              value={newBooking.notes}
-              onChange={(e) => setNewBooking({ ...newBooking, notes: e.target.value })}
-              placeholder="Special requests, instructions, or additional details..."
-              className="min-h-[100px] w-full resize-none rounded-xl border border-slate-700 bg-[#0e151f] px-3.5 py-3 text-sm text-slate-200 outline-none transition focus:border-emerald-400/60 placeholder:text-slate-600"
-            />
-          </FormField>
-
-          <div className="mt-6 flex gap-3">
-            <button
-              onClick={() => setShowForm(false)}
-              className="flex-1 rounded-xl border border-slate-600 px-4 py-3 text-sm font-bold text-slate-300 transition hover:border-slate-500 hover:text-white"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleCreateBooking}
-              className="flex-1 rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-emerald-300"
-            >
-              Create booking
-            </button>
-          </div>
-        </section>
-      )}
-
-      <section className="rounded-2xl border border-slate-700 bg-[#121a24] p-5 shadow-[0_18px_48px_rgba(0,0,0,0.18)]">
-        <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Bookings</span>
-            <span className="inline-flex rounded-full bg-slate-700 px-2.5 py-1 text-xs font-bold text-slate-300">{filteredBookings.length}</span>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <div className="relative flex-1 sm:flex-none">
-              <Search size={16} className="absolute left-3.5 top-3.5 text-slate-500" />
-              <input
-                type="text"
-                placeholder="Search by reference, customer, vehicle..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full rounded-xl border border-slate-700 bg-[#0e151f] pl-10 pr-3.5 py-2.5 text-sm text-slate-200 outline-none transition focus:border-emerald-400/60 placeholder:text-slate-600"
-              />
-            </div>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value as BookingStatus | 'all')}
-              className="rounded-xl border border-slate-700 bg-[#0e151f] px-3.5 py-2.5 text-sm text-slate-200 outline-none transition focus:border-emerald-400/60"
-            >
-              <option value="all">All statuses</option>
-              {(Object.keys(statusConfig) as BookingStatus[]).map((status) => (
-                <option key={status} value={status}>
-                  {statusConfig[status].label}
-                </option>
-              ))}
-            </select>
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value as BookingType | 'all')}
-              className="rounded-xl border border-slate-700 bg-[#0e151f] px-3.5 py-2.5 text-sm text-slate-200 outline-none transition focus:border-emerald-400/60"
-            >
-              <option value="all">All types</option>
-              {(Object.keys(typeConfig) as BookingType[]).map((type) => (
-                <option key={type} value={type}>
-                  {typeConfig[type].label}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div style={{ display:'flex', gap:'10px' }}>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search booking ref..." style={{ padding:'7px 13px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.10)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', width:'180px' }} />
+          <button onClick={() => setShowAdd(true)} style={{ padding:'7px 18px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'linear-gradient(135deg,rgba(255,215,0,0.16),rgba(255,149,0,0.09))', border:'1.5px solid rgba(255,215,0,0.32)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap' }}>+ New booking</button>
         </div>
+      </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] text-left">
-            <thead className="border-y border-slate-700 bg-[#0e151f] text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">
-              <tr>
-                <th className="px-3 py-3">Reference</th>
-                <th className="px-3 py-3">Customer</th>
-                <th className="px-3 py-3">Vehicle</th>
-                <th className="px-3 py-3">Dates</th>
-                <th className="px-3 py-3">Type</th>
-                <th className="px-3 py-3">Status</th>
-                <th className="px-3 py-3 text-right">Actions</th>
+      {/* Table */}
+      <div style={{ ...gl.panel, padding:'18px' }}>
+        {loading ? (
+          <div style={{ textAlign:'center', padding:'40px', color:'rgba(255,255,255,0.30)', fontSize:'12px' }}>Loading bookings...</div>
+        ) : filtered.length === 0 ? (
+          <div style={{ textAlign:'center', padding:'60px 20px' }}>
+            <div style={{ fontSize:'36px', marginBottom:'14px' }}>📅</div>
+            <div style={{ fontSize:'15px', fontWeight:600, color:'rgba(255,255,255,0.50)', marginBottom:'8px' }}>{bookings.length === 0 ? 'No bookings yet' : 'No bookings match your filter'}</div>
+            <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.28)', marginBottom:'20px' }}>Create your first booking to get started</div>
+            <button onClick={() => setShowAdd(true)} style={{ padding:'10px 22px', borderRadius:'10px', fontSize:'12px', fontWeight:600, background:'linear-gradient(135deg,rgba(255,215,0,0.16),rgba(255,149,0,0.09))', border:'1.5px solid rgba(255,215,0,0.32)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit' }}>+ Create first booking</button>
+          </div>
+        ) : (
+          <table style={{ width:'100%', borderCollapse:'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
+                {['Booking ref','Client','Vehicle','Trip type','Pickup','Return','Status','Action'].map(h => (
+                  <th key={h} style={{ ...gl.label, padding:'0 12px 10px', textAlign:'left' }}>{h}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {filteredBookings.map((booking) => {
-                const status = statusConfig[booking.status]
-                const type = typeConfig[booking.type]
+              {filtered.map(b => {
+                const tc = TRIP_TYPES[b.trip_type] || TRIP_TYPES.chauffeured
+                const sc = STATUS_CFG[b.status] || STATUS_CFG.confirmed
+                const client = clients.find(c => c.id === b.client_id)
+                const vehicle = vehicles.find(v => v.id === b.vehicle_id)
                 return (
-                  <tr key={booking.id} className="border-b border-slate-800 transition hover:bg-slate-800/45">
-                    <td className="px-3 py-4">
-                      <button
-                        onClick={() => setSelectedBooking(booking)}
-                        className="font-semibold text-emerald-300 hover:text-emerald-200"
-                      >
-                        {booking.reference}
-                      </button>
+                  <tr key={b.id} onClick={() => setSelected(b)} style={{ borderBottom:'1px solid rgba(255,255,255,0.05)', cursor:'pointer', transition:'background 0.15s' }}
+                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.03)'}
+                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.background='transparent'}>
+                    <td style={{ padding:'12px' }}><div style={{ fontSize:'12px', fontWeight:700, color:'rgba(255,215,0,0.80)' }}>{b.booking_ref}</div></td>
+                    <td style={{ padding:'12px' }}><div style={{ fontSize:'12px', color:'rgba(255,255,255,0.80)' }}>{client?.name || '—'}</div></td>
+                    <td style={{ padding:'12px' }}>
+                      <div style={{ fontSize:'12px', fontWeight:600, color:'rgba(255,255,255,0.82)' }}>{vehicle?.reg || '—'}</div>
+                      <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.35)', marginTop:'1px' }}>{vehicle?.make} {vehicle?.model}</div>
                     </td>
-                    <td className="px-3 py-4 text-slate-300">{booking.customer}</td>
-                    <td className="px-3 py-4">
-                      <div className="text-sm font-medium text-slate-200">{booking.vehicle}</div>
-                      <div className="text-xs text-slate-500">{booking.vehicleReg}</div>
-                    </td>
-                    <td className="px-3 py-4 text-sm text-slate-400">
-                      {booking.startDate} → {booking.endDate}
-                    </td>
-                    <td className="px-3 py-4">
-                      <span className="text-lg">{type.icon}</span>
-                    </td>
-                    <td className="px-3 py-4">
-                      <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${status.bg} ${status.text} border-current/20`}>
-                        <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
-                        {status.label}
-                      </span>
-                    </td>
-                    <td className="px-3 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => setSelectedBooking(booking)}
-                          className="rounded p-1.5 text-slate-500 hover:bg-slate-700 hover:text-emerald-300"
-                          title="View details"
-                        >
-                          <ChevronRight size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteBooking(booking.id)}
-                          className="rounded p-1.5 text-slate-500 hover:bg-slate-700 hover:text-rose-300"
-                          title="Delete booking"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
+                    <td style={{ padding:'12px' }}><span style={{ fontSize:'10px', fontWeight:600, padding:'3px 9px', borderRadius:'20px', color:tc.color, background:tc.bg, border:`1px solid ${tc.border}` }}>{tc.label}</span></td>
+                    <td style={{ padding:'12px' }}><div style={{ fontSize:'11px', color:'rgba(255,255,255,0.55)' }}>{b.pickup_date ? new Date(b.pickup_date).toLocaleDateString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—'}</div></td>
+                    <td style={{ padding:'12px' }}><div style={{ fontSize:'11px', color:'rgba(255,255,255,0.55)' }}>{b.return_date ? new Date(b.return_date).toLocaleDateString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—'}</div></td>
+                    <td style={{ padding:'12px' }}><span style={{ fontSize:'10px', fontWeight:600, padding:'3px 9px', borderRadius:'20px', color:sc.color, background:sc.bg, border:`1px solid ${sc.border}` }}>{sc.label}</span></td>
+                    <td style={{ padding:'12px' }}><button onClick={e=>{e.stopPropagation();setSelected(b)}} style={{ padding:'5px 12px', borderRadius:'7px', fontSize:'11px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.65)', cursor:'pointer', fontFamily:'inherit' }}>View</button></td>
                   </tr>
                 )
               })}
             </tbody>
           </table>
-        </div>
-
-        {filteredBookings.length === 0 && (
-          <div className="py-12 text-center">
-            <AlertCircle size={32} className="mx-auto mb-3 text-slate-600" />
-            <p className="text-slate-400">No bookings found matching your filters.</p>
-          </div>
         )}
-      </section>
+      </div>
 
-      {selectedBooking && (
-        <BookingDetailPanel
-          booking={selectedBooking}
-          onClose={() => setSelectedBooking(null)}
-          onDelete={() => {
-            handleDeleteBooking(selectedBooking.id)
-            setSelectedBooking(null)
-          }}
-        />
+      {/* BOOKING DETAIL SLIDE-OVER */}
+      {selected && (
+        <div style={{ position:'fixed', inset:0, zIndex:100, display:'flex', justifyContent:'flex-end' }}>
+          <div onClick={() => setSelected(null)} style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.45)' }} />
+          <div style={{ position:'relative', width:'460px', height:'100vh', background:'rgba(6,16,28,0.97)', backdropFilter:'blur(32px)', borderLeft:'1px solid rgba(255,255,255,0.12)', overflowY:'auto', zIndex:1, padding:'24px' }}>
+            <button onClick={() => setSelected(null)} style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'8px', padding:'6px 12px', color:'rgba(255,255,255,0.55)', cursor:'pointer', fontSize:'12px', fontFamily:'inherit', marginBottom:'20px' }}>✕ Close</button>
+            <div style={{ display:'flex', gap:'8px', marginBottom:'12px', flexWrap:'wrap' }}>
+              <span style={{ fontSize:'10px', fontWeight:600, padding:'3px 10px', borderRadius:'20px', color:STATUS_CFG[selected.status]?.color, background:STATUS_CFG[selected.status]?.bg, border:`1px solid ${STATUS_CFG[selected.status]?.border}` }}>{STATUS_CFG[selected.status]?.label}</span>
+              <span style={{ fontSize:'10px', fontWeight:600, padding:'3px 10px', borderRadius:'20px', color:TRIP_TYPES[selected.trip_type]?.color, background:TRIP_TYPES[selected.trip_type]?.bg, border:`1px solid ${TRIP_TYPES[selected.trip_type]?.border}` }}>{TRIP_TYPES[selected.trip_type]?.label}</span>
+            </div>
+            <div style={{ fontSize:'20px', fontWeight:800, color:'rgba(255,215,0,0.85)', marginBottom:'4px' }}>{selected.booking_ref}</div>
+            <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.40)', marginBottom:'24px' }}>{selected.branch === 'eldoret' ? 'Eldoret HQ' : 'Kisumu Branch'}</div>
+            <div style={{ ...gl.panel, padding:'16px', marginBottom:'16px' }}>
+              {[
+                { label:'Client',          value: clients.find(c=>c.id===selected.client_id)?.name || '—' },
+                { label:'Vehicle',         value: (() => { const v = vehicles.find(x=>x.id===selected.vehicle_id); return v ? `${v.reg} · ${v.make} ${v.model}` : '—' })() },
+                { label:'Driver',          value: drivers.find(d=>d.id===selected.driver_id)?.name || 'Not assigned' },
+                { label:'Pickup',          value: selected.pickup_location || '—' },
+                { label:'Dropoff',         value: selected.dropoff_location || '—' },
+                { label:'Pickup date',     value: selected.pickup_date ? new Date(selected.pickup_date).toLocaleString('en-GB') : '—' },
+                { label:'Return date',     value: selected.return_date ? new Date(selected.return_date).toLocaleString('en-GB') : '—' },
+              ].map((r,i,arr) => (
+                <div key={i} style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:i<arr.length-1?'1px solid rgba(255,255,255,0.06)':'none' }}>
+                  <span style={{ fontSize:'11px', color:'rgba(255,255,255,0.35)' }}>{r.label}</span>
+                  <span style={{ fontSize:'12px', fontWeight:500, color:'rgba(255,255,255,0.78)' }}>{r.value}</span>
+                </div>
+              ))}
+            </div>
+            {selected.notes && (
+              <div style={{ ...gl.panel, padding:'14px', marginBottom:'16px' }}>
+                <div style={{ ...gl.label, marginBottom:'8px' }}>Notes</div>
+                <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.60)', lineHeight:'1.6' }}>{selected.notes}</div>
+              </div>
+            )}
+            <div style={{ background:'rgba(255,215,0,0.06)', border:'1px solid rgba(255,215,0,0.18)', borderRadius:'10px', padding:'14px 16px', marginBottom:'20px' }}>
+              <div style={{ ...gl.label, marginBottom:'8px' }}>Payment (Finance section)</div>
+              <div style={{ fontSize:'11px', color:'rgba(255,215,0,0.55)' }}>🔒 Invoice and payment details live in Finance → Documents</div>
+            </div>
+            <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
+              {[
+                { label:'Extend booking', primary:true },
+                { label:'Mark returned', primary:false },
+                { label:'Cancel', primary:false },
+              ].map((btn,i) => (
+                <button key={i} style={{ padding:'8px 14px', borderRadius:'9px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:btn.primary?'linear-gradient(135deg,rgba(255,215,0,0.16),rgba(255,149,0,0.09))':'rgba(255,255,255,0.06)', border:`1px solid ${btn.primary?'rgba(255,215,0,0.32)':'rgba(255,255,255,0.12)'}`, color:btn.primary?'rgba(255,215,0,0.95)':'rgba(255,255,255,0.60)' }}>{btn.label}</button>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
-    </div>
-  )
-}
 
-function FormField({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
-  return (
-    <label className="block">
-      <span className="mb-2 block text-[10px] font-bold uppercase tracking-[0.13em] text-slate-500">
-        {label} {required && <span className="text-rose-400">*</span>}
-      </span>
-      {children}
-    </label>
-  )
-}
+      {/* NEW BOOKING MODAL */}
+      {showAdd && (
+        <div style={{ position:'fixed', inset:0, zIndex:100, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(0,0,0,0.65)', backdropFilter:'blur(8px)' }}>
+          <div style={{ background:'rgba(8,18,30,0.97)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'18px', width:'620px', maxHeight:'90vh', overflowY:'auto', boxShadow:'0 24px 80px rgba(0,0,0,0.65)' }}>
+            <div style={{ padding:'22px 28px', borderBottom:'1px solid rgba(255,255,255,0.08)', display:'flex', justifyContent:'space-between', alignItems:'center', position:'sticky', top:0, background:'rgba(8,18,30,0.97)', zIndex:1 }}>
+              <div>
+                <div style={{ fontSize:'16px', fontWeight:700, color:'rgba(255,255,255,0.92)' }}>New Booking</div>
+                <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.30)', marginTop:'3px' }}>
+                  {vehicleClass && rates ? `Estimated: KES ${calcRate().toLocaleString()}` : 'Select vehicle to see estimated rate'}
+                </div>
+              </div>
+              <button onClick={() => setShowAdd(false)} style={{ width:'30px', height:'30px', borderRadius:'8px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.10)', color:'rgba(255,255,255,0.45)', cursor:'pointer', fontFamily:'inherit', fontSize:'16px' }}>✕</button>
+            </div>
 
-function BookingDetailPanel({
-  booking,
-  onClose,
-  onDelete,
-}: {
-  booking: Booking
-  onClose: () => void
-  onDelete: () => void
-}) {
-  const status = statusConfig[booking.status]
-  const type = typeConfig[booking.type]
+            <div style={{ padding:'24px 28px' }}>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'14px' }}>
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end bg-black/50 sm:items-center sm:justify-center">
-      <div className="w-full max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl border border-slate-700 bg-[#121a24] shadow-[0_25px_50px_rgba(0,0,0,0.3)] sm:max-w-2xl">
-        <div className="sticky top-0 border-b border-slate-700 bg-[#0e151f] px-6 py-5 flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Booking details</p>
-            <h3 className="mt-1 text-xl font-semibold text-white">{booking.reference}</h3>
+                {/* Branch */}
+                <div style={{ gridColumn:'1/-1' }}>
+                  {fld('Branch *', sel('branch', [{ value:'eldoret', label:'Eldoret HQ' },{ value:'kisumu', label:'Kisumu Branch' }]))}
+                </div>
+
+                {/* Client */}
+                <div style={{ gridColumn:'1/-1' }}>
+                  {fld('Client *',
+                    <select value={form.client_id} onChange={e=>setForm(f=>({...f,client_id:e.target.value}))} style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', cursor:'pointer' }}>
+                      <option value="">Select client...</option>
+                      {clients.map(c => <option key={c.id} value={c.id}>{c.name} ({c.type})</option>)}
+                    </select>,
+                  true)}
+                </div>
+
+                {/* Vehicle */}
+                <div style={{ gridColumn:'1/-1' }}>
+                  {fld('Vehicle *',
+                    <select value={form.vehicle_id} onChange={e=>setForm(f=>({...f,vehicle_id:e.target.value}))} style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', cursor:'pointer' }}>
+                      <option value="">Select vehicle...</option>
+                      {vehicles.filter(v=>v.status==='available').map(v => <option key={v.id} value={v.id}>{v.reg} — {v.make} {v.model} ({v.vehicle_class})</option>)}
+                    </select>,
+                  true)}
+                </div>
+
+                {/* Trip type */}
+                {fld('Trip type *', sel('trip_type', Object.entries(TRIP_TYPES).map(([v,t])=>({value:v,label:t.label}))))}
+
+                {/* Distance band */}
+                {fld('Rate band', sel('distance_band', [
+                  {value:'driver_only', label:'Driver only (no fuel)'},
+                  {value:'fuel100',     label:'With fuel ≤100km'},
+                  {value:'fuel300',     label:'With fuel ≤300km'},
+                  {value:'selfdrv250',  label:'Self-drive ≤250km/day'},
+                  {value:'selfdrv500',  label:'Self-drive ≤500km/day'},
+                ]))}
+
+                {/* Pickup date + time */}
+                {fld('Pickup date *', inp('pickup_date','date'), true)}
+                {fld('Pickup time', inp('pickup_time','time'))}
+
+                {/* Return date + time */}
+                {fld('Return date *', inp('return_date','date'), true)}
+                {fld('Return time', inp('return_time','time'))}
+
+                {/* Pickup location */}
+                {fld('Pickup location', inp('pickup_location','text','e.g. Eldoret Town, JKIA...'))}
+                {fld('Dropoff location', inp('dropoff_location','text','e.g. Kisumu, Nakuru...'))}
+
+                {/* Driver */}
+                {fld('Assign driver (optional)',
+                  <select value={form.driver_id} onChange={e=>setForm(f=>({...f,driver_id:e.target.value}))} style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', cursor:'pointer' }}>
+                    <option value="">No driver assigned</option>
+                    {drivers.filter(d=>d.status==='available').map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                  </select>
+                )}
+
+                {/* Overnight */}
+                <div>
+                  {fld('Overnight driver?',
+                    <div style={{ display:'flex', gap:'8px' }}>
+                      {[{v:false,l:'No'},{v:true,l:'Yes'}].map(o=>(
+                        <button key={String(o.v)} onClick={()=>setForm(f=>({...f,overnight:o.v}))} style={{ flex:1, padding:'10px', borderRadius:'9px', fontSize:'12px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:form.overnight===o.v?'rgba(255,215,0,0.12)':'rgba(255,255,255,0.05)', border:`1px solid ${form.overnight===o.v?'rgba(255,215,0,0.35)':'rgba(255,255,255,0.10)'}`, color:form.overnight===o.v?'rgba(255,215,0,0.90)':'rgba(255,255,255,0.40)' }}>{o.l}</button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {form.overnight && fld('Overnight nights', inp('overnight_nights','number'))}
+              </div>
+
+              {/* Notes */}
+              <div style={{ marginTop:'4px' }}>
+                <div style={{ fontSize:'10px', fontWeight:600, color:'rgba(255,255,255,0.38)', letterSpacing:'0.5px', marginBottom:'6px', textTransform:'uppercase' }}>Notes</div>
+                <textarea value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))} placeholder="Special instructions, park fees, custom items..." style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', height:'72px', resize:'none' }} />
+              </div>
+
+              {/* Rate estimate */}
+              {vehicleClass && rates && (
+                <div style={{ background:'rgba(255,215,0,0.06)', border:'1px solid rgba(255,215,0,0.18)', borderRadius:'10px', padding:'14px 16px', marginTop:'16px' }}>
+                  <div style={{ fontSize:'10px', fontWeight:600, color:'rgba(255,215,0,0.55)', letterSpacing:'0.8px', textTransform:'uppercase', marginBottom:'6px' }}>Rate estimate</div>
+                  <div style={{ fontSize:'20px', fontWeight:800, color:'rgba(255,215,0,0.90)' }}>KES {calcRate().toLocaleString()}</div>
+                  <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.30)', marginTop:'3px' }}>Based on {vehicleClass} · VAT not included</div>
+                </div>
+              )}
+
+              <div style={{ display:'flex', gap:'12px', marginTop:'24px' }}>
+                <button onClick={() => setShowAdd(false)} style={{ flex:1, padding:'13px', borderRadius:'10px', fontSize:'12px', fontWeight:600, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.55)', cursor:'pointer', fontFamily:'inherit' }}>Cancel</button>
+                <button onClick={saveBooking} disabled={saving} style={{ flex:2, padding:'13px', borderRadius:'10px', fontSize:'13px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,149,0,0.10))', border:'1.5px solid rgba(255,215,0,0.38)', color:'rgba(255,215,0,0.95)', cursor:saving?'not-allowed':'pointer', fontFamily:'inherit', opacity:saving?0.7:1 }}>{saving ? 'Saving...' : 'Confirm Booking'}</button>
+              </div>
+            </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">
-            <X size={24} />
-          </button>
         </div>
-
-        <div className="space-y-6 p-6">
-          <div className="grid gap-4 md:grid-cols-2">
-            <DetailCard icon={<User size={18} />} label="Customer" value={booking.customer} />
-            <DetailCard icon={<Calendar size={18} />} label="Status" value={status.label} accent={status.text} />
-            <DetailCard icon={<MapPin size={18} />} label="Vehicle" value={`${booking.vehicle} (${booking.vehicleReg})`} />
-            <DetailCard icon={<Clock size={18} />} label="Type" value={`${type.icon} ${type.label}`} />
-          </div>
-
-          <div className="rounded-xl border border-slate-700 bg-[#0e151f] p-4">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500 mb-3">Travel dates</p>
-            <div className="flex items-center gap-3 text-sm">
-              <span className="font-semibold text-white">{booking.startDate}</span>
-              <ChevronRight size={16} className="text-slate-600" />
-              <span className="font-semibold text-white">{booking.endDate}</span>
-            </div>
-          </div>
-
-          {booking.driver && (
-            <DetailCard icon={<User size={18} />} label="Assigned driver" value={booking.driver} />
-          )}
-
-          {booking.destination && (
-            <DetailCard icon={<MapPin size={18} />} label="Destination" value={booking.destination} />
-          )}
-
-          {booking.notes && (
-            <div className="rounded-xl border border-slate-700 bg-[#0e151f] p-4">
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500 mb-2">Notes</p>
-              <p className="text-sm leading-6 text-slate-300">{booking.notes}</p>
-            </div>
-          )}
-
-          <div className="rounded-xl border border-slate-700 bg-[#0e151f] p-4">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500 mb-3">Booking amount</p>
-            <p className="text-2xl font-bold text-emerald-300">KES {booking.amount.toLocaleString('en-KE')}</p>
-            <p className="mt-1 text-xs text-slate-500">Estimated total for this booking</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-700 bg-[#0e151f] p-4">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500 mb-3">Quick actions</p>
-            <div className="space-y-2">
-              <button className="w-full flex items-center justify-center gap-2 rounded-lg border border-slate-600 px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:border-slate-500 hover:text-white">
-                <FileText size={16} /> Create invoice
-              </button>
-              <button className="w-full flex items-center justify-center gap-2 rounded-lg border border-slate-600 px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:border-slate-500 hover:text-white">
-                <FileText size={16} /> Create quotation
-              </button>
-            </div>
-          </div>
-
-          <div className="flex gap-3 border-t border-slate-700 pt-6">
-            <button
-              onClick={onClose}
-              className="flex-1 rounded-xl border border-slate-600 px-4 py-3 text-sm font-bold text-slate-300 transition hover:border-slate-500 hover:text-white"
-            >
-              Close
-            </button>
-            <button
-              onClick={onDelete}
-              className="flex-1 rounded-xl border border-rose-600/50 bg-rose-400/10 px-4 py-3 text-sm font-bold text-rose-300 transition hover:border-rose-500 hover:bg-rose-400/20"
-            >
-              Delete booking
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function DetailCard({
-  icon,
-  label,
-  value,
-  accent,
-}: {
-  icon: React.ReactNode
-  label: string
-  value: string
-  accent?: string
-}) {
-  return (
-    <div className="rounded-xl border border-slate-700 bg-[#0e151f] p-4">
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-slate-500">{icon}</span>
-        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
-      </div>
-      <p className={`text-sm font-semibold ${accent || 'text-slate-200'}`}>{value}</p>
+      )}
     </div>
   )
 }
