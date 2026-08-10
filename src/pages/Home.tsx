@@ -119,9 +119,9 @@ export default function Home() {
             style={{ height: '88px', width: 'auto', objectFit: 'contain' }} />
           <div style={{ display: 'flex', gap: '9px' }}>
             {[
-              { label: 'Available', value: 0, color: 'rgba(129,199,132,0.95)', bg: 'rgba(129,199,132,0.09)', border: 'rgba(129,199,132,0.25)' },
-              { label: 'On hire',   value: 0, color: 'rgba(100,181,246,0.95)', bg: 'rgba(100,181,246,0.08)', border: 'rgba(100,181,246,0.25)' },
-              { label: 'Overdue',  value: 0, color: 'rgba(239,154,154,0.95)', bg: 'rgba(239,154,154,0.09)', border: 'rgba(239,154,154,0.25)' },
+              { label: 'Available',   value: 0, color: 'rgba(129,199,132,0.95)', bg: 'rgba(129,199,132,0.09)', border: 'rgba(129,199,132,0.25)' },
+              { label: 'Out on hire', value: 0, color: 'rgba(100,181,246,0.95)', bg: 'rgba(100,181,246,0.08)', border: 'rgba(100,181,246,0.25)' },
+              { label: 'In service',  value: 0, color: 'rgba(255,183,77,0.92)',  bg: 'rgba(255,183,77,0.08)',  border: 'rgba(255,183,77,0.25)'  },
             ].map(s => (
               <div key={s.label} style={{
                 background: s.bg, border: `1px solid ${s.border}`,
@@ -190,11 +190,11 @@ export default function Home() {
       {/* Stats strip */}
       <div style={{ display: 'flex', gap: '10px' }}>
         {[
-          { emoji: '🚗', label: 'Available now',     value: '0',     color: 'rgba(129,199,132,0.95)', border: 'rgba(129,199,132,0.20)' },
-          { emoji: '📅', label: 'Out on hire',        value: '0',     color: 'rgba(100,181,246,0.95)', border: 'rgba(100,181,246,0.20)' },
-          { emoji: '⚠️', label: 'Overdue returns',   value: '0',     color: 'rgba(239,154,154,0.95)', border: 'rgba(239,154,154,0.20)' },
-          { emoji: '📱', label: 'Unmatched M-Pesa',  value: '0',     color: 'rgba(255,183,77,0.92)',  border: 'rgba(255,183,77,0.20)'  },
-          { emoji: '🔔', label: 'Reminders', value: '0', color: 'rgba(255,183,77,0.92)', border: 'rgba(255,183,77,0.20)' },
+          { emoji: '📅', label: 'Pickups today',      value: '0', color: 'rgba(129,199,132,0.95)', border: 'rgba(129,199,132,0.20)' },
+          { emoji: '🔄', label: 'Returns today',      value: '0', color: 'rgba(100,181,246,0.95)', border: 'rgba(100,181,246,0.20)' },
+          { emoji: '📄', label: 'Quotes pending',     value: '0', color: 'rgba(255,215,0,0.92)',   border: 'rgba(255,215,0,0.20)'   },
+          { emoji: '📱', label: 'Unmatched M-Pesa',   value: '0', color: 'rgba(239,154,154,0.95)', border: 'rgba(239,154,154,0.20)' },
+          { emoji: '🔔', label: 'Reminders',           value: '0', color: 'rgba(255,183,77,0.92)',  border: 'rgba(255,183,77,0.20)'  },
         ].map((s, i) => (
           <div key={i} style={{
             flex: 1, background: 'rgba(10,22,34,0.65)',
