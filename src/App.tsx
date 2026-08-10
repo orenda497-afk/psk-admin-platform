@@ -46,44 +46,65 @@ function App() {
   )
 
   const FinancePIN = ({ children, userRole }: { children: React.ReactNode; userRole: string }) => {
-    const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem('fin_unlocked') === '1')
+    // Use role-specific session key so each role has their own lock
+    const sessionKey = `fin_unlocked_${userRole}`
+    const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem(sessionKey) === '1')
     const [pin, setPin] = useState('')
     const [error, setError] = useState('')
 
-    const PINS: Record<string,string> = { owner:'2026', finance:'447788' }
+    // Ken = 4 digit PIN: 1234, Miriam = 6 digit: 226688
+    const PINS: Record<string,string> = { owner:'1234', finance:'226688' }
+    const pinLength = userRole === 'owner' ? 4 : 6
 
     function tryPin() {
       const correct = PINS[userRole]
-      if (pin === correct) { sessionStorage.setItem('fin_unlocked','1'); setUnlocked(true) }
-      else { setError('Incorrect PIN. Try again.'); setPin('') }
+      if (pin === correct) {
+        sessionStorage.setItem(sessionKey, '1')
+        setUnlocked(true)
+        setError('')
+      } else {
+        setError('Incorrect PIN. Try again.')
+        setPin('')
+      }
     }
 
     if (unlocked) return <>{children}</>
 
     return (
       <div style={{ minHeight:'70vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
-        <div style={{ background:'rgba(10,22,34,0.90)', border:'1.5px solid rgba(255,215,0,0.20)', borderRadius:'18px', padding:'40px 36px', width:'320px', textAlign:'center', backdropFilter:'blur(20px)' }}>
-          <div style={{ fontSize:'36px', marginBottom:'12px' }}>🔐</div>
-          <div style={{ fontSize:'16px', fontWeight:700, color:'rgba(255,255,255,0.90)', marginBottom:'4px' }}>Finance Section</div>
-          <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.40)', marginBottom:'24px' }}>Enter your {userRole==='owner'?'4':'6'}-digit PIN to continue</div>
-          <div style={{ display:'flex', gap:'8px', justifyContent:'center', marginBottom:'16px' }}>
-            {Array.from({length: userRole==='owner'?4:6}).map((_,i)=>(
-              <div key={i} style={{ width:'36px', height:'44px', borderRadius:'9px', background:'rgba(255,255,255,0.06)', border:`1.5px solid ${pin.length>i?'rgba(255,215,0,0.60)':'rgba(255,255,255,0.12)'}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'20px', color:'rgba(255,215,0,0.90)' }}>
+        <div style={{ background:'rgba(10,22,34,0.92)', border:'1.5px solid rgba(255,215,0,0.25)', borderRadius:'18px', padding:'40px 36px', width:'320px', textAlign:'center', backdropFilter:'blur(20px)', boxShadow:'0 24px 60px rgba(0,0,0,0.60)' }}>
+          <div style={{ fontSize:'40px', marginBottom:'12px' }}>🔐</div>
+          <div style={{ fontSize:'16px', fontWeight:700, color:'rgba(255,255,255,0.92)', marginBottom:'4px' }}>Finance Section</div>
+          <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.40)', marginBottom:'6px' }}>{userRole === 'owner' ? 'Ken Mulanya — Owner' : 'Miriam Wanjiku — Finance Manager'}</div>
+          <div style={{ fontSize:'11px', color:'rgba(255,215,0,0.55)', marginBottom:'24px' }}>Enter your {pinLength}-digit PIN</div>
+
+          {/* PIN dots */}
+          <div style={{ display:'flex', gap:'10px', justifyContent:'center', marginBottom:'20px' }}>
+            {Array.from({length: pinLength}).map((_,i)=>(
+              <div key={i} style={{ width:'38px', height:'46px', borderRadius:'10px', background:'rgba(255,255,255,0.06)', border:`1.5px solid ${pin.length>i ? 'rgba(255,215,0,0.70)' : 'rgba(255,255,255,0.12)'}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'22px', color:'rgba(255,215,0,0.90)', transition:'border 0.15s' }}>
                 {pin.length > i ? '●' : ''}
               </div>
             ))}
           </div>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'8px', marginBottom:'12px' }}>
+
+          {/* Numpad */}
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'8px', marginBottom:'14px' }}>
             {['1','2','3','4','5','6','7','8','9','','0','⌫'].map((k,i)=>(
               <button key={i} onClick={()=>{
-                if(k==='⌫') setPin(p=>p.slice(0,-1))
-                else if(k&&pin.length<(userRole==='owner'?4:6)) setPin(p=>p+k)
-              }} style={{ padding:'14px', borderRadius:'10px', fontSize:'18px', fontWeight:600, background:k?'rgba(255,255,255,0.07)':'transparent', border:k?'1px solid rgba(255,255,255,0.10)':'none', color:'rgba(255,255,255,0.85)', cursor:k?'pointer':'default', fontFamily:'inherit' }}>{k}</button>
+                if (k === '⌫') { setPin(p=>p.slice(0,-1)); setError('') }
+                else if (k && pin.length < pinLength) setPin(p=>p+k)
+              }} style={{ padding:'15px', borderRadius:'10px', fontSize:'20px', fontWeight:600, background:k?'rgba(255,255,255,0.08)':'transparent', border:k?'1px solid rgba(255,255,255,0.10)':'none', color:'rgba(255,255,255,0.88)', cursor:k?'pointer':'default', fontFamily:'inherit', transition:'background 0.1s' }}
+              onMouseEnter={e=>k&&((e.target as HTMLElement).style.background='rgba(255,215,0,0.12)')}
+              onMouseLeave={e=>k&&((e.target as HTMLElement).style.background='rgba(255,255,255,0.08)')}>{k}</button>
             ))}
           </div>
-          {error && <div style={{ fontSize:'11px', color:'rgba(239,154,154,0.90)', marginBottom:'12px' }}>{error}</div>}
-          <button onClick={tryPin} disabled={pin.length < (userRole==='owner'?4:6)} style={{ width:'100%', padding:'12px', borderRadius:'10px', fontSize:'13px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,149,0,0.10))', border:'1.5px solid rgba(255,215,0,0.38)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit', opacity:pin.length<(userRole==='owner'?4:6)?0.5:1 }}>Unlock Finance</button>
-          <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.20)', marginTop:'12px' }}>Session unlocks until you log out</div>
+
+          {error && <div style={{ fontSize:'11px', color:'rgba(239,154,154,0.92)', marginBottom:'12px', padding:'8px', background:'rgba(231,76,60,0.10)', borderRadius:'8px' }}>{error}</div>}
+
+          <button onClick={tryPin} disabled={pin.length < pinLength} style={{ width:'100%', padding:'13px', borderRadius:'11px', fontSize:'13px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.20),rgba(255,149,0,0.12))', border:'1.5px solid rgba(255,215,0,0.40)', color:'rgba(255,215,0,0.95)', cursor:pin.length < pinLength ? 'not-allowed':'pointer', fontFamily:'inherit', opacity:pin.length < pinLength ? 0.45:1, transition:'opacity 0.2s' }}>
+            Unlock Finance
+          </button>
+          <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.18)', marginTop:'12px' }}>Stays unlocked until you log out</div>
         </div>
       </div>
     )
