@@ -1,104 +1,140 @@
 import { useState } from 'react'
-import { LockKeyhole, Mail, ShieldCheck } from 'lucide-react'
-import PskLogoOrbit from '../components/PskLogoOrbit'
 
 interface LoginPageProps {
   onLogin: (email: string) => void
 }
 
 export default function LoginPage({ onLogin }: LoginPageProps) {
-  const [email, setEmail] = useState('admin@psksafaris.com')
-  const [password, setPassword] = useState('password')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
     setError('')
+    if (!email || !password) {
+      setError('Please enter your email and password.')
+      return
+    }
     setLoading(true)
-
-    window.setTimeout(() => {
-      if (email && password) {
-        onLogin(email)
-      } else {
-        setError('Enter your email address and password to continue.')
-      }
+    setTimeout(() => {
+      onLogin(email)
       setLoading(false)
     }, 500)
   }
 
   return (
-    <main 
-      className="min-h-screen flex items-center justify-center overflow-hidden p-5 sm:p-8 relative"
-      style={{
-        backgroundImage: 'url(/branding/kilimanjaro-defender-bg.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed'
-      }}
-    >
-      {/* Ultra-minimal overlay for form contrast */}
-      <div className="absolute inset-0 bg-black/5 z-0" />
+    <main style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundImage: 'url(/branding/kilimanjaro-defender-bg.png)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      position: 'relative',
+    }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)' }} />
 
-      <section 
-        className="psk-login-card-transparent relative z-10 w-full max-w-[520px] p-7 sm:p-10"
-        style={{
-          backgroundColor: 'rgba(9, 26, 41, 0.15)',
-          backdropFilter: 'blur(30px)',
-          border: '1px solid rgba(160, 218, 239, 0.5)',
-          borderRadius: '24px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.1) inset'
-        }}
-      >
-        <header className="flex flex-col items-center text-center">
-          <PskLogoOrbit size="lg" className="mb-7" />
-          <h1 className="text-[2rem] sm:text-[2.35rem] font-extrabold tracking-[-0.03em] text-white leading-tight">
+      <section style={{
+        position: 'relative', zIndex: 1,
+        width: '100%', maxWidth: '420px',
+        margin: '0 20px',
+        background: 'rgba(8,20,30,0.75)',
+        backdropFilter: 'blur(28px)',
+        border: '1px solid rgba(255,215,0,0.18)',
+        borderRadius: '20px',
+        padding: '44px 40px',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+      }}>
+        {/* Logo */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '36px' }}>
+          <div style={{ position: 'relative', marginBottom: '18px' }}>
+            <div style={{
+              position: 'absolute', inset: -10, borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(255,215,0,0.28), transparent 70%)',
+              animation: 'logoPulse 3s ease-in-out infinite',
+            }} />
+            <img
+              src="/branding/psk-logo.png"
+              alt="PSK Safaris"
+              style={{
+                width: 72, height: 72, borderRadius: '50%',
+                border: '2px solid rgba(255,215,0,0.55)',
+                boxShadow: '0 0 24px rgba(255,215,0,0.28)',
+                position: 'relative', zIndex: 1,
+              }}
+            />
+          </div>
+          <div style={{ fontSize: '22px', fontWeight: 800, color: 'rgba(255,255,255,0.95)', letterSpacing: '-0.3px' }}>
             PSK Safaris
-          </h1>
-          <p className="mt-2 text-sm sm:text-base font-medium tracking-wide text-sky-300">
+          </div>
+          <div style={{ fontSize: '12px', color: 'rgba(255,215,0,0.60)', marginTop: '4px', fontWeight: 500 }}>
             Admin Platform
-          </p>
-        </header>
+          </div>
+        </div>
 
-        <form onSubmit={handleSubmit} className="mt-9 space-y-5">
-          <div>
-            <label htmlFor="email" className="psk-login-label">
-              Email
+        {/* Form */}
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.8px', textTransform: 'uppercase', display: 'block', marginBottom: '7px' }}>
+              Email address
             </label>
-            <div className="psk-login-input-wrap">
-              <Mail size={19} className="psk-login-input-icon" aria-hidden="true" />
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                className="psk-login-input"
-                disabled={loading}
-                autoComplete="email"
-              />
-            </div>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="your@email.com"
+              autoComplete="email"
+              disabled={loading}
+              style={{
+                width: '100%', padding: '12px 14px',
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                borderRadius: '10px',
+                color: 'rgba(255,255,255,0.90)',
+                fontSize: '13px',
+                outline: 'none',
+                fontFamily: 'inherit',
+              }}
+              onFocus={e => e.target.style.borderColor = 'rgba(255,215,0,0.35)'}
+              onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.12)'}
+            />
           </div>
 
-          <div>
-            <label htmlFor="password" className="psk-login-label">
+          <div style={{ marginBottom: '24px' }}>
+            <label style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.8px', textTransform: 'uppercase', display: 'block', marginBottom: '7px' }}>
               Password
             </label>
-            <div className="psk-login-input-wrap">
-              <LockKeyhole size={19} className="psk-login-input-icon" aria-hidden="true" />
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                className="psk-login-input"
-                disabled={loading}
-                autoComplete="current-password"
-              />
-            </div>
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••"
+              autoComplete="current-password"
+              disabled={loading}
+              style={{
+                width: '100%', padding: '12px 14px',
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                borderRadius: '10px',
+                color: 'rgba(255,255,255,0.90)',
+                fontSize: '13px',
+                outline: 'none',
+                fontFamily: 'inherit',
+              }}
+              onFocus={e => e.target.style.borderColor = 'rgba(255,215,0,0.35)'}
+              onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.12)'}
+            />
           </div>
 
           {error && (
-            <div className="rounded-xl border border-red-400/35 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+            <div style={{
+              background: 'rgba(231,76,60,0.10)', border: '1px solid rgba(231,76,60,0.22)',
+              borderRadius: '9px', padding: '10px 14px', marginBottom: '16px',
+              fontSize: '12px', color: 'rgba(239,154,154,0.90)',
+            }}>
               {error}
             </div>
           )}
@@ -106,16 +142,30 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           <button
             type="submit"
             disabled={loading}
-            className="psk-login-submit"
+            style={{
+              width: '100%', padding: '13px',
+              background: 'linear-gradient(135deg, rgba(255,215,0,0.18), rgba(255,149,0,0.12))',
+              border: '1.5px solid rgba(255,215,0,0.35)',
+              borderRadius: '10px',
+              color: 'rgba(255,215,0,0.95)',
+              fontSize: '13px', fontWeight: 700,
+              cursor: loading ? 'not-allowed' : 'pointer',
+              fontFamily: 'inherit',
+              letterSpacing: '0.3px',
+              opacity: loading ? 0.7 : 1,
+            }}
           >
-            {loading ? 'Signing in…' : 'Sign In'}
+            {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
 
-        <div className="psk-login-demo-note">
-          <ShieldCheck size={18} aria-hidden="true" />
-          <span>Demo: admin@psksafaris.com or faith@psksafaris.co.ke</span>
-        </div>
+        <style>{`
+          @keyframes logoPulse {
+            0%, 100% { opacity: 0.55; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.08); }
+          }
+          input::placeholder { color: rgba(255,255,255,0.22); }
+        `}</style>
       </section>
     </main>
   )
