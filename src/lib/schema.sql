@@ -220,3 +220,37 @@ create table if not exists psk_documents (
 );
 alter table psk_documents enable row level security;
 create policy "open" on psk_documents for all using (true) with check (true);
+
+-- MAINTENANCE LOGS
+create table if not exists maintenance_logs (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz default now(),
+  vehicle_id uuid references vehicles(id),
+  service_type text,
+  service_date date,
+  odometer_at_service integer,
+  vendor text,
+  next_service_km integer,
+  notes text,
+  receipt_url text
+);
+alter table maintenance_logs enable row level security;
+create policy "open" on maintenance_logs for all using (true) with check (true);
+
+-- FUEL LOGS
+create table if not exists fuel_logs (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz default now(),
+  vehicle_id uuid references vehicles(id),
+  driver_id uuid,
+  fuel_date date,
+  litres numeric(8,2),
+  amount_kes numeric(10,2),
+  odometer integer,
+  station text,
+  km_driven integer,
+  kes_per_100km numeric(8,2),
+  receipt_url text
+);
+alter table fuel_logs enable row level security;
+create policy "open" on fuel_logs for all using (true) with check (true);
