@@ -2,24 +2,21 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import FinancePINLock from './FinancePINLock'
 import { NAVIGATION_STRUCTURE } from '../data/navigation'
-import { getStaffByEmail } from '../data/staff'
 
 interface SidebarProps {
   onLogout: () => void
   currentUser?: string
 }
 
-export default function Sidebar({ onLogout, currentUser = '' }: SidebarProps) {
+export default function Sidebar({ onLogout }: SidebarProps) {
   const navigate = useNavigate()
   const location = useLocation()
   const [openCategory, setOpenCategory] = useState<string | null>('operations')
   const [financeUnlocked, setFinanceUnlocked] = useState(false)
   const [showFinancePIN, setShowFinancePIN] = useState(false)
   const [pendingFinanceOpen, setPendingFinanceOpen] = useState(false)
-  const [showBranchMenu, setShowBranchMenu] = useState(false)
-  const [currentBranch, setCurrentBranch] = useState<'eldoret' | 'kisumu'>('eldoret')
 
-  const staffInfo = currentUser ? getStaffByEmail(currentUser) : null
+  const [currentBranch, setCurrentBranch] = useState<'eldoret' | 'kisumu'>('eldoret')
 
   const handleCategoryClick = (categoryId: string) => {
     if (categoryId === 'finance' && !financeUnlocked) {
@@ -54,7 +51,7 @@ export default function Sidebar({ onLogout, currentUser = '' }: SidebarProps) {
     return location.pathname === route
   }
 
-  const isCategoryActive = (categoryId: string) => {
+  const getCategoryActive = (categoryId: string) => {
     const category = NAVIGATION_STRUCTURE.find(c => c.id === categoryId)
     if (!category) return false
     return category.subcategories.some(sub => isSubcategoryActive(sub.route))
@@ -70,189 +67,217 @@ export default function Sidebar({ onLogout, currentUser = '' }: SidebarProps) {
     <>
       {showFinancePIN && <FinancePINLock onUnlock={handleFinanceUnlock} />}
 
-      {/* Sidebar */}
-      <aside className="h-full w-64 bg-gradient-to-b from-[#0a1118] to-[#0c1520] border-r border-slate-700 flex flex-col overflow-hidden">
-        
-        {/* Logo Section */}
-        <div className="p-4 border-b border-white/7 flex-shrink-0">
-          {/* Logo with Glow */}
-          <div className="relative mb-4 flex justify-center">
-            {/* Glow Background */}
-            <div className="absolute inset-0 flex justify-center">
-              <div 
-                className="w-12 h-12 rounded-full animate-pulse"
-                style={{
-                  background: 'radial-gradient(circle, rgba(255,215,0,0.32), rgba(255,149,0,0.12) 50%, transparent 70%)',
-                  animation: 'pulse 3s ease-in-out infinite'
-                }}
-              />
-            </div>
-            
-            {/* Logo Circle */}
-            <div 
-              className="w-12 h-12 rounded-full flex items-center justify-center text-white font-black text-lg relative z-10 border-1.5 flex-shrink-0"
+      {/* Sidebar — 232px fixed width */}
+      <aside
+        className="h-screen flex flex-col flex-shrink-0 overflow-hidden"
+        style={{
+          width: '232px',
+          minWidth: '232px',
+          background: 'rgba(8,20,30,0.72)',
+          borderRight: '1.5px solid rgba(255,215,0,0.13)',
+        }}
+      >
+        {/* Logo Zone */}
+        <div
+          className="flex items-center gap-[13px] flex-shrink-0"
+          style={{
+            padding: '24px 18px 20px',
+            borderBottom: '1px solid rgba(255,215,0,0.10)',
+          }}
+        >
+          {/* Logo with glow */}
+          <div className="relative flex-shrink-0">
+            {/* Glow aura */}
+            <div
+              className="absolute inset-[-10px] rounded-full pointer-events-none"
               style={{
-                background: 'linear-gradient(135deg, #FF9500, #FFD700 45%, #2D5F3F)',
-                border: '1.5px solid rgba(255,215,0,0.45)',
-                boxShadow: '0 0 16px rgba(255,215,0,0.18)',
+                background: 'radial-gradient(circle, rgba(255,215,0,0.28) 0%, rgba(255,149,0,0.10) 50%, transparent 70%)',
+                animation: 'logoPulse 3s ease-in-out infinite',
               }}
-            >
-              P
-            </div>
+            />
+            
+            {/* Logo image */}
+            <img
+              src="/branding/psk-logo.png"
+              alt="PSK Safaris"
+              className="w-12 h-12 rounded-full relative z-10"
+              style={{
+                border: '2px solid rgba(255,215,0,0.55)',
+                boxShadow: '0 0 22px rgba(255,215,0,0.28), 0 2px 8px rgba(0,0,0,0.35)',
+              }}
+            />
           </div>
 
-          {/* Company Name */}
-          <div className="text-center">
-            <p className="text-sm font-semibold text-white" style={{ color: 'rgba(255,255,255,0.9)' }}>
+          {/* Logo text */}
+          <div className="flex-1 min-w-0">
+            <div className="text-[14px] font-bold" style={{ color: 'rgba(255,255,255,0.95)' }}>
               PSK Safaris
-            </p>
-            <p className="text-xs" style={{ color: 'rgba(255,215,0,0.5)' }}>
+            </div>
+            <div className="text-[10px] mt-[3px]" style={{ color: 'rgba(255,215,0,0.55)' }}>
               Admin Platform
-            </p>
+            </div>
           </div>
         </div>
 
         {/* Branch Selector */}
-        <div className="px-4 py-3 border-b border-white/7 flex-shrink-0">
-          <div className="relative">
-            <button
-              onClick={() => setShowBranchMenu(!showBranchMenu)}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition"
+        <div
+          className="relative flex items-center justify-between rounded-[9px] px-[13px] py-2 cursor-pointer group"
+          style={{
+            margin: '12px 14px 14px',
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,215,0,0.16)',
+          }}
+        >
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <div
+              className="w-[6px] h-[6px] rounded-full flex-shrink-0"
               style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.09)',
+                background: '#FFD700',
+                boxShadow: '0 0 7px rgba(255,215,0,0.65)',
               }}
-            >
-              <div className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
-              <span className="flex-1 text-left text-slate-300">{branchNames[currentBranch]}</span>
-              <span className="text-slate-500">⌄</span>
-            </button>
+            />
+            <span className="text-[11.5px] truncate" style={{ color: 'rgba(255,255,255,0.55)' }}>
+              {branchNames[currentBranch]}
+            </span>
+          </div>
+          <span className="text-[10px] flex-shrink-0 ml-1" style={{ color: 'rgba(255,255,255,0.35)' }}>
+            ⌄
+          </span>
 
-            {/* Branch Dropdown */}
-            {showBranchMenu && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-50">
-                {['eldoret', 'kisumi', 'all'].map((branch) => (
-                  <button
-                    key={branch}
-                    onClick={() => {
-                      setCurrentBranch(branch as 'eldoret' | 'kisumu')
-                      setShowBranchMenu(false)
-                    }}
-                    className={`w-full text-left px-3 py-2 text-xs border-b border-slate-800 last:border-b-0 transition ${
-                      currentBranch === branch
-                        ? 'bg-amber-600/20 text-amber-400'
-                        : 'text-slate-400 hover:bg-slate-800'
-                    }`}
-                  >
-                    {branchNames[branch]}
-                  </button>
-                ))}
-              </div>
-            )}
+          {/* Dropdown menu */}
+          <div
+            className="absolute top-full left-0 right-0 mt-1 rounded-lg overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50"
+            style={{
+              background: 'rgba(8,20,30,0.95)',
+              border: '1px solid rgba(255,215,0,0.16)',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+            }}
+          >
+            {Object.entries(branchNames).map(([id, label]) => (
+              <button
+                key={id}
+                onClick={() => setCurrentBranch(id as 'eldoret' | 'kisumu')}
+                className="w-full text-left px-3 py-2 text-[11px] transition"
+                style={{
+                  color: currentBranch === id ? 'rgba(255,215,0,0.95)' : 'rgba(255,255,255,0.55)',
+                  background: currentBranch === id ? 'rgba(255,215,0,0.08)' : 'transparent',
+                }}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-          {NAVIGATION_STRUCTURE.map((category) => {
-            const isOpen = openCategory === category.id
-            const isActive = isCategoryActive(category.id)
-            const hasSubcats = category.subcategories.length > 0
+        {/* Navigation - scrollable */}
+        <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-[2px]">
+          {/* Home */}
+          <button
+            onClick={() => {
+              navigate('/')
+              setOpenCategory(null)
+            }}
+            className="w-full flex items-center gap-[10px] px-3 py-[10px] rounded-[9px] border border-transparent transition-all text-[12.5px] font-normal relative"
+            style={{
+              color: location.pathname === '/' ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.42)',
+              background: location.pathname === '/' ? 'rgba(255,215,0,0.08)' : 'transparent',
+              borderColor: location.pathname === '/' ? 'rgba(255,215,0,0.20)' : 'transparent',
+              fontWeight: location.pathname === '/' ? 600 : 400,
+            }}
+          >
+            {location.pathname === '/' && (
+              <div
+                className="absolute left-0 top-[16%] bottom-[16%] w-[3px] rounded-[2px]"
+                style={{
+                  background: 'linear-gradient(180deg, #FFD700, #FF9500)',
+                }}
+              />
+            )}
+            <span>🏠</span>
+            <span>Home</span>
+          </button>
 
-            const visibleSubcats = category.id === 'finance' && !financeUnlocked 
-              ? [] 
-              : category.subcategories.filter(sub => {
-                  if (sub.roleRestricted === 'owner' && staffInfo?.role !== 'owner') {
-                    return false
-                  }
-                  return true
-                })
+          {/* Categories */}
+          {NAVIGATION_STRUCTURE.map(category => {
+            const isOpen = openCategory === category.id
+            const isCategoryActive = getCategoryActive(category.id)
 
             return (
               <div key={category.id}>
-                {/* Category Button */}
+                {/* Category button */}
                 <button
                   onClick={() => handleCategoryClick(category.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all relative group ${
-                    isActive || isOpen
-                      ? 'text-white'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                  style={
-                    isActive || isOpen
-                      ? {
-                          background: 'linear-gradient(135deg, rgba(255,215,0,0.11), rgba(255,149,0,0.055))',
-                          border: '1px solid rgba(255,215,0,0.18)',
-                          color: 'rgba(255,255,255,0.92)',
-                          fontWeight: '500',
-                        }
-                      : {}
-                  }
+                  className="w-full flex items-center gap-[10px] px-3 py-[10px] rounded-[9px] border border-transparent transition-all text-[12.5px] font-normal relative"
+                  style={{
+                    color: isCategoryActive ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.42)',
+                    background: isCategoryActive ? 'rgba(255,215,0,0.08)' : 'transparent',
+                    borderColor: isCategoryActive ? 'rgba(255,215,0,0.20)' : 'transparent',
+                    fontWeight: isCategoryActive ? 600 : 400,
+                  }}
                 >
-                  {/* Gold left bar for active */}
-                  {(isActive || isOpen) && (
-                    <div 
-                      className="absolute left-0 top-4 bottom-4 w-0.5 rounded"
+                  {isCategoryActive && (
+                    <div
+                      className="absolute left-0 top-[16%] bottom-[16%] w-[3px] rounded-[2px]"
                       style={{
-                        background: 'linear-gradient(180deg,#FFD700,#FF9500)',
+                        background: 'linear-gradient(180deg, #FFD700, #FF9500)',
                       }}
                     />
                   )}
-                  
-                  <span className="text-base flex-shrink-0">{category.icon}</span>
+                  <span>{category.icon}</span>
                   <span className="flex-1 text-left">{category.label}</span>
-                  {hasSubcats && (
-                    <span className={`text-xs transition-transform ${isOpen ? 'rotate-90' : ''}`}>
+                  {category.id === 'finance' && <span>🔒</span>}
+                  {category.subcategories.length > 0 && (
+                    <span
+                      className="text-[11px] transition-transform"
+                      style={{
+                        color: 'rgba(255,255,255,0.18)',
+                        transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                      }}
+                    >
                       ›
                     </span>
                   )}
-                  {category.id === 'finance' && <span className="text-xs">🔒</span>}
                 </button>
 
                 {/* Subcategories */}
-                {hasSubcats && (
+                {category.subcategories.length > 0 && (
                   <div
-                    className={`transition-all duration-200 overflow-hidden`}
+                    className="overflow-hidden transition-all"
                     style={{
-                      maxHeight: isOpen ? `${visibleSubcats.length * 36 + 8}px` : '0px',
+                      maxHeight: isOpen ? '500px' : '0px',
+                      transitionDuration: '240ms',
+                      transitionTimingFunction: 'cubic-bezier(0.4,0,0.2,1)',
                     }}
                   >
-                    {visibleSubcats.map((subcat) => (
-                      <button
-                        key={subcat.id}
-                        onClick={() => handleSubcategoryClick(subcat.route)}
-                        className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all ml-2 ${
-                          isSubcategoryActive(subcat.route)
-                            ? 'text-white'
-                            : 'text-slate-400 hover:text-slate-200'
-                        }`}
-                        style={
-                          isSubcategoryActive(subcat.route)
-                            ? {
-                                color: 'rgba(255,215,0,0.85)',
-                                background: 'rgba(255,215,0,0.055)',
-                                borderLeft: '2px solid rgba(255,215,0,0.42)',
-                                paddingLeft: '12px',
-                              }
-                            : {
-                                borderLeft: '2px solid rgba(255,255,255,0.06)',
-                                paddingLeft: '12px',
-                              }
-                        }
-                      >
-                        <span className="text-sm flex-shrink-0">{subcat.icon}</span>
-                        <span className="flex-1 text-left">{subcat.label}</span>
-                        {subcat.badge && (
-                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded flex-shrink-0 ${
-                            subcat.badgeColor === 'red'
-                              ? 'bg-red-500/30 text-red-300'
-                              : 'bg-amber-500/30 text-amber-300'
-                          }`}>
-                            {subcat.badge}
-                          </span>
-                        )}
-                      </button>
-                    ))}
+                    <div style={{ paddingLeft: '14px' }}>
+                      {category.subcategories.map(sub => (
+                        <button
+                          key={sub.id}
+                          onClick={() => handleSubcategoryClick(sub.route)}
+                          className="w-full flex items-center gap-2 px-[11px] py-[7px] rounded-[7px] text-[11.5px] mb-[1px] border-l-2 transition-all"
+                          style={{
+                            color: isSubcategoryActive(sub.route) ? 'rgba(255,215,0,0.90)' : 'rgba(255,255,255,0.32)',
+                            background: isSubcategoryActive(sub.route) ? 'rgba(255,215,0,0.06)' : 'transparent',
+                            borderLeftColor: isSubcategoryActive(sub.route) ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.07)',
+                            fontWeight: isSubcategoryActive(sub.route) ? 500 : 400,
+                          }}
+                        >
+                          <span>{sub.icon}</span>
+                          <span className="flex-1 text-left">{sub.label}</span>
+                          {sub.badge && (
+                            <span
+                              className="text-[8px] font-bold px-[6px] py-[2px] rounded-[7px]"
+                              style={{
+                                background: sub.badgeColor === 'red' ? 'rgba(231,76,60,0.18)' : 'rgba(255,149,0,0.16)',
+                                color: sub.badgeColor === 'red' ? 'rgba(239,120,120,0.95)' : 'rgba(255,183,50,0.95)',
+                              }}
+                            >
+                              {sub.badge}
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -260,49 +285,39 @@ export default function Sidebar({ onLogout, currentUser = '' }: SidebarProps) {
           })}
         </nav>
 
-        {/* User Footer */}
-        {staffInfo && (
-          <div className="p-4 border-t border-white/7 flex-shrink-0">
-            <div className="flex items-center gap-3">
-              <div 
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                style={{
-                  background: 'linear-gradient(135deg, #FF9500, #FFD700)',
-                }}
-              >
-                {staffInfo.name.split(' ').map(n => n[0]).join('')}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-white truncate">{staffInfo.name}</p>
-                <p className="text-[10px] text-slate-400 truncate capitalize">{staffInfo.role} · All branches</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Logout */}
-        <div className="p-3 border-t border-white/7 flex-shrink-0">
+        {/* Logout button at bottom */}
+        <div
+          className="flex-shrink-0 px-3 py-3 border-t"
+          style={{
+            borderColor: 'rgba(255,215,0,0.10)',
+          }}
+        >
           <button
             onClick={onLogout}
-            className="w-full px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-700/40 transition"
+            className="w-full px-3 py-2 rounded-lg text-[11.5px] font-medium transition"
+            style={{
+              color: 'rgba(255,255,255,0.55)',
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.09)',
+            }}
           >
-            🚪 Logout
+            Logout
           </button>
         </div>
-      </aside>
 
-      <style>{`
-        @keyframes pulse {
-          0%, 100% {
-            transform: scale(1);
-            opacity: 0.65;
+        <style>{`
+          @keyframes logoPulse {
+            0%, 100% {
+              opacity: 0.55;
+              transform: scale(1);
+            }
+            50% {
+              opacity: 1;
+              transform: scale(1.10);
+            }
           }
-          50% {
-            transform: scale(1.07);
-            opacity: 1;
-          }
-        }
-      `}</style>
+        `}</style>
+      </aside>
     </>
   )
 }

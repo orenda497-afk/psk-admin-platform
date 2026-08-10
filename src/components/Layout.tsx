@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { useLocation } from 'react-router-dom'
+
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
 import { getStaffBranch } from '../data/staff'
@@ -17,7 +17,7 @@ export default function Layout({
   currentBranch = 'eldoret',
   currentUser = ''
 }: LayoutProps) {
-  const location = useLocation()
+
 
   // If user is assigned to a specific branch, lock them to that branch
   const userBranch = currentUser ? getStaffBranch(currentUser) : null
@@ -25,30 +25,9 @@ export default function Layout({
 
 
 
-  const getPageTitle = () => {
-    switch (location.pathname) {
-      case '/':
-        return { title: 'Registry Board', subtitle: 'Live fleet status' }
-      case '/bookings':
-        return { title: 'Bookings', subtitle: 'Manage reservations' }
-      case '/clients':
-        return { title: 'Clients', subtitle: 'Client management' }
-      case '/drivers':
-        return { title: 'Drivers & Staff', subtitle: 'Team management' }
-      case '/investors':
-        return { title: 'Investors', subtitle: 'Investor management' }
-      case '/finance':
-        return { title: 'Finance', subtitle: 'Financial overview' }
-      case '/quotations':
-        return { title: 'Quotations', subtitle: 'Quote management' }
-      case '/analytics':
-        return { title: 'Fleet Intelligence', subtitle: 'Utilization & maintenance analytics' }
-      default:
-        return { title: 'Dashboard', subtitle: '' }
-    }
-  }
 
-  const pageInfo = getPageTitle()
+
+
 
   return (
     <div style={{ display: 'flex', height: '100vh' }} className="bg-psk-bg-base overflow-hidden">
@@ -62,8 +41,6 @@ export default function Layout({
         {/* TopBar — only inside main, never over sidebar */}
         <header style={{ flexShrink: 0 }}>
           <TopBar 
-            title={pageInfo.title} 
-            subtitle={pageInfo.subtitle}
             currentBranch={displayBranch}
           />
         </header>
