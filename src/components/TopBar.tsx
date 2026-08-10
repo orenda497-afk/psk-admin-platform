@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 
 interface TopBarProps {
@@ -7,138 +7,103 @@ interface TopBarProps {
 
 export default function TopBar({ currentBranch = 'eldoret' }: TopBarProps) {
   const location = useLocation()
+  const navigate = useNavigate()
 
-  // Get page title and subtitle based on route
   const getPageInfo = () => {
     const route = location.pathname
     const pages: Record<string, { title: string; subtitle: string }> = {
-      '/': { title: 'Home', subtitle: format(new Date(), 'EEEE, d MMMM yyyy') },
-      '/registry': { title: 'Registry Board', subtitle: 'Live fleet status' },
-      '/bookings': { title: 'Bookings', subtitle: 'Manage reservations' },
-      '/clients': { title: 'Clients', subtitle: 'Customer management' },
-      '/drivers': { title: 'Drivers', subtitle: 'Driver profiles' },
-      '/maintenance': { title: 'Maintenance', subtitle: 'Service schedules' },
-      '/fuel': { title: 'Fuel Log', subtitle: 'Consumption tracking' },
-      '/finance': { title: 'Finance', subtitle: 'Financial overview' },
-      '/analytics': { title: 'Analytics', subtitle: 'Fleet intelligence' },
+      '/':                      { title: 'Home',                subtitle: format(new Date(), 'EEEE, d MMMM yyyy') },
+      '/registry':              { title: 'Registry Board',      subtitle: 'Live fleet status' },
+      '/operations/registry':   { title: 'Registry Board',      subtitle: 'Live fleet status' },
+      '/bookings':              { title: 'Bookings',            subtitle: 'All branches' },
+      '/operations/bookings':   { title: 'Bookings',            subtitle: 'All branches' },
+      '/clients':               { title: 'Clients',             subtitle: 'Client management' },
+      '/clients/individual':    { title: 'Clients',             subtitle: 'Individual clients' },
+      '/clients/corporate':     { title: 'Clients',             subtitle: 'Corporate clients' },
+      '/clients/agency':        { title: 'Clients',             subtitle: 'Agencies' },
+      '/clients/government':    { title: 'Clients',             subtitle: 'Government' },
+      '/drivers':               { title: 'Drivers & Staff',     subtitle: 'Driver management' },
+      '/partners/drivers':      { title: 'Drivers & Staff',     subtitle: 'Driver management' },
+      '/partners':              { title: 'Partners',            subtitle: 'Drivers & vehicle owners' },
+      '/partners/owners':       { title: 'Vehicle Owners',      subtitle: 'Partner management' },
+      '/partners/payouts':      { title: 'Owner Payouts',       subtitle: 'Payout tracking' },
+      '/fleet/vehicles':        { title: 'PSK Fleet',           subtitle: 'Vehicle management' },
+      '/fleet/maintenance':     { title: 'Maintenance',         subtitle: 'Service scheduler' },
+      '/fleet/fuel':            { title: 'Fuel Log',            subtitle: 'Consumption tracker' },
+      '/fleet/compliance':      { title: 'Compliance Calendar', subtitle: 'NTSA & document tracking' },
+      '/finance':               { title: 'Finance',             subtitle: 'Financial command centre' },
+      '/finance/documents':     { title: 'Documents',           subtitle: 'Invoices & quotations' },
+      '/finance/mpesa':         { title: 'M-Pesa Recon',        subtitle: 'Payment matching' },
+      '/finance/expenses':      { title: 'Expenses',            subtitle: 'Expense management' },
+      '/finance/pl':            { title: 'P&L by Vehicle',      subtitle: '70/30 profit split' },
+      '/finance/payouts':       { title: 'Owner Payouts',       subtitle: 'Payout management' },
+      '/finance/receivables':   { title: 'Receivables',         subtitle: 'Outstanding balances' },
+      '/finance/reports':       { title: 'Reports',             subtitle: 'Financial exports' },
+      '/analytics':             { title: 'Analytics',           subtitle: 'Business intelligence' },
+      '/audit':                 { title: 'Audit Log',           subtitle: 'System activity' },
+      '/settings':              { title: 'Settings',            subtitle: 'System configuration' },
+      '/reminders':             { title: 'Reminders',           subtitle: 'Action items' },
+      '/quotations':            { title: 'Quotations',          subtitle: 'Client quotes' },
     }
-    return pages[route] || { title: 'Dashboard', subtitle: format(new Date(), 'EEEE, d MMMM yyyy') }
+    return pages[route] || { title: 'PSK Safaris', subtitle: format(new Date(), 'EEEE, d MMMM yyyy') }
   }
 
   const pageInfo = getPageInfo()
   const branchLabel = currentBranch === 'eldoret' ? 'Eldoret HQ' : 'Kisumu Branch'
 
+  // New Booking button: go to bookings page and trigger the modal via URL state
+  const handleNewBooking = () => {
+    navigate('/bookings', { state: { openAdd: true } })
+  }
+
   return (
-    <header
-      className="flex items-center justify-between flex-shrink-0"
-      style={{
-        minHeight: '68px',
-        padding: '0 28px',
-        background: 'rgba(8,20,30,0.55)',
-        borderBottom: '1.5px solid rgba(255,215,0,0.10)',
-      }}
-    >
-      {/* Left side — Page title and subtitle */}
+    <header style={{
+      minHeight: '68px', padding: '0 28px',
+      background: 'rgba(8,20,30,0.55)',
+      borderBottom: '1.5px solid rgba(255,215,0,0.10)',
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      flexShrink: 0,
+    }}>
+      {/* Left */}
       <div>
-        <h1
-          className="font-bold"
-          style={{
-            fontSize: '17px',
-            fontWeight: 700,
-            color: 'rgba(255,255,255,0.95)',
-            letterSpacing: '-0.3px',
-          }}
-        >
+        <div style={{ fontSize:'17px', fontWeight:700, color:'rgba(255,255,255,0.95)', letterSpacing:'-0.3px' }}>
           {pageInfo.title}
-        </h1>
-        <p
-          className="mt-[3px]"
-          style={{
-            fontSize: '11px',
-            color: 'rgba(255,255,255,0.32)',
-          }}
-        >
+        </div>
+        <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.32)', marginTop:'3px' }}>
           {pageInfo.subtitle}
-        </p>
+        </div>
       </div>
 
-      {/* Right side — Branch pill, date chip, bell, new booking button */}
-      <div className="flex items-center gap-3">
+      {/* Right */}
+      <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
         {/* Branch pill */}
-        <div
-          className="flex items-center gap-[7px]"
-          style={{
-            fontSize: '11.5px',
-            color: 'rgba(255,255,255,0.55)',
-            fontWeight: 500,
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,215,0,0.18)',
-            borderRadius: '8px',
-            padding: '7px 14px',
-          }}
-        >
-          <div
-            className="w-[6px] h-[6px] rounded-full flex-shrink-0"
-            style={{
-              background: '#FFD700',
-              boxShadow: '0 0 7px rgba(255,215,0,0.65)',
-            }}
-          />
+        <div style={{ display:'flex', alignItems:'center', gap:'7px', fontSize:'11.5px', color:'rgba(255,255,255,0.55)', fontWeight:500, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,215,0,0.18)', borderRadius:'8px', padding:'7px 14px' }}>
+          <div style={{ width:'6px', height:'6px', borderRadius:'50%', background:'#FFD700', boxShadow:'0 0 7px rgba(255,215,0,0.65)', flexShrink:0 }} />
           {branchLabel}
         </div>
 
         {/* Date chip */}
-        <div
-          style={{
-            fontSize: '11px',
-            color: 'rgba(255,255,255,0.35)',
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.09)',
-            borderRadius: '7px',
-            padding: '7px 14px',
-          }}
-        >
-          {format(new Date(), 'MMM d')}
+        <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.35)', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.09)', borderRadius:'7px', padding:'7px 14px' }}>
+          {format(new Date(), 'd MMM')}
         </div>
 
-        {/* Bell button */}
-        <button
-          className="relative flex items-center justify-center flex-shrink-0 transition hover:opacity-80"
-          style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '10px',
-            background: 'rgba(255,255,255,0.06)',
-            border: '1px solid rgba(255,215,0,0.14)',
-            color: 'rgba(255,255,255,0.55)',
-            fontSize: '18px',
-          }}
-        >
-          🔔
-          {/* Red badge */}
-          <div
-            className="absolute top-1 right-1 w-2 h-2 rounded-full"
-            style={{
-              background: '#C0392B',
-              border: '2px solid #C0392B',
-            }}
-          />
-        </button>
+        {/* Bell */}
+        <div style={{ position:'relative', width:'38px', height:'38px', borderRadius:'10px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,215,0,0.14)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
+          <span style={{ fontSize:'16px' }}>🔔</span>
+        </div>
 
-        {/* New booking button */}
+        {/* + New booking — navigates to bookings and opens modal */}
         <button
-          className="flex items-center justify-center font-semibold transition hover:opacity-90"
+          onClick={handleNewBooking}
           style={{
-            height: '38px',
-            padding: '0 20px',
-            background: 'linear-gradient(135deg, rgba(255,215,0,0.16), rgba(255,149,0,0.09))',
-            border: '1.5px solid rgba(255,215,0,0.32)',
-            borderRadius: '10px',
-            color: 'rgba(255,215,0,0.95)',
-            fontSize: '12px',
-            fontWeight: 600,
-            boxShadow: '0 2px 16px rgba(255,215,0,0.08)',
-            whiteSpace: 'nowrap',
+            height:'38px', padding:'0 20px',
+            background:'linear-gradient(135deg, rgba(255,215,0,0.18), rgba(255,149,0,0.10))',
+            border:'1.5px solid rgba(255,215,0,0.38)',
+            borderRadius:'10px',
+            color:'rgba(255,215,0,0.98)',
+            fontSize:'12px', fontWeight:700,
+            cursor:'pointer', fontFamily:'inherit',
+            whiteSpace:'nowrap',
           }}
         >
           + New booking

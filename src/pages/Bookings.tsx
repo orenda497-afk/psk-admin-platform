@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 type TripType = 'chauffeured' | 'safari' | 'self-drive' | 'airport'
@@ -63,6 +63,7 @@ const RATECARD: Record<string, {driverOnly:number; fuel100:number; fuel300:numbe
 
 export default function Bookings() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [bookings, setBookings]   = useState<Booking[]>([])
   const [clients, setClients]     = useState<any[]>([])
   const [vehicles, setVehicles]   = useState<any[]>([])
@@ -87,6 +88,7 @@ export default function Bookings() {
   })
 
   useEffect(() => { loadAll() }, [])
+  useEffect(() => { if ((location.state as any)?.openAdd) { setShowAdd(true) } }, [location.state])
 
   async function loadAll() {
     setLoading(true)
