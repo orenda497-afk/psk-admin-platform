@@ -8,6 +8,7 @@ const USERS = [
   { email:'faith@psksafaris.com',  password:'PSKKisumu2026!',  role:'manager', name:'Faith',          title:'Kisumu Branch Manager' },
   { email:'evans@psksafaris.com',  password:'PSKOps2026!',     role:'ops',     name:'Evans',          title:'Operations' },
   { email:'brenda@psksafaris.com', password:'PSKOps2026!',     role:'ops',     name:'Brenda',         title:'Operations Assistant' },
+  { email:'intern@psksafaris.com',  password:'PSKIntern2026!',  role:'intern',  name:'Intern',         title:'Intern' },
 ]
 
 export default function LoginPage({ onLogin }: Props) {
