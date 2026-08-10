@@ -152,14 +152,14 @@ function App() {
           <Route path="/owner-portal" element={<VehicleOwners defaultTab="portal" />} />
 
           {/* FINANCE — blocked for branch manager role */}
-          <Route path="/finance" element={user?.role==='manager' ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} userRole={user?.role||'manager'} /></FinancePIN>} />
+          <Route path="/finance" element={['manager','ops'].includes(user?.role||'') ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} userRole={user?.role||'manager'} /></FinancePIN>} />
           <Route path="/finance/documents" element={<Documents />} />
-          <Route path="/finance/mpesa" element={user?.role==='manager' ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} defaultTab="mpesa" userRole={user?.role||'manager'} /></FinancePIN>} />
-          <Route path="/finance/expenses" element={user?.role==='manager' ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} defaultTab="expenses" userRole={user?.role||'manager'} /></FinancePIN>} />
-          <Route path="/finance/pl" element={user?.role==='manager' ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} defaultTab="pl" userRole={user?.role||'manager'} /></FinancePIN>} />
-          <Route path="/finance/payouts" element={user?.role==='manager' ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} defaultTab="payouts" userRole={user?.role||'manager'} /></FinancePIN>} />
-          <Route path="/finance/receivables" element={user?.role==='manager' ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} defaultTab="receivables" userRole={user?.role||'manager'} /></FinancePIN>} />
-          <Route path="/finance/reports" element={user?.role==='manager' ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} defaultTab="reports" userRole={user?.role||'manager'} /></FinancePIN>} />
+          <Route path="/finance/mpesa" element={['manager','ops'].includes(user?.role||'') ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} defaultTab="mpesa" userRole={user?.role||'manager'} /></FinancePIN>} />
+          <Route path="/finance/expenses" element={['manager','ops'].includes(user?.role||'') ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} defaultTab="expenses" userRole={user?.role||'manager'} /></FinancePIN>} />
+          <Route path="/finance/pl" element={['manager','ops'].includes(user?.role||'') ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} defaultTab="pl" userRole={user?.role||'manager'} /></FinancePIN>} />
+          <Route path="/finance/payouts" element={['manager','ops'].includes(user?.role||'') ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} defaultTab="payouts" userRole={user?.role||'manager'} /></FinancePIN>} />
+          <Route path="/finance/receivables" element={['manager','ops'].includes(user?.role||'') ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} defaultTab="receivables" userRole={user?.role||'manager'} /></FinancePIN>} />
+          <Route path="/finance/reports" element={['manager','ops'].includes(user?.role||'') ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} defaultTab="reports" userRole={user?.role||'manager'} /></FinancePIN>} />
 
           {/* INTELLIGENCE */}
           <Route path="/analytics" element={<Analytics />} />

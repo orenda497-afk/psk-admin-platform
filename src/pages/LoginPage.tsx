@@ -3,10 +3,11 @@ import { useState } from 'react'
 interface Props { onLogin: (role: string) => void }
 
 const USERS = [
-  { email:'ken@psksafaris.com',    password:'PSKOwner2026!',  role:'owner',   name:'Ken Mulanya',    title:'Owner' },
-  { email:'miriam@psksafaris.com', password:'PSKFinance2026!',role:'finance',  name:'Miriam Wanjiku', title:'Finance Manager' },
-  { email:'faith@psksafaris.com',  password:'PSKKisumu2026!', role:'manager',  name:'Faith',          title:'Kisumu Branch Manager' },
-  { email:'admin@psksafaris.com',  password:'PSKAdmin2026!',  role:'owner',   name:'Admin',          title:'Administrator' },
+  { email:'ken@psksafaris.com',    password:'PSKOwner2026!',   role:'owner',   name:'Ken Mulanya',    title:'Owner' },
+  { email:'miriam@psksafaris.com', password:'PSKFinance2026!', role:'finance', name:'Miriam Wanjiku', title:'Finance Manager' },
+  { email:'faith@psksafaris.com',  password:'PSKKisumu2026!',  role:'manager', name:'Faith',          title:'Kisumu Branch Manager' },
+  { email:'evans@psksafaris.com',  password:'PSKOps2026!',     role:'ops',     name:'Evans',          title:'Operations' },
+  { email:'brenda@psksafaris.com', password:'PSKOps2026!',     role:'ops',     name:'Brenda',         title:'Operations Assistant' },
 ]
 
 export default function LoginPage({ onLogin }: Props) {
