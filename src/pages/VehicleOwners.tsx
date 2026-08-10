@@ -16,8 +16,9 @@ const gl = {
   label: { fontSize:'9px', fontWeight:600, letterSpacing:'1.2px', textTransform:'uppercase' as const, color:'rgba(255,255,255,0.32)' },
 }
 
-export default function VehicleOwners() {
+export default function VehicleOwners({ defaultTab = 'owners' }: { defaultTab?: string }) {
   const navigate = useNavigate()
+  const [tab, setTab] = useState(defaultTab)
   const [owners, setOwners]     = useState<Owner[]>([])
   const [vehicles, setVehicles] = useState<any[]>([])
   const [loading, setLoading]   = useState(true)
@@ -116,6 +117,13 @@ export default function VehicleOwners() {
   return (
     <div style={{ padding:'24px 28px 28px' }}>
       <div onClick={()=>navigate('/partners')} style={{ display:'flex', alignItems:'center', gap:'6px', color:'rgba(255,215,0,0.70)', fontSize:'12px', fontWeight:500, cursor:'pointer', marginBottom:'18px' }}>← Partners</div>
+      <div style={{ display:'flex', gap:'6px', marginBottom:'18px' }}>
+        {(['owners','payouts','portal'] as const).map(id=>(
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'7px 16px', borderRadius:'20px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:tab===id?'rgba(255,215,0,0.12)':'rgba(255,255,255,0.05)', border:`1px solid ${tab===id?'rgba(255,215,0,0.35)':'rgba(255,255,255,0.10)'}`, color:tab===id?'rgba(255,215,0,0.90)':'rgba(255,255,255,0.40)' }}>{id.charAt(0).toUpperCase()+id.slice(1)}</button>
+        ))}
+      </div>
+      {tab==='payouts' && <div style={{ background:'rgba(10,22,34,0.70)', border:'1.5px solid rgba(255,255,255,0.09)', borderRadius:'14px', backdropFilter:'blur(14px)', padding:'40px', textAlign:'center' }}><div style={{ fontSize:'36px', marginBottom:'14px' }}>💵</div><div style={{ fontSize:'15px', fontWeight:700, color:'rgba(255,255,255,0.70)', marginBottom:'8px' }}>Owner Payouts</div><div style={{ fontSize:'12px', color:'rgba(255,255,255,0.35)', marginBottom:'20px' }}>Payout records live in the Finance section</div><button onClick={()=>navigate('/finance/payouts')} style={{ padding:'10px 22px', borderRadius:'10px', fontSize:'12px', fontWeight:600, background:'linear-gradient(135deg,rgba(255,215,0,0.16),rgba(255,149,0,0.09))', border:'1.5px solid rgba(255,215,0,0.32)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit' }}>Finance — Owner Payouts →</button></div>}
+      {tab==='portal' && <div style={{ background:'rgba(10,22,34,0.70)', border:'1.5px solid rgba(255,255,255,0.09)', borderRadius:'14px', backdropFilter:'blur(14px)', padding:'40px', textAlign:'center' }}><div style={{ fontSize:'36px', marginBottom:'14px' }}>🔗</div><div style={{ fontSize:'15px', fontWeight:700, color:'rgba(255,255,255,0.70)', marginBottom:'8px' }}>Owner Self-Service Portal</div><div style={{ fontSize:'12px', color:'rgba(255,255,255,0.35)', marginBottom:'8px' }}>Coming soon — owners log in here to view their earnings and payout history</div><div style={{ fontSize:'11px', color:'rgba(255,215,0,0.45)', marginTop:'12px' }}>For now, share payout details via WhatsApp from Finance → Owner Payouts</div></div>}
 
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'18px', flexWrap:'wrap', gap:'10px' }}>
         <div>
