@@ -1,114 +1,106 @@
-import Home from "./pages/Home"
 import { useState } from 'react'
-import Home from "./pages/Home"
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
 import Layout from './components/Layout'
+import Home from './pages/Home'
 import RegistryBoard from './pages/RegistryBoard'
 import Bookings from './pages/Bookings'
 import Clients from './pages/Clients'
 import Drivers from './pages/Drivers'
-import Investors from './pages/Investors'
 import Finance from './pages/Finance'
 import Quotations from './pages/Quotations'
 import Analytics from './pages/Analytics'
-import Home from "./pages/Home"
-import {
-  HomeOverview,
-  OperationsOverview,
-  ClientsOverview,
-  FleetOverview,
-  OwnersOverview,
-  FinanceOverview,
-  IntelligenceOverview
-} from './pages/CategoryPages'
-import Home from "./pages/Home"
-import { getStaffBranch } from './data/staff'
+import VehicleOwners from './pages/VehicleOwners'
+import PSKFleet from './pages/PSKFleet'
+import Partners from './pages/Partners'
+import Reminders from './pages/Reminders'
+import Settings from './pages/Settings'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [currentUser, setCurrentUser] = useState<string>('')
-  const [currentBranch, setCurrentBranch] = useState<'eldoret' | 'kisumu'>('eldoret')
+  const [currentBranch] = useState<'eldoret' | 'kisumu'>('eldoret')
 
-  const handleLogin = (email: string) => {
-    setIsAuthenticated(true)
-    setCurrentUser(email)
-    // Set branch based on staff member's assigned branch
-    const userBranch = getStaffBranch(email)
-    setCurrentBranch(userBranch)
-  }
-
-  const handleLogout = () => {
-    setIsAuthenticated(false)
-    setCurrentUser('')
-    setCurrentBranch('eldoret')
-  }
-
-
+  const ComingSoon = ({ title }: { title: string }) => (
+    <div style={{ padding: '40px', textAlign: 'center' }}>
+      <div style={{ fontSize: '32px', marginBottom: '16px' }}>🚧</div>
+      <div style={{ fontSize: '16px', fontWeight: 700, color: 'rgba(255,255,255,0.60)', marginBottom: '8px' }}>{title}</div>
+      <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.28)' }}>This screen is being built. Check back soon.</div>
+    </div>
+  )
 
   if (!isAuthenticated) {
-    return <LoginPage onLogin={handleLogin} />
+    return <LoginPage onLogin={() => setIsAuthenticated(true)} />
   }
 
   return (
     <Router>
-      <Layout 
-        onLogout={handleLogout}
-        currentBranch={currentBranch}
-        currentUser={currentUser}
-      >
+      <Layout onLogout={() => setIsAuthenticated(false)} currentBranch={currentBranch}>
         <Routes>
-          {/* Category Overviews */}
+          {/* HOME */}
           <Route path="/" element={<Home />} />
-          <Route path="/operations" element={<OperationsOverview />} />
-          <Route path="/clients-drivers" element={<ClientsOverview />} />
-          <Route path="/fleet-overview" element={<FleetOverview />} />
-          <Route path="/owners-overview" element={<OwnersOverview />} />
-          <Route path="/finance-overview" element={<FinanceOverview />} />
-          <Route path="/intelligence-overview" element={<IntelligenceOverview />} />
 
-          {/* Operations Routes */}
+          {/* OPERATIONS */}
           <Route path="/registry" element={<RegistryBoard />} />
+          <Route path="/operations/registry" element={<RegistryBoard />} />
           <Route path="/bookings" element={<Bookings />} />
-          <Route path="/agreements" element={<div className="text-white">Rental Agreements (Coming Soon)</div>} />
-          <Route path="/handover" element={<div className="text-white">Handover Checklists (Coming Soon)</div>} />
+          <Route path="/operations/bookings" element={<Bookings />} />
           <Route path="/quotations" element={<Quotations />} />
-          <Route path="/reminders" element={<div className="text-white">Reminders (Coming Soon)</div>} />
+          <Route path="/operations/quotations" element={<Quotations />} />
+          <Route path="/operations/agreements" element={<ComingSoon title="Rental Agreements" />} />
+          <Route path="/agreements" element={<ComingSoon title="Rental Agreements" />} />
+          <Route path="/operations/handover" element={<ComingSoon title="Handover Checklists" />} />
+          <Route path="/handover" element={<ComingSoon title="Handover Checklists" />} />
+          <Route path="/operations/reminders" element={<Reminders />} />
+          <Route path="/reminders" element={<Reminders />} />
 
-          {/* Clients & Drivers Routes */}
+          {/* CLIENTS */}
           <Route path="/clients" element={<Clients />} />
+          <Route path="/clients/individual" element={<Clients defaultTab="individual" />} />
+          <Route path="/clients/corporate" element={<Clients defaultTab="corporate" />} />
+          <Route path="/clients/agency" element={<Clients defaultTab="agency" />} />
+          <Route path="/clients/government" element={<Clients defaultTab="government" />} />
+
+          {/* DRIVERS */}
           <Route path="/drivers" element={<Drivers />} />
-          <Route path="/ratings" element={<div className="text-white">Ratings & Feedback (Coming Soon)</div>} />
+          <Route path="/partners/drivers" element={<Drivers />} />
 
-          {/* Fleet Routes */}
-          <Route path="/maintenance" element={<div className="text-white">Maintenance (Coming Soon)</div>} />
-          <Route path="/fuel" element={<div className="text-white">Fuel Log (Coming Soon)</div>} />
-          <Route path="/compliance" element={<div className="text-white">Compliance Calendar (Coming Soon)</div>} />
+          {/* PSK FLEET */}
+          <Route path="/fleet/vehicles" element={<PSKFleet />} />
+          <Route path="/fleet/maintenance" element={<PSKFleet defaultTab="maintenance" />} />
+          <Route path="/maintenance" element={<PSKFleet defaultTab="maintenance" />} />
+          <Route path="/fleet/fuel" element={<PSKFleet defaultTab="fuel" />} />
+          <Route path="/fuel" element={<PSKFleet defaultTab="fuel" />} />
+          <Route path="/fleet/compliance" element={<PSKFleet defaultTab="compliance" />} />
+          <Route path="/compliance" element={<PSKFleet defaultTab="compliance" />} />
 
-          {/* Owners Routes */}
-          <Route path="/owners" element={<div className="text-white">Owner Profiles (Coming Soon)</div>} />
-          <Route path="/owner-payouts" element={<div className="text-white">Owner Payouts (Coming Soon)</div>} />
-          <Route path="/owner-portal" element={<div className="text-white">Owner Portal (Coming Soon)</div>} />
+          {/* PARTNERS */}
+          <Route path="/partners" element={<Partners />} />
+          <Route path="/partners/owners" element={<VehicleOwners />} />
+          <Route path="/owners" element={<VehicleOwners />} />
+          <Route path="/partners/payouts" element={<VehicleOwners defaultTab="payouts" />} />
+          <Route path="/owner-payouts" element={<VehicleOwners defaultTab="payouts" />} />
+          <Route path="/partners/portal" element={<VehicleOwners defaultTab="portal" />} />
+          <Route path="/owner-portal" element={<VehicleOwners defaultTab="portal" />} />
 
-          {/* Finance Routes */}
+          {/* FINANCE */}
           <Route path="/finance" element={<Finance currentBranch={currentBranch} />} />
-          <Route path="/finance/documents" element={<Finance currentBranch={currentBranch} />} />
-          <Route path="/finance/mpesa" element={<div className="text-white">M-Pesa Reconciliation (Coming Soon)</div>} />
-          <Route path="/finance/expenses" element={<div className="text-white">Expenses (Coming Soon)</div>} />
-          <Route path="/finance/pl" element={<div className="text-white">P&L by Vehicle (Coming Soon)</div>} />
-          <Route path="/finance/payouts" element={<div className="text-white">Owner Payouts (Coming Soon)</div>} />
-          <Route path="/finance/receivables" element={<div className="text-white">Receivables (Coming Soon)</div>} />
-          <Route path="/finance/reports" element={<div className="text-white">Reports (Coming Soon)</div>} />
+          <Route path="/finance/documents" element={<Finance currentBranch={currentBranch} defaultTab="documents" />} />
+          <Route path="/finance/mpesa" element={<Finance currentBranch={currentBranch} defaultTab="mpesa" />} />
+          <Route path="/finance/expenses" element={<Finance currentBranch={currentBranch} defaultTab="expenses" />} />
+          <Route path="/finance/pl" element={<Finance currentBranch={currentBranch} defaultTab="pl" />} />
+          <Route path="/finance/payouts" element={<Finance currentBranch={currentBranch} defaultTab="payouts" />} />
+          <Route path="/finance/receivables" element={<Finance currentBranch={currentBranch} defaultTab="receivables" />} />
+          <Route path="/finance/reports" element={<Finance currentBranch={currentBranch} defaultTab="reports" />} />
 
-          {/* Intelligence Routes */}
+          {/* INTELLIGENCE */}
           <Route path="/analytics" element={<Analytics />} />
-          <Route path="/audit" element={<div className="text-white">Audit Log (Coming Soon)</div>} />
-          <Route path="/settings" element={<div className="text-white">Settings (Coming Soon)</div>} />
+          <Route path="/intelligence/analytics" element={<Analytics />} />
+          <Route path="/audit" element={<ComingSoon title="Audit Log" />} />
+          <Route path="/intelligence/audit" element={<ComingSoon title="Audit Log" />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/intelligence/settings" element={<Settings />} />
 
-          {/* Legacy Routes */}
-          <Route path="/investors" element={<Investors />} />
-
-          {/* Catch All */}
+          {/* CATCH ALL */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>
