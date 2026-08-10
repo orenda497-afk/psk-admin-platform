@@ -22,6 +22,7 @@ export function OperationsOverview() {
   return (
     <CategoryOverview
       emoji="🔧"
+      iconImg="/branding/icons/operations.png"
       title="Operations"
       description="Manage bookings, vehicles, and daily operations"
       buttons={[
@@ -40,6 +41,7 @@ export function ClientsOverview() {
   return (
     <CategoryOverview
       emoji="👥"
+      iconImg="/branding/icons/clients.png"
       title="Clients & Drivers"
       description="Manage client relationships and driver assignments"
       buttons={[
@@ -55,6 +57,7 @@ export function FleetOverview() {
   return (
     <CategoryOverview
       emoji="🚗"
+      iconImg="/branding/icons/fleet.png"
       title="Fleet"
       description="Monitor vehicle maintenance and compliance"
       buttons={[
@@ -70,6 +73,7 @@ export function OwnersOverview() {
   return (
     <CategoryOverview
       emoji="🚙"
+      iconImg="/branding/icons/partners.png"
       title="Vehicle Owners"
       description="Manage owner relationships and payouts"
       buttons={[
@@ -85,6 +89,7 @@ export function FinanceOverview() {
   return (
     <CategoryOverview
       emoji="💰"
+      iconImg="/branding/icons/finance.png"
       title="Finance"
       description="Financial management and reporting"
       buttons={[
@@ -104,6 +109,7 @@ export function IntelligenceOverview() {
   return (
     <CategoryOverview
       emoji="📊"
+      iconImg="/branding/icons/intelligence.png"
       title="Intelligence"
       description="Analytics, audits, and system settings"
       buttons={[

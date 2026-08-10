@@ -224,7 +224,25 @@ export default function Sidebar({ userRole = 'owner', onLogout }: SidebarProps) 
                       }}
                     />
                   )}
-                  <span className="text-lg" style={{ filter: 'drop-shadow(0 0 3px rgba(255,215,0,0.4))' }}>{category.icon}</span>
+                  {category.iconImg ? (
+                    <img
+                      src={category.iconImg}
+                      alt=""
+                      className="flex-shrink-0"
+                      style={{
+                        width: '22px',
+                        height: '22px',
+                        objectFit: 'contain',
+                        filter: isCategoryActive
+                          ? 'drop-shadow(0 0 5px rgba(255,215,0,0.45))'
+                          : 'drop-shadow(0 0 3px rgba(0,0,0,0.35))',
+                        opacity: isCategoryActive ? 1 : 0.88,
+                        transition: 'opacity 200ms ease, filter 200ms ease',
+                      }}
+                    />
+                  ) : (
+                    <span className="text-lg" style={{ filter: 'drop-shadow(0 0 3px rgba(255,215,0,0.4))' }}>{category.icon}</span>
+                  )}
                   <span className="flex-1 text-left">{category.label}</span>
                   {category.id === 'finance' && <span>🔒</span>}
                   {category.subcategories.length > 0 && (

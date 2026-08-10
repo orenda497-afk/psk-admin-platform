@@ -10,19 +10,34 @@ interface QuickAccessButton {
 
 interface CategoryOverviewProps {
   emoji: string
+  iconImg?: string
   title: string
   description: string
   buttons: QuickAccessButton[]
 }
 
-export default function CategoryOverview({ emoji, title, description, buttons }: CategoryOverviewProps) {
+export default function CategoryOverview({ emoji, iconImg, title, description, buttons }: CategoryOverviewProps) {
   const navigate = useNavigate()
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center">
-        <div className="text-7xl mb-4">{emoji}</div>
+        {iconImg ? (
+          <img
+            src={iconImg}
+            alt=""
+            className="mx-auto mb-4"
+            style={{
+              width: '96px',
+              height: '96px',
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 6px 18px rgba(0,0,0,0.45)) drop-shadow(0 0 22px rgba(255,215,0,0.18))',
+            }}
+          />
+        ) : (
+          <div className="text-7xl mb-4">{emoji}</div>
+        )}
         <h1 className="text-4xl font-bold text-white mb-2">{title}</h1>
         <p className="text-lg text-slate-400">{description}</p>
       </div>

@@ -12,7 +12,7 @@ export default function Home() {
 
   useEffect(() => {
     async function loadStats() {
-      const [v, b, r, d] = await Promise.all([
+      const [v, b, r, d, mp] = await Promise.all([
         supabase.from('vehicles').select('status'),
         supabase.from('bookings').select('pickup_date, return_date, status'),
         supabase.from('reminders').select('id').eq('resolved', false),
