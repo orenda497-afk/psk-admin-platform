@@ -2,230 +2,317 @@ import { useNavigate } from 'react-router-dom'
 
 export default function Home() {
   const navigate = useNavigate()
+  const hour = new Date().getHours()
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
 
-  // Get greeting based on time of day
-  const getGreeting = () => {
-    const hour = new Date().getHours()
-    if (hour < 12) return 'Good morning'
-    if (hour < 18) return 'Good afternoon'
-    return 'Good evening'
+  const stats = {
+    available: 12,
+    outOnHire: 6,
+    overdue: 2,
+    unmatched: 5,
+    revenue: 425000,
   }
 
   const categories = [
     {
       id: 'operations',
-      emoji: '🔧',
       title: 'Operations',
-      description: 'Registry board, bookings, rental agreements, handover checklists and reminders.',
+      description: 'Manage bookings, fleet, and daily operations',
+      accentBar: 'linear-gradient(90deg, #FF9500, #FFD700)',
       tags: [
         { label: '2 overdue', color: 'red' },
         { label: '8 bookings', color: 'amber' },
         { label: '9 reminders', color: 'amber' },
       ],
+      onClick: () => navigate('/operations/registry'),
     },
     {
       id: 'clients',
-      emoji: '👥',
       title: 'Clients & Drivers',
-      description: 'Manage your clients, drivers, staff performance and ratings across both branches.',
+      description: 'Manage customer profiles and driver assignments',
+      accentBar: 'linear-gradient(90deg, #1B4D5C, #2D5F3F)',
       tags: [
         { label: '24 clients', color: 'default' },
         { label: '8 drivers', color: 'default' },
       ],
+      onClick: () => navigate('/clients'),
     },
     {
       id: 'fleet',
-      emoji: '🚗',
       title: 'Fleet',
-      description: 'Vehicle maintenance, fuel consumption tracking and compliance calendar.',
+      description: 'Monitor vehicle maintenance and fuel consumption',
+      accentBar: 'linear-gradient(90deg, #2D5F3F, #1B4D5C)',
       tags: [
         { label: '20 vehicles', color: 'green' },
         { label: '2 in service', color: 'amber' },
       ],
+      onClick: () => navigate('/fleet/maintenance'),
     },
     {
       id: 'owners',
-      emoji: '🚙',
       title: 'Vehicle Owners',
-      description: 'Owner profiles, monthly payouts and the owner self-service portal.',
+      description: 'Manage owner profiles and payment schedules',
+      accentBar: 'linear-gradient(90deg, #2D5F3F, #FFD700)',
       tags: [
         { label: '6 owners', color: 'default' },
         { label: '2 payouts pending', color: 'amber' },
       ],
+      onClick: () => navigate('/owners'),
     },
     {
       id: 'finance',
-      emoji: '💰',
-      title: 'Finance',
-      description: 'P&L, invoices, M-Pesa reconciliation, expenses, owner payouts and reports.',
+      title: 'Finance 🔒',
+      description: 'Access financial documents and reports',
+      accentBar: 'linear-gradient(90deg, #FFD700, #FF9500)',
       tags: [
         { label: 'PIN protected', color: 'gold' },
         { label: '3 overdue invoices', color: 'red' },
       ],
-      locked: true,
+      onClick: () => navigate('/finance'),
     },
     {
       id: 'intelligence',
-      emoji: '📊',
       title: 'Intelligence',
-      description: 'Analytics, audit logs, system settings and access control.',
+      description: 'View analytics and audit logs',
+      accentBar: 'linear-gradient(90deg, #1B4D5C, #2D5F3F)',
       tags: [
         { label: 'Analytics', color: 'default' },
         { label: 'Audit log', color: 'default' },
-        { label: 'Settings', color: 'default' },
       ],
+      onClick: () => navigate('/intelligence/analytics'),
     },
   ]
 
-  const getTagColor = (color: string) => {
-    const colors: Record<string, { bg: string; border: string; text: string }> = {
-      default: {
-        bg: 'rgba(255,255,255,0.06)',
-        border: 'rgba(255,255,255,0.08)',
-        text: 'rgba(255,255,255,0.38)',
-      },
+  const getTagStyle = (color: string) => {
+    const styles: Record<string, { bg: string; border: string; text: string }> = {
       red: {
-        bg: 'rgba(231,76,60,0.1)',
-        border: 'rgba(231,76,60,0.18)',
-        text: 'rgba(239,154,154,0.75)',
+        bg: 'rgba(231,76,60,0.11)',
+        border: 'rgba(231,76,60,0.20)',
+        text: 'rgba(239,154,154,0.88)',
       },
       amber: {
-        bg: 'rgba(255,149,0,0.1)',
-        border: 'rgba(255,149,0,0.16)',
-        text: 'rgba(255,183,77,0.8)',
-      },
-      gold: {
-        bg: 'rgba(255,215,0,0.08)',
-        border: 'rgba(255,215,0,0.16)',
-        text: 'rgba(255,215,0,0.65)',
+        bg: 'rgba(255,149,0,0.11)',
+        border: 'rgba(255,149,0,0.20)',
+        text: 'rgba(255,183,77,0.90)',
       },
       green: {
-        bg: 'rgba(45,95,63,0.2)',
-        border: 'rgba(76,175,114,0.2)',
-        text: 'rgba(129,199,132,0.75)',
+        bg: 'rgba(45,95,63,0.22)',
+        border: 'rgba(76,175,114,0.22)',
+        text: 'rgba(129,199,132,0.85)',
+      },
+      gold: {
+        bg: 'rgba(255,215,0,0.09)',
+        border: 'rgba(255,215,0,0.22)',
+        text: 'rgba(255,215,0,0.78)',
+      },
+      default: {
+        bg: 'rgba(255,255,255,0.06)',
+        border: 'rgba(255,255,255,0.09)',
+        text: 'rgba(255,255,255,0.40)',
       },
     }
-    return colors[color] || colors.default
+    return styles[color] || styles.default
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Welcome Message */}
-      <div>
-        <h1 className="text-3xl font-bold text-white mb-1">
-          {getGreeting()}, Ken 👋
-        </h1>
-        <p className="text-sm text-slate-400">
-          Here's what's happening across both branches today.
-        </p>
+    <div style={{ padding: '28px 30px 24px' }}>
+      {/* Welcome Banner */}
+      <div
+        style={{
+          background: 'rgba(255,255,255,0.035)',
+          border: '1.5px solid rgba(255,215,0,0.12)',
+          borderRadius: '14px',
+          padding: '20px 26px',
+          marginBottom: '22px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div>
+          <div style={{ fontSize: '22px', fontWeight: 800, color: 'rgba(255,255,255,0.95)', marginBottom: '4px' }}>
+            {greeting} 👋
+          </div>
+          <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.55)' }}>
+            Here's what's happening across both branches today.
+          </div>
+        </div>
+
+        {/* Right side stats */}
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <div
+            style={{
+              background: 'rgba(129,199,132,0.09)',
+              border: '1px solid rgba(129,199,132,0.22)',
+              borderRadius: '10px',
+              padding: '12px 16px',
+              textAlign: 'center',
+              minWidth: '90px',
+            }}
+          >
+            <div style={{ fontSize: '18px', fontWeight: 700, color: 'rgba(129,199,132,0.95)' }}>
+              {stats.available}
+            </div>
+            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.40)', marginTop: '3px' }}>Available</div>
+          </div>
+          <div
+            style={{
+              background: 'rgba(100,181,246,0.08)',
+              border: '1px solid rgba(100,181,246,0.22)',
+              borderRadius: '10px',
+              padding: '12px 16px',
+              textAlign: 'center',
+              minWidth: '90px',
+            }}
+          >
+            <div style={{ fontSize: '18px', fontWeight: 700, color: 'rgba(100,181,246,0.95)' }}>
+              {stats.outOnHire}
+            </div>
+            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.40)', marginTop: '3px' }}>On hire</div>
+          </div>
+          <div
+            style={{
+              background: 'rgba(239,154,154,0.09)',
+              border: '1px solid rgba(239,154,154,0.22)',
+              borderRadius: '10px',
+              padding: '12px 16px',
+              textAlign: 'center',
+              minWidth: '90px',
+            }}
+          >
+            <div style={{ fontSize: '18px', fontWeight: 700, color: 'rgba(239,154,154,0.95)' }}>
+              {stats.overdue}
+            </div>
+            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.40)', marginTop: '3px' }}>Overdue</div>
+          </div>
+        </div>
       </div>
 
-      {/* Category Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {categories.map((category) => {
-          return (
-            <button
-              key={category.id}
-              onClick={() => navigate(`/${category.id === 'operations' ? 'operations' : category.id === 'clients' ? 'clients-drivers' : category.id === 'fleet' ? 'fleet-overview' : category.id === 'owners' ? 'owners-overview' : category.id === 'finance' ? 'finance-overview' : 'intelligence-overview'}`)}
-              className="group text-left rounded-2xl p-4 transition-all duration-200 hover:scale-102 hover:shadow-lg"
+      {/* Category Cards Grid - 3×2 */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '14px',
+          marginBottom: '22px',
+        }}
+      >
+        {categories.map(category => (
+          <div
+            key={category.id}
+            onClick={category.onClick}
+            style={{
+              background: 'rgba(255,255,255,0.042)',
+              backdropFilter: 'blur(18px)',
+              border: '1.5px solid rgba(255,255,255,0.09)',
+              borderRadius: '14px',
+              overflow: 'hidden',
+              cursor: 'pointer',
+              transition: 'all 0.24s ease',
+            }}
+            onMouseEnter={e => {
+              const el = e.currentTarget as HTMLElement
+              el.style.transform = 'translateY(-2px)'
+              el.style.boxShadow = '0 8px 32px rgba(0,0,0,0.32)'
+            }}
+            onMouseLeave={e => {
+              const el = e.currentTarget as HTMLElement
+              el.style.transform = 'translateY(0)'
+              el.style.boxShadow = '0 4px 22px rgba(0,0,0,0.18)'
+            }}
+          >
+            {/* Accent bar - 3px gradient top */}
+            <div
               style={{
-                background: 'rgba(255,255,255,0.045)',
-                border: '1px solid rgba(255,255,255,0.09)',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.07)',
+                height: '3px',
+                background: category.accentBar,
               }}
-            >
-              {/* Header Row */}
-              <div className="flex items-start justify-between mb-3">
-                <span className="text-2xl">{category.emoji}</span>
-                <span className="text-slate-400 group-hover:text-slate-200 transition">→</span>
+            />
+
+            {/* Card content */}
+            <div style={{ padding: '18px 16px' }}>
+              <div style={{ fontSize: '14.5px', fontWeight: 700, color: 'rgba(255,255,255,0.92)', marginBottom: '6px' }}>
+                {category.title}
+              </div>
+              <div
+                style={{
+                  fontSize: '11.5px',
+                  color: 'rgba(255,255,255,0.55)',
+                  lineHeight: '1.58',
+                  marginBottom: '12px',
+                }}
+              >
+                {category.description}
               </div>
 
-              {/* Title */}
-              <h3 className="text-sm font-semibold text-white mb-2">
-                {category.title}
-              </h3>
-
-              {/* Description */}
-              <p className="text-xs text-slate-400 mb-4 leading-relaxed line-clamp-2">
-                {category.description}
-              </p>
+              {/* Tags separator */}
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '10px', marginTop: '10px' }} />
 
               {/* Tags */}
-              <div 
-                className="pt-3 border-t border-white/7 flex flex-wrap gap-2"
-              >
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                 {category.tags.map((tag, idx) => {
-                  const colors = getTagColor(tag.color)
+                  const tagStyle = getTagStyle(tag.color)
                   return (
                     <span
                       key={idx}
-                      className="text-[10px] font-medium px-2 py-1 rounded-md"
                       style={{
-                        background: colors.bg,
-                        border: `1px solid ${colors.border}`,
-                        color: colors.text,
+                        fontSize: '10px',
+                        fontWeight: 500,
+                        background: tagStyle.bg,
+                        border: `1px solid ${tagStyle.border}`,
+                        color: tagStyle.text,
+                        borderRadius: '6px',
+                        padding: '4px 8px',
                       }}
                     >
                       {tag.label}
                     </span>
                   )
                 })}
-                {category.locked && (
-                  <span className="text-[10px] font-medium px-2 py-1 rounded-md ml-auto">
-                    🔒
-                  </span>
-                )}
               </div>
-            </button>
-          )
-        })}
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* Quick Stats Strip */}
-      <div 
-        className="rounded-2xl p-3 flex items-center gap-3 overflow-x-auto"
+      {/* Stats Strip - 5 glass panels */}
+      <div
         style={{
-          background: 'rgba(255,255,255,0.04)',
-          border: '1px solid rgba(255,255,255,0.08)',
+          display: 'flex',
+          gap: '11px',
         }}
       >
-        <div className="flex items-center gap-2 whitespace-nowrap px-3 py-2">
-          <span className="text-lg">🚗</span>
-          <span className="text-xs font-semibold text-white">12</span>
-          <span className="text-xs text-slate-400">Available now</span>
-        </div>
-
-        <div className="w-px h-6 bg-white/10" />
-
-        <div className="flex items-center gap-2 whitespace-nowrap px-3 py-2">
-          <span className="text-lg">📅</span>
-          <span className="text-xs font-semibold text-white">6</span>
-          <span className="text-xs text-slate-400">Out on hire</span>
-        </div>
-
-        <div className="w-px h-6 bg-white/10" />
-
-        <div className="flex items-center gap-2 whitespace-nowrap px-3 py-2">
-          <span className="text-lg">⚠️</span>
-          <span className="text-xs font-semibold text-white">2</span>
-          <span className="text-xs text-slate-400">Overdue returns</span>
-        </div>
-
-        <div className="w-px h-6 bg-white/10" />
-
-        <div className="flex items-center gap-2 whitespace-nowrap px-3 py-2">
-          <span className="text-lg">📱</span>
-          <span className="text-xs font-semibold text-white">5</span>
-          <span className="text-xs text-slate-400">Unmatched M-Pesa</span>
-        </div>
-
-        <div className="w-px h-6 bg-white/10" />
-
-        <div className="flex items-center gap-2 whitespace-nowrap px-3 py-2">
-          <span className="text-lg">💰</span>
-          <span className="text-xs font-semibold text-white">KES 425k</span>
-          <span className="text-xs text-slate-400">Revenue (Aug)</span>
-        </div>
+        {[
+          { emoji: '🚗', label: 'Available vehicles', value: stats.available, color: 'rgba(129,199,132,0.95)' },
+          { emoji: '📅', label: 'Out on hire', value: stats.outOnHire, color: 'rgba(100,181,246,0.95)' },
+          { emoji: '⚠️', label: 'Overdue returns', value: stats.overdue, color: 'rgba(239,154,154,0.95)' },
+          { emoji: '📱', label: 'Unmatched M-Pesa', value: stats.unmatched, color: 'rgba(255,183,77,0.90)' },
+          {
+            emoji: '💰',
+            label: 'Revenue this month',
+            value: `KES ${(stats.revenue / 1000).toFixed(0)}k`,
+            color: 'rgba(255,215,0,0.90)',
+          },
+        ].map((stat, idx) => (
+          <div
+            key={idx}
+            style={{
+              flex: 1,
+              background: 'rgba(255,255,255,0.042)',
+              backdropFilter: 'blur(18px)',
+              border: '1.5px solid rgba(255,255,255,0.09)',
+              borderRadius: '14px',
+              padding: '14px 16px',
+              textAlign: 'center',
+            }}
+          >
+            <div style={{ fontSize: '18px', marginBottom: '4px' }}>{stat.emoji}</div>
+            <div style={{ fontSize: '16px', fontWeight: 700, color: stat.color, marginBottom: '2px' }}>
+              {stat.value}
+            </div>
+            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.40)' }}>{stat.label}</div>
+          </div>
+        ))}
       </div>
     </div>
   )
