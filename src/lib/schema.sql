@@ -254,3 +254,60 @@ create table if not exists fuel_logs (
 );
 alter table fuel_logs enable row level security;
 create policy "open" on fuel_logs for all using (true) with check (true);
+
+-- EXPENSES
+create table if not exists expenses (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz default now(),
+  date date not null,
+  category text not null,
+  description text not null,
+  amount numeric(12,2) not null,
+  vehicle_id uuid,
+  branch text,
+  receipt_url text,
+  notes text
+);
+alter table expenses enable row level security;
+create policy "open" on expenses for all using (true) with check (true);
+
+-- MPESA TRANSACTIONS
+create table if not exists mpesa_transactions (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz default now(),
+  date date not null,
+  mpesa_ref text unique not null,
+  type text,
+  amount numeric(12,2) not null,
+  phone text,
+  name text not null,
+  matched boolean default false,
+  invoice_ref text,
+  booking_ref text,
+  branch text,
+  notes text,
+  receipt_sent boolean default false
+);
+alter table mpesa_transactions enable row level security;
+create policy "open" on mpesa_transactions for all using (true) with check (true);
+
+-- OWNER PAYOUTS
+create table if not exists owner_payouts (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz default now(),
+  owner_id uuid,
+  owner_name text not null,
+  vehicle_id uuid,
+  period text not null,
+  gross_revenue numeric(12,2) default 0,
+  expenses numeric(12,2) default 0,
+  net_revenue numeric(12,2) default 0,
+  owner_share numeric(12,2) default 0,
+  psk_share numeric(12,2) default 0,
+  paid boolean default false,
+  paid_date date,
+  method text,
+  notes text
+);
+alter table owner_payouts enable row level security;
+create policy "open" on owner_payouts for all using (true) with check (true);
