@@ -16,6 +16,7 @@ import Partners from './pages/Partners'
 import Reminders from './pages/Reminders'
 import Settings from './pages/Settings'
 import RentalAgreements from './pages/RentalAgreements'
+import HandoverChecklists from './pages/HandoverChecklists'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -49,8 +50,8 @@ function App() {
           <Route path="/operations/quotations" element={<Quotations />} />
           <Route path="/agreements" element={<RentalAgreements />} />
           <Route path="/operations/agreements" element={<RentalAgreements />} />
-          <Route path="/operations/handover" element={<ComingSoon title="Handover Checklists" />} />
-          <Route path="/handover" element={<ComingSoon title="Handover Checklists" />} />
+          <Route path="/operations/handover" element={<HandoverChecklists />} />
+          <Route path="/handover" element={<HandoverChecklists />} />
           <Route path="/operations/reminders" element={<Reminders />} />
           <Route path="/reminders" element={<Reminders />} />
 
