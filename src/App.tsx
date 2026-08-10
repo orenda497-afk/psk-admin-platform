@@ -12,6 +12,7 @@ import Documents from './pages/Documents'
 import Analytics from './pages/Analytics'
 import AuditLog from './pages/AuditLog'
 import SuperAdmin from './pages/SuperAdmin'
+import UserManual from './pages/UserManual'
 import VehicleOwners from './pages/VehicleOwners'
 import PSKFleet from './pages/PSKFleet'
 import Partners from './pages/Partners'
@@ -196,6 +197,10 @@ function App() {
   }
 
   // Super admin route — completely outside normal app, no layout, no auth check
+  if (typeof window !== 'undefined' && window.location.pathname === '/help') {
+    return <UserManual />
+  }
+
   if (typeof window !== 'undefined' && window.location.pathname === '/kevin-admin') {
     return <SuperAdmin />
   }
