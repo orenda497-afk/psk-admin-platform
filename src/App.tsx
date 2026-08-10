@@ -46,8 +46,14 @@ function App() {
           <Route path="/operations/registry" element={<RegistryBoard />} />
           <Route path="/bookings" element={<Bookings />} />
           <Route path="/operations/bookings" element={<Bookings />} />
-          <Route path="/quotations" element={<Documents />} />
-          <Route path="/operations/quotations" element={<Documents />} />
+          <Route path="/documents" element={<Documents />} />
+          <Route path="/operations/documents" element={<Documents />} />
+          <Route path="/quotations" element={<Documents defaultTab="quotation" />} />
+          <Route path="/operations/quotations" element={<Documents defaultTab="quotation" />} />
+          <Route path="/invoices" element={<Documents defaultTab="invoice" />} />
+          <Route path="/receipts" element={<Documents defaultTab="receipt" />} />
+          <Route path="/credit-notes" element={<Documents defaultTab="credit_note" />} />
+          <Route path="/debit-notes" element={<Documents defaultTab="debit_note" />} />
           <Route path="/agreements" element={<RentalAgreements />} />
           <Route path="/operations/agreements" element={<RentalAgreements />} />
           <Route path="/operations/handover" element={<HandoverChecklists />} />

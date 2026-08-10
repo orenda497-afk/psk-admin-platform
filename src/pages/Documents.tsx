@@ -64,13 +64,13 @@ const BRANCHES = {
 
 const emptyItem = (): LineItem => ({ description: '', qty: 1, unitPrice: 0 })
 
-export default function Documents() {
+export default function Documents({ defaultTab }: { defaultTab?: string }) {
   const navigate = useNavigate()
   const [docs, setDocs]           = useState<PSKDocument[]>([])
   const [clients, setClients]     = useState<any[]>([])
   const [loading, setLoading]     = useState(true)
   const [saving, setSaving]       = useState(false)
-  const [activeTab, setActiveTab] = useState<DocType>('quotation')
+  const [activeTab, setActiveTab] = useState<DocType>((defaultTab as DocType) || 'quotation')
   const [showAdd, setShowAdd]     = useState(false)
   const [previewDoc, setPreviewDoc] = useState<PSKDocument | null>(null)
   const [editDoc, setEditDoc]     = useState<PSKDocument | null>(null)

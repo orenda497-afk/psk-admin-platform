@@ -1,10 +1,39 @@
 import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { supabase } from '../lib/supabase'
 
 export default function Home() {
   const navigate = useNavigate()
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
   const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+
+  const [stats, setStats] = useState({ available:0, onHire:0, inService:0, pickups:0, returns:0, quotes:0, mpesa:0, reminders:0 })
+
+  useEffect(() => {
+    async function loadStats() {
+      const [v, b, r, d] = await Promise.all([
+        supabase.from('vehicles').select('status'),
+        supabase.from('bookings').select('pickup_date, return_date, status'),
+        supabase.from('reminders').select('id').eq('resolved', false),
+        supabase.from('psk_documents').select('id').eq('doc_type', 'quotation').eq('status', 'draft'),
+      ])
+      const today = new Date().toISOString().split('T')[0]
+      const vehicles = v.data || []
+      const bookings = b.data || []
+      setStats({
+        available:  vehicles.filter((x:any) => x.status === 'available').length,
+        onHire:     vehicles.filter((x:any) => ['chauffeured','safari','self-drive'].includes(x.status)).length,
+        inService:  vehicles.filter((x:any) => x.status === 'service').length,
+        pickups:    bookings.filter((x:any) => x.pickup_date?.startsWith(today)).length,
+        returns:    bookings.filter((x:any) => x.return_date?.startsWith(today)).length,
+        quotes:     (d.data || []).length,
+        mpesa:      0,
+        reminders:  (r.data || []).length,
+      })
+    }
+    loadStats()
+  }, [])
 
   const categories = [
     {
@@ -190,11 +219,11 @@ export default function Home() {
       {/* Stats strip */}
       <div style={{ display: 'flex', gap: '10px' }}>
         {[
-          { emoji: '📅', label: 'Pickups today',      value: '0', color: 'rgba(129,199,132,0.95)', border: 'rgba(129,199,132,0.20)' },
-          { emoji: '🔄', label: 'Returns today',      value: '0', color: 'rgba(100,181,246,0.95)', border: 'rgba(100,181,246,0.20)' },
-          { emoji: '📄', label: 'Quotes pending',     value: '0', color: 'rgba(255,215,0,0.92)',   border: 'rgba(255,215,0,0.20)'   },
-          { emoji: '📱', label: 'Unmatched M-Pesa',   value: '0', color: 'rgba(239,154,154,0.95)', border: 'rgba(239,154,154,0.20)' },
-          { emoji: '🔔', label: 'Reminders',           value: '0', color: 'rgba(255,183,77,0.92)',  border: 'rgba(255,183,77,0.20)'  },
+          { emoji: '📅', label: 'Pickups today',      value: String(stats.pickups),   color: 'rgba(129,199,132,0.95)', border: 'rgba(129,199,132,0.20)' },
+          { emoji: '🔄', label: 'Returns today',      value: String(stats.returns),   color: 'rgba(100,181,246,0.95)', border: 'rgba(100,181,246,0.20)' },
+          { emoji: '📄', label: 'Quotes pending',     value: String(stats.quotes),    color: 'rgba(255,215,0,0.92)',   border: 'rgba(255,215,0,0.20)'   },
+          { emoji: '📱', label: 'Unmatched M-Pesa',   value: String(stats.mpesa),     color: 'rgba(239,154,154,0.95)', border: 'rgba(239,154,154,0.20)' },
+          { emoji: '🔔', label: 'Reminders',           value: String(stats.reminders), color: 'rgba(255,183,77,0.92)',  border: 'rgba(255,183,77,0.20)'  },
         ].map((s, i) => (
           <div key={i} style={{
             flex: 1, background: 'rgba(10,22,34,0.65)',
