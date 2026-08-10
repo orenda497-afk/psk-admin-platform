@@ -43,6 +43,7 @@ export default function HandoverChecklists() {
   const [showAdd, setShowAdd]         = useState(false)
   const [addType, setAddType]         = useState<'checkout'|'checkin'>('checkout')
   const [selected, setSelected]       = useState<Checklist | null>(null)
+  const [printChecklist, setPrintChecklist] = useState<Checklist | null>(null)
   const [photos, setPhotos]           = useState<Record<string, string>>({})
   const cameraRefs = useRef<Record<string, HTMLInputElement | null>>({})
 
@@ -312,10 +313,21 @@ export default function HandoverChecklists() {
             )}
             <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
               {!selected.client_signed && (
-                <button onClick={async()=>{ await supabase.from('handover_checklists').update({client_signed:true}).eq('id',selected.id); loadAll(); setSelected(null) }} style={{ padding:'8px 14px', borderRadius:'9px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'linear-gradient(135deg,rgba(129,199,132,0.16),rgba(45,95,63,0.09))', border:'1px solid rgba(129,199,132,0.30)', color:'rgba(129,199,132,0.95)' }}>✓ Mark as signed</button>
+                <button onClick={async()=>{ await supabase.from('handover_checklists').update({client_signed:true}).eq('id',selected.id); loadAll(); setSelected(null) }} style={{ padding:'8px 14px', borderRadius:'9px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'linear-gradient(135deg,rgba(129,199,132,0.16),rgba(45,95,63,0.09))', border:'1px solid rgba(129,199,132,0.30)', color:'rgba(129,199,132,0.95)' }}>✓ Mark signed</button>
               )}
+              <button onClick={() => { setPrintChecklist(selected); setSelected(null) }} style={{ padding:'8px 14px', borderRadius:'9px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.25)', color:'rgba(255,215,0,0.85)' }}>🖨 Print / PDF</button>
+              <button onClick={() => {
+                const phone = (selected.client_phone || '').replace(/\D/g,'')
+                const msg = `PSK Safaris — Vehicle ${selected.type === 'checkout' ? 'Check-out' : 'Check-in'} Report%0ARef: ${selected.checklist_ref}%0AVehicle: ${selected.vehicle_reg} ${selected.vehicle_make} ${selected.vehicle_model}%0AOdometer: ${selected.odometer?.toLocaleString()} km%0AFuel: ${selected.fuel_level}%0ADamage: ${selected.damage_found ? 'YES — ' + selected.damage_description : 'None'}%0ADate: ${new Date(selected.created_at).toLocaleDateString('en-GB')}%0A%0APSK Safaris %26 Car Rentals`
+                window.open(`https://wa.me/${phone}?text=${msg}`, '_blank')
+              }} style={{ padding:'8px 14px', borderRadius:'9px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(37,211,102,0.10)', border:'1px solid rgba(37,211,102,0.28)', color:'rgba(37,211,102,0.90)' }}>📱 WhatsApp</button>
+              <button onClick={() => {
+                const subject = `PSK Safaris — ${selected.type === 'checkout' ? 'Check-out' : 'Check-in'} Report — ${selected.checklist_ref}`
+                const body = `Dear ${selected.client_name},%0A%0APlease find your vehicle ${selected.type === 'checkout' ? 'check-out' : 'check-in'} report from PSK Safaris.%0A%0AReference: ${selected.checklist_ref}%0AVehicle: ${selected.vehicle_reg} — ${selected.vehicle_make} ${selected.vehicle_model}%0AOdometer: ${selected.odometer?.toLocaleString()} km%0AFuel level: ${selected.fuel_level}%0ADamage noted: ${selected.damage_found ? 'YES — ' + selected.damage_description : 'None'}%0ADate: ${new Date(selected.created_at).toLocaleDateString('en-GB')}%0A%0AThank you for choosing PSK Safaris.%0APSK Safaris Team%0A%2B254 751 855 180`
+                window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${body}`, '_blank')
+              }} style={{ padding:'8px 14px', borderRadius:'9px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(100,181,246,0.10)', border:'1px solid rgba(100,181,246,0.25)', color:'rgba(100,181,246,0.88)' }}>✉️ Email</button>
               {selected.damage_found && (
-                <button style={{ padding:'8px 14px', borderRadius:'9px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(231,76,60,0.10)', border:'1px solid rgba(231,76,60,0.22)', color:'rgba(239,154,154,0.88)' }}>⚠️ Log damage claim</button>
+                <button style={{ padding:'8px 14px', borderRadius:'9px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(231,76,60,0.10)', border:'1px solid rgba(231,76,60,0.22)', color:'rgba(239,154,154,0.88)' }}>⚠️ Damage claim</button>
               )}
             </div>
           </div>
@@ -446,6 +458,104 @@ export default function HandoverChecklists() {
                 <button onClick={saveChecklist} disabled={saving} style={{ flex:2, padding:'13px', borderRadius:'10px', fontSize:'13px', fontWeight:700, background:`linear-gradient(135deg,${form.type==='checkout'?'rgba(129,199,132,0.18),rgba(45,95,63,0.10)':'rgba(100,181,246,0.18),rgba(27,77,92,0.10)'})`, border:`1.5px solid ${form.type==='checkout'?'rgba(129,199,132,0.38)':'rgba(100,181,246,0.38)'}`, color:form.type==='checkout'?'rgba(129,199,132,0.95)':'rgba(100,181,246,0.95)', cursor:saving?'not-allowed':'pointer', fontFamily:'inherit', opacity:saving?0.7:1 }}>
                   {saving ? 'Saving...' : form.type === 'checkout' ? '🚗 Complete Check-out' : '🔄 Complete Check-in'}
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PRINT PREVIEW */}
+      {printChecklist && (
+        <div style={{ position:'fixed', inset:0, zIndex:200, display:'flex', alignItems:'flex-start', justifyContent:'center', background:'rgba(0,0,0,0.80)', backdropFilter:'blur(12px)', overflowY:'auto', padding:'40px 20px' }}>
+          <div style={{ width:'720px', maxWidth:'100%' }}>
+            <div style={{ display:'flex', justifyContent:'flex-end', marginBottom:'16px', gap:'10px' }}>
+              <button onClick={() => window.print()} style={{ padding:'8px 18px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,149,0,0.10))', border:'1.5px solid rgba(255,215,0,0.35)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit' }}>🖨 Print / Save PDF</button>
+              <button onClick={() => setPrintChecklist(null)} style={{ padding:'8px 18px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.60)', cursor:'pointer', fontFamily:'inherit' }}>✕ Close</button>
+            </div>
+            <div style={{ background:'#FFFDF7', borderRadius:'8px', overflow:'hidden', fontFamily:'Georgia, serif', color:'#1a1a1a' }}>
+              {/* Header */}
+              <div style={{ background:'#FFD700', padding:'20px 28px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <div>
+                  <div style={{ fontSize:'20px', fontWeight:800, color:'#1a1a1a' }}>PSK Safaris & Car Rentals</div>
+                  <div style={{ fontSize:'11px', color:'rgba(0,0,0,0.60)', marginTop:'3px' }}>
+                    {printChecklist.branch === 'eldoret' ? '64 Plaza, Eldoret | Tel: +254 751 855 180' : '174 Pamba Road, Kisumu | Tel: +254 741 186 538'}
+                  </div>
+                </div>
+                <div style={{ textAlign:'right' }}>
+                  <div style={{ fontSize:'14px', fontWeight:700 }}>{printChecklist.checklist_ref}</div>
+                  <div style={{ fontSize:'11px', color:'rgba(0,0,0,0.55)', marginTop:'2px' }}>{new Date(printChecklist.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div>
+                </div>
+              </div>
+              <div style={{ height:'5px', background:'linear-gradient(90deg,#FF9500,#FFD700,#2D5F3F,#1B4D5C)' }} />
+              <div style={{ background:'#2D5F3F', padding:'10px 28px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <div style={{ fontSize:'16px', fontWeight:700, color:'#FFD700' }}>
+                  VEHICLE {printChecklist.type === 'checkout' ? 'CHECK-OUT' : 'CHECK-IN'} REPORT
+                </div>
+                <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.65)' }}>{printChecklist.branch === 'eldoret' ? 'Eldoret HQ' : 'Kisumu Branch'}</div>
+              </div>
+              <div style={{ padding:'24px 28px', background:'#FFFDF7' }}>
+                {/* Vehicle + Client */}
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'16px', marginBottom:'20px' }}>
+                  <div style={{ background:'#F5F0E8', border:'1px solid #E0D5C0', borderRadius:'8px', padding:'14px' }}>
+                    <div style={{ fontSize:'9px', fontWeight:700, letterSpacing:'1px', textTransform:'uppercase', color:'#2D5F3F', marginBottom:'8px' }}>Vehicle</div>
+                    <div style={{ fontSize:'16px', fontWeight:700 }}>{printChecklist.vehicle_reg}</div>
+                    <div style={{ fontSize:'12px', color:'#555', marginTop:'3px' }}>{printChecklist.vehicle_make} {printChecklist.vehicle_model}</div>
+                  </div>
+                  <div style={{ background:'#F5F0E8', border:'1px solid #E0D5C0', borderRadius:'8px', padding:'14px' }}>
+                    <div style={{ fontSize:'9px', fontWeight:700, letterSpacing:'1px', textTransform:'uppercase', color:'#2D5F3F', marginBottom:'8px' }}>Client</div>
+                    <div style={{ fontSize:'15px', fontWeight:700 }}>{printChecklist.client_name}</div>
+                    <div style={{ fontSize:'12px', color:'#555', marginTop:'3px' }}>{printChecklist.client_phone}</div>
+                  </div>
+                </div>
+                {/* Condition table */}
+                <table style={{ width:'100%', borderCollapse:'collapse', marginBottom:'20px' }}>
+                  <thead>
+                    <tr style={{ background:'#2D5F3F' }}>
+                      {['Odometer Reading','Fuel Level','Damage Found','Photos Taken','Staff'].map(h=>(
+                        <th key={h} style={{ padding:'9px 12px', textAlign:'left', fontSize:'9px', fontWeight:700, letterSpacing:'0.8px', textTransform:'uppercase', color:'#FFD700' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style={{ background:'#FFFDF7', borderBottom:'1px solid #E0D5C0' }}>
+                      <td style={{ padding:'12px', fontSize:'14px', fontWeight:700 }}>{printChecklist.odometer?.toLocaleString()} km</td>
+                      <td style={{ padding:'12px', fontSize:'13px' }}>{printChecklist.fuel_level}</td>
+                      <td style={{ padding:'12px', fontSize:'13px', color: printChecklist.damage_found ? '#CC0000' : '#2D5F3F', fontWeight:600 }}>{printChecklist.damage_found ? '⚠️ YES' : '✓ None'}</td>
+                      <td style={{ padding:'12px', fontSize:'13px' }}>{printChecklist.photo_urls?.length || 0} photos</td>
+                      <td style={{ padding:'12px', fontSize:'13px' }}>{printChecklist.staff_name || '—'}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                {printChecklist.damage_found && printChecklist.damage_description && (
+                  <div style={{ background:'#FFF0F0', border:'1px solid #FFAAAA', borderRadius:'6px', padding:'12px 16px', marginBottom:'16px' }}>
+                    <div style={{ fontSize:'10px', fontWeight:700, letterSpacing:'0.8px', textTransform:'uppercase', color:'#CC0000', marginBottom:'6px' }}>⚠️ Damage Description</div>
+                    <div style={{ fontSize:'12px', color:'#333' }}>{printChecklist.damage_description}</div>
+                  </div>
+                )}
+                {printChecklist.condition_notes && (
+                  <div style={{ background:'#F5F0E8', border:'1px solid #E0D5C0', borderRadius:'6px', padding:'12px 16px', marginBottom:'20px' }}>
+                    <div style={{ fontSize:'10px', fontWeight:700, letterSpacing:'0.8px', textTransform:'uppercase', color:'#2D5F3F', marginBottom:'6px' }}>Condition Notes</div>
+                    <div style={{ fontSize:'12px', color:'#333' }}>{printChecklist.condition_notes}</div>
+                  </div>
+                )}
+                {/* Signatures */}
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'32px', paddingTop:'20px', borderTop:'1px solid #E0D5C0' }}>
+                  <div>
+                    <div style={{ fontSize:'10px', fontWeight:700, letterSpacing:'0.8px', textTransform:'uppercase', color:'#2D5F3F', marginBottom:'40px' }}>Client Signature</div>
+                    <div style={{ borderBottom:'1px solid #1a1a1a', marginBottom:'6px', height:'40px', background: printChecklist.client_signed ? 'rgba(45,95,63,0.05)' : 'transparent', display:'flex', alignItems:'center', paddingLeft:'8px' }}>
+                      {printChecklist.client_signed && <span style={{ fontSize:'13px', color:'#2D5F3F', fontStyle:'italic' }}>✓ Signed by {printChecklist.client_name}</span>}
+                    </div>
+                    <div style={{ fontSize:'11px', color:'#777' }}>{printChecklist.client_name} | Date: ___________</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize:'10px', fontWeight:700, letterSpacing:'0.8px', textTransform:'uppercase', color:'#2D5F3F', marginBottom:'40px' }}>PSK Staff Signature</div>
+                    <div style={{ borderBottom:'1px solid #1a1a1a', marginBottom:'6px', height:'40px' }} />
+                    <div style={{ fontSize:'11px', color:'#777' }}>{printChecklist.staff_name || 'PSK Staff'} | Date: ___________</div>
+                  </div>
+                </div>
+              </div>
+              <div style={{ background:'#2D5F3F', padding:'10px 28px', textAlign:'center' }}>
+                <div style={{ fontSize:'11px', color:'#FFD700' }}>Easy car rentals · Self drive/chauffeur driven · Airport transfers · Safaris and excursion</div>
               </div>
             </div>
           </div>
