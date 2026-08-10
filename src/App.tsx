@@ -15,6 +15,7 @@ import PSKFleet from './pages/PSKFleet'
 import Partners from './pages/Partners'
 import Reminders from './pages/Reminders'
 import Settings from './pages/Settings'
+import RentalAgreements from './pages/RentalAgreements'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -46,8 +47,8 @@ function App() {
           <Route path="/operations/bookings" element={<Bookings />} />
           <Route path="/quotations" element={<Quotations />} />
           <Route path="/operations/quotations" element={<Quotations />} />
-          <Route path="/operations/agreements" element={<ComingSoon title="Rental Agreements" />} />
-          <Route path="/agreements" element={<ComingSoon title="Rental Agreements" />} />
+          <Route path="/agreements" element={<RentalAgreements />} />
+          <Route path="/operations/agreements" element={<RentalAgreements />} />
           <Route path="/operations/handover" element={<ComingSoon title="Handover Checklists" />} />
           <Route path="/handover" element={<ComingSoon title="Handover Checklists" />} />
           <Route path="/operations/reminders" element={<Reminders />} />

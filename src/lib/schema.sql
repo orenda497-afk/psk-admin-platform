@@ -161,3 +161,32 @@ create policy "Allow all" on drivers for all using (true) with check (true);
 create policy "Allow all" on bookings for all using (true) with check (true);
 create policy "Allow all" on expenses for all using (true) with check (true);
 create policy "Allow all" on reminders for all using (true) with check (true);
+
+-- RENTAL AGREEMENTS
+create table if not exists rental_agreements (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz default now(),
+  agreement_ref text unique,
+  booking_id uuid references bookings(id),
+  branch text not null check (branch in ('eldoret','kisumu')),
+  client_name text not null,
+  client_id_number text,
+  client_phone text,
+  vehicle_reg text not null,
+  vehicle_make text,
+  vehicle_model text,
+  pickup_date date,
+  return_date date,
+  pickup_location text,
+  dropoff_location text,
+  daily_rate numeric(10,2),
+  total_amount numeric(12,2),
+  deposit_amount numeric(10,2),
+  trip_type text,
+  special_conditions text,
+  status text default 'draft' check (status in ('draft','sent','signed','expired','cancelled')),
+  client_signed boolean default false,
+  staff_signed boolean default false
+);
+alter table rental_agreements enable row level security;
+create policy "open" on rental_agreements for all using (true) with check (true);
