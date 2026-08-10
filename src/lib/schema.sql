@@ -190,3 +190,33 @@ create table if not exists rental_agreements (
 );
 alter table rental_agreements enable row level security;
 create policy "open" on rental_agreements for all using (true) with check (true);
+
+-- PSK DOCUMENTS (invoices, quotations, receipts, credit notes, debit notes)
+create table if not exists psk_documents (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz default now(),
+  doc_ref text unique,
+  doc_type text not null check (doc_type in ('quotation','invoice','receipt','credit_note','debit_note')),
+  branch text not null check (branch in ('eldoret','kisumu')),
+  client_id uuid,
+  client_name text not null,
+  client_phone text,
+  client_email text,
+  client_address text,
+  booking_ref text,
+  issue_date date not null,
+  due_date date,
+  valid_until date,
+  line_items jsonb default '[]',
+  subtotal numeric(12,2) default 0,
+  vat_rate numeric(5,2) default 0,
+  vat_amount numeric(12,2) default 0,
+  total numeric(12,2) default 0,
+  amount_paid numeric(12,2) default 0,
+  balance numeric(12,2) default 0,
+  notes text,
+  status text default 'draft',
+  linked_doc_ref text
+);
+alter table psk_documents enable row level security;
+create policy "open" on psk_documents for all using (true) with check (true);

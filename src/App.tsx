@@ -8,7 +8,7 @@ import Bookings from './pages/Bookings'
 import Clients from './pages/Clients'
 import Drivers from './pages/Drivers'
 import Finance from './pages/Finance'
-import Quotations from './pages/Quotations'
+import Documents from './pages/Documents'
 import Analytics from './pages/Analytics'
 import VehicleOwners from './pages/VehicleOwners'
 import PSKFleet from './pages/PSKFleet'
@@ -46,8 +46,8 @@ function App() {
           <Route path="/operations/registry" element={<RegistryBoard />} />
           <Route path="/bookings" element={<Bookings />} />
           <Route path="/operations/bookings" element={<Bookings />} />
-          <Route path="/quotations" element={<Quotations />} />
-          <Route path="/operations/quotations" element={<Quotations />} />
+          <Route path="/quotations" element={<Documents />} />
+          <Route path="/operations/quotations" element={<Documents />} />
           <Route path="/agreements" element={<RentalAgreements />} />
           <Route path="/operations/agreements" element={<RentalAgreements />} />
           <Route path="/operations/handover" element={<HandoverChecklists />} />
@@ -86,7 +86,7 @@ function App() {
 
           {/* FINANCE */}
           <Route path="/finance" element={<Finance currentBranch={currentBranch} />} />
-          <Route path="/finance/documents" element={<Finance currentBranch={currentBranch} defaultTab="documents" />} />
+          <Route path="/finance/documents" element={<Documents />} />
           <Route path="/finance/mpesa" element={<Finance currentBranch={currentBranch} defaultTab="mpesa" />} />
           <Route path="/finance/expenses" element={<Finance currentBranch={currentBranch} defaultTab="expenses" />} />
           <Route path="/finance/pl" element={<Finance currentBranch={currentBranch} defaultTab="pl" />} />
