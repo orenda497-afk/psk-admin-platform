@@ -1,153 +1,5 @@
 import { useNavigate } from 'react-router-dom'
 
-// Animated leopard sitting on a branch, yawning, tail swinging
-function LeopardSVG() {
-  return (
-    <svg width="140" height="120" viewBox="0 0 140 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <style>{`
-        @keyframes tailSwing {
-          0%   { transform: rotate(0deg);   transform-origin: 68px 78px; }
-          25%  { transform: rotate(18deg);  transform-origin: 68px 78px; }
-          75%  { transform: rotate(-18deg); transform-origin: 68px 78px; }
-          100% { transform: rotate(0deg);   transform-origin: 68px 78px; }
-        }
-        @keyframes yawn {
-          0%,40%,100% { d: path("M54 62 Q60 65 66 62"); }
-          55%,85%     { d: path("M52 62 Q60 72 68 62"); }
-        }
-        @keyframes jawDrop {
-          0%,40%,100% { transform: translateY(0); }
-          55%,85%     { transform: translateY(5px); }
-        }
-        @keyframes eyeBlink {
-          0%,45%,55%,100% { transform: scaleY(1); }
-          50%             { transform: scaleY(0.1); }
-        }
-        @keyframes breathe {
-          0%,100% { transform: scaleY(1);    transform-origin: center bottom; }
-          50%     { transform: scaleY(1.04); transform-origin: center bottom; }
-        }
-        @keyframes earTwitch {
-          0%,70%,100% { transform: rotate(0deg);  transform-origin: 48px 18px; }
-          75%          { transform: rotate(-8deg); transform-origin: 48px 18px; }
-          80%          { transform: rotate(5deg);  transform-origin: 48px 18px; }
-          85%          { transform: rotate(0deg);  transform-origin: 48px 18px; }
-        }
-        .tail-group { animation: tailSwing 2.8s ease-in-out infinite; }
-        .body-group  { animation: breathe 3.2s ease-in-out infinite; }
-        .jaw         { animation: jawDrop 4s ease-in-out infinite; }
-        .eye-l, .eye-r { animation: eyeBlink 4s ease-in-out infinite; }
-        .ear-group   { animation: earTwitch 4s ease-in-out infinite; }
-      `}</style>
-
-      {/* Branch */}
-      <rect x="0" y="82" width="140" height="9" rx="4" fill="rgba(45,35,20,0.75)"/>
-      <rect x="0" y="82" width="140" height="3" rx="2" fill="rgba(80,60,30,0.5)"/>
-
-      {/* TAIL GROUP — swings from base */}
-      <g className="tail-group">
-        <path
-          d="M68 78 Q50 90 38 105 Q30 115 20 112 Q14 110 16 104 Q20 100 26 103 Q32 106 38 98 Q50 84 65 75"
-          stroke="#D4800A" strokeWidth="7" strokeLinecap="round" fill="none"/>
-        <path
-          d="M68 78 Q50 90 38 105 Q30 115 20 112 Q14 110 16 104 Q20 100 26 103 Q32 106 38 98 Q50 84 65 75"
-          stroke="#F5A623" strokeWidth="4" strokeLinecap="round" fill="none" strokeOpacity="0.6"/>
-        {/* Tail tip black */}
-        <ellipse cx="17" cy="106" rx="5" ry="4" fill="#1a1a1a"/>
-      </g>
-
-      {/* BODY GROUP — breathes */}
-      <g className="body-group">
-        {/* Main body */}
-        <ellipse cx="68" cy="68" rx="28" ry="20" fill="#F5A623"/>
-        {/* Belly lighter */}
-        <ellipse cx="68" cy="72" rx="16" ry="13" fill="#FFD060" fillOpacity="0.55"/>
-
-        {/* Front legs hanging down from branch */}
-        <rect x="50" y="78" width="10" height="22" rx="5" fill="#E8941A"/>
-        <rect x="76" y="78" width="10" height="22" rx="5" fill="#E8941A"/>
-        {/* Paws */}
-        <ellipse cx="55" cy="101" rx="7" ry="5" fill="#D4800A"/>
-        <ellipse cx="81" cy="101" rx="7" ry="5" fill="#D4800A"/>
-
-        {/* Body spots */}
-        <ellipse cx="58" cy="62" rx="4" ry="3" fill="rgba(20,10,0,0.30)" transform="rotate(-15 58 62)"/>
-        <ellipse cx="78" cy="60" rx="3.5" ry="2.5" fill="rgba(20,10,0,0.28)" transform="rotate(10 78 60)"/>
-        <ellipse cx="70" cy="72" rx="3" ry="2.5" fill="rgba(20,10,0,0.25)"/>
-        <ellipse cx="57" cy="74" rx="2.5" ry="2" fill="rgba(20,10,0,0.22)"/>
-        <ellipse cx="80" cy="73" rx="2.5" ry="2" fill="rgba(20,10,0,0.22)"/>
-        {/* Rosette spots */}
-        <circle cx="63" cy="65" r="1.5" fill="rgba(20,10,0,0.20)"/>
-        <circle cx="73" cy="64" r="1.5" fill="rgba(20,10,0,0.20)"/>
-      </g>
-
-      {/* NECK */}
-      <ellipse cx="62" cy="50" rx="13" ry="11" fill="#F5A623"/>
-
-      {/* EAR GROUP */}
-      <g className="ear-group">
-        <polygon points="42,22 48,10 55,22" fill="#E8941A"/>
-        <polygon points="44,22 48,14 53,22" fill="#FFB830" fillOpacity="0.7"/>
-        <polygon points="65,20 72,9 78,20" fill="#E8941A"/>
-        <polygon points="67,20 72,13 77,20" fill="#FFB830" fillOpacity="0.7"/>
-      </g>
-
-      {/* HEAD */}
-      <circle cx="62" cy="32" r="20" fill="#FFD060"/>
-      {/* Head spots */}
-      <ellipse cx="52" cy="26" rx="3" ry="2.5" fill="rgba(20,10,0,0.22)" transform="rotate(-20 52 26)"/>
-      <ellipse cx="72" cy="25" rx="3" ry="2.5" fill="rgba(20,10,0,0.20)" transform="rotate(15 72 25)"/>
-      <ellipse cx="60" cy="22" rx="2.5" ry="2" fill="rgba(20,10,0,0.18)"/>
-      {/* Forehead stripe */}
-      <path d="M60 16 Q62 12 64 16" stroke="rgba(20,10,0,0.20)" strokeWidth="1.5" fill="none"/>
-
-      {/* EYES */}
-      <g className="eye-l" style={{ transformOrigin: '53px 28px' }}>
-        <ellipse cx="53" cy="28" rx="5" ry="5" fill="#2D5A0E"/>
-        <ellipse cx="53" cy="28" rx="2.5" ry="4" fill="#0a0a0a"/>
-        <circle cx="54.5" cy="26.5" r="1.2" fill="white" fillOpacity="0.8"/>
-      </g>
-      <g className="eye-r" style={{ transformOrigin: '71px 28px' }}>
-        <ellipse cx="71" cy="28" rx="5" ry="5" fill="#2D5A0E"/>
-        <ellipse cx="71" cy="28" rx="2.5" ry="4" fill="#0a0a0a"/>
-        <circle cx="72.5" cy="26.5" r="1.2" fill="white" fillOpacity="0.8"/>
-      </g>
-
-      {/* NOSE */}
-      <ellipse cx="62" cy="35" rx="4" ry="3" fill="#C05010"/>
-      <path d="M60 37 Q62 39 64 37" stroke="#8B3A0A" strokeWidth="1" fill="none"/>
-
-      {/* UPPER JAW / MUZZLE — fixed */}
-      <ellipse cx="62" cy="37" rx="10" ry="6" fill="#FFE080"/>
-      <ellipse cx="53" cy="37" rx="6" ry="5" fill="#FFE080"/>
-      <ellipse cx="71" cy="37" rx="6" ry="5" fill="#FFE080"/>
-
-      {/* LOWER JAW — drops for yawn */}
-      <g className="jaw">
-        <ellipse cx="62" cy="43" rx="9" ry="5" fill="#FFE080"/>
-        {/* Open mouth / yawn */}
-        <ellipse cx="62" cy="41" rx="7" ry="5" fill="#CC2200" fillOpacity="0.85"/>
-        {/* Tongue */}
-        <ellipse cx="62" cy="43" rx="5" ry="3.5" fill="#FF6644"/>
-        {/* Teeth top */}
-        <rect x="55" y="38" width="3" height="5" rx="1.5" fill="white"/>
-        <rect x="66" y="38" width="3" height="5" rx="1.5" fill="white"/>
-        {/* Teeth bottom */}
-        <rect x="57" y="43" width="2.5" height="4" rx="1.2" fill="white"/>
-        <rect x="64" y="43" width="2.5" height="4" rx="1.2" fill="white"/>
-      </g>
-
-      {/* WHISKERS */}
-      <line x1="34" y1="35" x2="50" y2="36" stroke="rgba(255,255,255,0.75)" strokeWidth="1"/>
-      <line x1="34" y1="38" x2="50" y2="38" stroke="rgba(255,255,255,0.75)" strokeWidth="1"/>
-      <line x1="34" y1="41" x2="50" y2="40" stroke="rgba(255,255,255,0.65)" strokeWidth="1"/>
-      <line x1="74" y1="36" x2="90" y2="35" stroke="rgba(255,255,255,0.75)" strokeWidth="1"/>
-      <line x1="74" y1="38" x2="90" y2="38" stroke="rgba(255,255,255,0.75)" strokeWidth="1"/>
-      <line x1="74" y1="40" x2="90" y2="41" stroke="rgba(255,255,255,0.65)" strokeWidth="1"/>
-    </svg>
-  )
-}
-
 export default function Home() {
   const navigate = useNavigate()
   const hour = new Date().getHours()
@@ -211,10 +63,10 @@ export default function Home() {
       <div style={{
         background: 'rgba(255,255,255,0.035)',
         border: '1.5px solid rgba(255,215,0,0.12)',
-        borderRadius: '14px', padding: '22px 28px', marginBottom: '22px',
+        borderRadius: '14px', padding: '20px 28px', marginBottom: '22px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
-        overflow: 'hidden',
+        overflow: 'hidden', minHeight: '100px',
       }}>
         {/* Left — greeting */}
         <div>
@@ -226,11 +78,42 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Right — animated leopard + stats */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '20px', flexShrink: 0 }}>
-          <LeopardSVG />
+        {/* Right — leopard + stats */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexShrink: 0 }}>
 
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+          {/* Animated leopard image */}
+          <div style={{ position: 'relative', flexShrink: 0 }}>
+            <style>{`
+              @keyframes leopardFloat {
+                0%,100% { transform: translateY(0px) rotate(0deg); }
+                40%     { transform: translateY(-4px) rotate(0.5deg); }
+                80%     { transform: translateY(-2px) rotate(-0.3deg); }
+              }
+              @keyframes tailWag {
+                0%,100% { transform: rotate(0deg); }
+                30%     { transform: rotate(8deg); }
+                70%     { transform: rotate(-8deg); }
+              }
+              .leopard-img {
+                animation: leopardFloat 3.2s ease-in-out infinite;
+                filter: drop-shadow(0 8px 16px rgba(0,0,0,0.35));
+              }
+            `}</style>
+            <img
+              src="/branding/leopard.png"
+              alt="Leopard yawning on branch"
+              className="leopard-img"
+              style={{
+                height: '88px',
+                width: 'auto',
+                objectFit: 'contain',
+                display: 'block',
+              }}
+            />
+          </div>
+
+          {/* 3 quick stats */}
+          <div style={{ display: 'flex', gap: '10px' }}>
             {[
               { label: 'Available', value: 0, color: 'rgba(129,199,132,0.95)', bg: 'rgba(129,199,132,0.09)', border: 'rgba(129,199,132,0.22)' },
               { label: 'On hire',   value: 0, color: 'rgba(100,181,246,0.95)', bg: 'rgba(100,181,246,0.08)', border: 'rgba(100,181,246,0.22)' },
