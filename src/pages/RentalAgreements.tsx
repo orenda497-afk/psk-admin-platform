@@ -127,6 +127,10 @@ export default function RentalAgreements() {
   }
 
   async function saveAgreement() {
+    if (!form.booking_id) {
+      alert('Please select a booking first')
+      return
+    }
     if (!form.client_name || !form.vehicle_reg || !form.pickup_date || !form.return_date) {
       alert('Please fill in: Client name, Vehicle, Pickup date, Return date')
       return
@@ -450,9 +454,9 @@ export default function RentalAgreements() {
             <div style={{ padding:'24px 28px' }}>
 
               {/* Link to existing booking */}
-              {fld('Link to booking (auto-fills details)',
+              {fld('Select booking *',
                 <select value={form.booking_id} onChange={e => onBookingSelect(e.target.value)} style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', cursor:'pointer' }}>
-                  <option value="">No booking linked (fill manually)</option>
+                  <option value="">Select a booking...</option>
                   {bookings.map(b => <option key={b.id} value={b.id}>{b.booking_ref} — {clients.find(c=>c.id===b.client_id)?.name || 'Unknown client'}</option>)}
                 </select>
               )}
