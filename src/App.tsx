@@ -1,4 +1,6 @@
+import Home from "./pages/Home"
 import { useState } from 'react'
+import Home from "./pages/Home"
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
 import Layout from './components/Layout'
@@ -10,6 +12,7 @@ import Investors from './pages/Investors'
 import Finance from './pages/Finance'
 import Quotations from './pages/Quotations'
 import Analytics from './pages/Analytics'
+import Home from "./pages/Home"
 import {
   HomeOverview,
   OperationsOverview,
@@ -19,6 +22,7 @@ import {
   FinanceOverview,
   IntelligenceOverview
 } from './pages/CategoryPages'
+import Home from "./pages/Home"
 import { getStaffBranch } from './data/staff'
 
 function App() {
@@ -55,7 +59,7 @@ function App() {
       >
         <Routes>
           {/* Category Overviews */}
-          <Route path="/" element={<HomeOverview />} />
+          <Route path="/" element={<Home />} />
           <Route path="/operations" element={<OperationsOverview />} />
           <Route path="/clients-drivers" element={<ClientsOverview />} />
           <Route path="/fleet-overview" element={<FleetOverview />} />

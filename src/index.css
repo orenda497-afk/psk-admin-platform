@@ -1,497 +1,51 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 html, body, #root {
   height: 100%;
-  width: 100%;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 body {
-  background: radial-gradient(ellipse 80% 70% at 70% 0%, rgba(27,77,92,0.18) 0%, transparent 60%), radial-gradient(ellipse 60% 60% at 5% 100%, rgba(45,95,63,0.14) 0%, transparent 60%), linear-gradient(160deg, #0f2535 0%, #112b2e 40%, #0e2420 75%, #101e2a 100%);
+  background:
+    radial-gradient(ellipse 80% 70% at 70% 0%, rgba(27,77,92,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 5% 100%, rgba(45,95,63,0.14) 0%, transparent 60%),
+    linear-gradient(160deg, #0f2535 0%, #112b2e 40%, #0e2420 75%, #101e2a 100%);
   min-height: 100vh;
-  color: #f8fafc;
-  overflow: hidden;
+  color: rgba(255,255,255,0.92);
 }
 
-#root {
-  display: flex;
-  flex-direction: column;
-}
-
-/* Premium solid-colour panel design (No gradients, precise borders) */
-.glass {
-  background-color: #121a24;
-  border: 1px solid #1e293b;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
-}
-
-.glass-lg {
-  background-color: #121a24;
-  border: 1px solid #1e293b;
-  border-radius: 16px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
-}
-
-.glass-glossy {
-  background-color: #1a2533;
-  border: 1px solid #29384d;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-}
-
-/* Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 4px;
 }
-
 ::-webkit-scrollbar-track {
-  background: rgba(255,255,255,0.02);
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(80,150,190,0.22);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(80,150,190,0.30);
-}
-
-/* Status colors - solid and professional */
-.status-available {
-  color: #34d399; /* Emerald 400 */
-  border-color: #059669; /* Emerald 600 */
-  background-color: rgba(16, 185, 129, 0.1);
-}
-
-.status-chauffeured {
-  color: #60a5fa; /* Blue 400 */
-  border-color: #2563eb; /* Blue 600 */
-  background-color: rgba(59, 130, 246, 0.1);
-}
-
-.status-safari {
-  color: #a78bfa; /* Blue 400 */
-  border-color: #7c3aed; /* Violet 600 */
-  background-color: rgba(139, 92, 246, 0.1);
-}
-
-.status-service {
-  color: #fbbf24; /* Amber 400 */
-  border-color: #d97706; /* Amber 600 */
-  background-color: rgba(245, 158, 11, 0.1);
-}
-
-.status-overdue {
-  color: #f87171; /* Red 400 */
-  border-color: #dc2626; /* Red 600 */
-  background-color: rgba(239, 68, 68, 0.1);
-}
-
-.status-returning {
-  color: #38bdf8; /* Cyan 400 */
-  border-color: #0891b2; /* Cyan 600 */
-  background-color: rgba(6, 182, 212, 0.1);
-}
-
-.status-grounded {
-  color: rgba(160,160,160,0.95);
-  border-color: rgba(160,160,160,0.30);
-  background-color: rgba(160,160,160,0.11);
-}
-
-/* Animations */
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideOutRight {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-}
-
-.animate-slide-in-right {
-  animation: slideInRight 0.28s cubic-bezier(0.4,0,0.2,1);
-}
-
-.animate-slide-out-right {
-  animation: slideOutRight 0.28s cubic-bezier(0.4,0,0.2,1);
-}
-
-/* Enhanced text visibility - solid hex colours */
-.text-psk-text-primary {
-  color: #f8fafc !important; /* Slate 50 */
-}
-
-.text-psk-text-secondary {
-  color: #94a3b8 !important; /* Slate 400 */
-}
-
-.text-psk-text-tertiary {
-  color: #64748b !important; /* Slate 500 */
-}
-
-.text-psk-text-gold {
-  color: #fbbf24 !important; /* Amber 400 */
-}
-
-
-/* --------------------------------------------------------------------------
-   PSK Safari authenticated-brand logo and premium login experience
-   -------------------------------------------------------------------------- */
-.psk-logo-orbit {
-  position: relative;
-  display: grid;
-  flex: none;
-  place-items: center;
-  border-radius: 9999px;
-  isolation: isolate;
-}
-
-.psk-logo-image {
-  display: block;
-  border: 1px solid rgba(255,255,255,0.66);
-  box-shadow:
-    0 0 0 2px rgba(2,10,19,0.72),
-    0 7px 22px rgba(0,0,0,0.42),
-    inset 0 1px 0 rgba(255,255,255,0.35);
-}
-
-.psk-logo-orbit-ring {
-  position: absolute;
-  inset: -17%;
-  z-index: 0;
-  display: block;
-  border-radius: inherit;
-  pointer-events: none;
-}
-
-.psk-logo-orbit-ring--outer {
-  border: 1px solid rgba(255,183,56,0.42);
-  box-shadow: 0 0 16px rgba(255,142,31,0.20), inset 0 0 14px rgba(255,199,73,0.06);
-  animation: pskOrbitSpin 7s linear infinite;
-}
-
-.psk-logo-orbit-ring--inner {
-  inset: -8%;
-  border: 1px solid rgba(115,205,232,0.28);
-  transform: rotate(34deg) scaleX(1.08);
-  animation: pskOrbitBreathe 3.4s ease-in-out infinite;
-}
-
-
-
-@keyframes pskOrbitSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes pskOrbitBreathe {
-  0%, 100% { opacity: 0.45; filter: drop-shadow(0 0 4px rgba(103,200,238,0.18)); }
-  50% { opacity: 0.90; filter: drop-shadow(0 0 9px rgba(103,200,238,0.40)); }
-}
-
-
-
-
-
-.psk-login-shell {
-  position: relative;
-  background:
-    linear-gradient(135deg, rgba(4,11,22,0.86), rgba(7,18,31,0.94)),
-    radial-gradient(ellipse 90% 75% at 50% 110%, rgba(72,101,18,0.24), transparent 58%),
-    radial-gradient(ellipse 75% 70% at 112% -8%, rgba(234,73,25,0.24), transparent 56%),
-    #071220;
-}
-
-.psk-login-shell::before {
-  position: absolute;
-  inset: 0;
-  content: '';
-  opacity: 0.33;
-  background-image: linear-gradient(117deg, transparent 0%, rgba(255,255,255,0.045) 22%, transparent 44%);
-  pointer-events: none;
-}
-
-.psk-login-sunrise {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(34px);
-  pointer-events: none;
-}
-
-.psk-login-sunrise--top {
-  top: -12rem;
-  right: -11rem;
-  width: 33rem;
-  height: 18rem;
-  background: linear-gradient(115deg, rgba(246,192,45,0.08), rgba(247,78,25,0.44), rgba(213,30,29,0.10));
-  transform: rotate(-17deg);
-}
-
-.psk-login-sunrise--bottom {
-  bottom: -12rem;
-  left: -12rem;
-  width: 31rem;
-  height: 18rem;
-  background: linear-gradient(30deg, rgba(71,94,15,0.52), rgba(128,142,30,0.12), transparent 72%);
-  transform: rotate(18deg);
-}
-
-.psk-login-sweep {
-  position: absolute;
-  right: -9rem;
-  top: 3rem;
-  width: 40rem;
-  height: 15rem;
-  border-radius: 50%;
-  border: 1px solid rgba(255,177,50,0.22);
-  border-left-color: transparent;
-  border-bottom-color: transparent;
-  transform: rotate(-13deg);
-  box-shadow: 0 0 54px rgba(242,90,26,0.22);
-  pointer-events: none;
-}
-
-.psk-login-card {
-  overflow: hidden;
-  border: 1px solid rgba(160,218,239,0.42);
-  border-radius: 24px;
-  background:
-    linear-gradient(135deg, rgba(28,54,71,0.77), rgba(10,25,39,0.88) 55%, rgba(7,19,33,0.82)),
-    rgba(9,26,41,0.76);
-  backdrop-filter: blur(34px) saturate(1.32);
-  box-shadow:
-    0 28px 90px rgba(0,0,0,0.56),
-    0 0 0 1px rgba(255,255,255,0.07) inset,
-    0 1px 0 rgba(255,255,255,0.24) inset,
-    0 0 48px rgba(74,181,215,0.10);
-}
-
-.psk-login-card::before {
-  position: absolute;
-  inset: 0;
-  content: '';
-  pointer-events: none;
-  background: linear-gradient(115deg, rgba(255,255,255,0.14), transparent 29%, transparent 68%, rgba(255,255,255,0.03));
-}
-
-.psk-login-label {
-  display: block;
-  margin-bottom: 0.65rem;
-  color: rgba(219,237,248,0.88);
-  font-size: 0.74rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.psk-login-input-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  min-height: 3.75rem;
-  border: 1px solid rgba(150,204,224,0.38);
-  border-radius: 14px;
-  background: linear-gradient(115deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.09), 0 5px 14px rgba(0,0,0,0.15);
-  transition: border-color .22s ease, box-shadow .22s ease, background .22s ease;
-}
-
-.psk-login-input-wrap:focus-within {
-  border-color: rgba(107,205,236,0.84);
-  background: linear-gradient(115deg, rgba(103,190,229,0.11), rgba(255,255,255,0.035));
-  box-shadow: 0 0 0 3px rgba(79,184,225,0.12), inset 0 1px 0 rgba(255,255,255,0.14), 0 7px 22px rgba(0,0,0,0.20);
-}
-
-.psk-login-input-icon {
-  flex: none;
-  margin-left: 1rem;
-  color: rgba(135,208,236,0.82);
-}
-
-.psk-login-input {
-  width: 100%;
-  min-width: 0;
-  height: 3.65rem;
-  padding: 0 1rem 0 0.95rem;
-  color: rgba(255,255,255,0.96);
-  font-size: 1rem;
-  font-weight: 600;
-  outline: none;
   background: transparent;
 }
-
-.psk-login-submit {
-  width: 100%;
-  min-height: 3.75rem;
-  border: 1px solid rgba(255,223,130,0.76);
-  border-radius: 14px;
-  color: #141009;
-  font-size: 1rem;
-  font-weight: 800;
-  background: linear-gradient(104deg, #f5bc32 0%, #f99a28 42%, #f15422 100%);
-  box-shadow: 0 10px 26px rgba(242,112,24,0.30), inset 0 1px 0 rgba(255,255,255,0.48), inset 0 -2px 0 rgba(135,57,13,0.16);
-  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+::-webkit-scrollbar-thumb {
+  background: rgba(255,215,0,0.15);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,215,0,0.25);
 }
 
-.psk-login-submit:hover:not(:disabled) {
-  filter: brightness(1.06) saturate(1.08);
-  box-shadow: 0 13px 34px rgba(242,112,24,0.40), inset 0 1px 0 rgba(255,255,255,0.54);
-  transform: translateY(-1px);
+@keyframes logoPulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.10); }
 }
 
-.psk-login-submit:active:not(:disabled) {
-  transform: translateY(1px);
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.psk-login-submit:disabled {
-  cursor: wait;
-  opacity: 0.65;
-}
-
-.psk-login-demo-note {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  margin-top: 1.5rem;
-  padding: 0.9rem 1rem;
-  border: 1px solid rgba(139,199,222,0.26);
-  border-radius: 14px;
-  color: rgba(172,215,233,0.78);
-  font-size: 0.82rem;
-  background: rgba(255,255,255,0.035);
-}
-
-/* Status indicator pulse animation */
-@keyframes statusPulse {
-  0%, 100% { opacity: 0.8; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.08); }
-}
-
-.status-pulse {
-  animation: statusPulse 2.4s ease-in-out infinite;
-}
-
-/* Hover elevation for interactive elements */
-@keyframes hoverLift {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-2px); }
-}
-
-.hover-lift:hover {
-  animation: hoverLift 0.24s ease-out forwards;
-}
-
-/* Vehicle motion hint */
-@keyframes vehicleGlide {
-  0%, 100% { transform: translateX(0); opacity: 0.6; }
-  50% { transform: translateX(4px); opacity: 0.8; }
-}
-
-.vehicle-motion {
-  animation: vehicleGlide 3s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .psk-logo-orbit-ring--outer,
-  .psk-logo-orbit-ring--inner,
-  .psk-logo-orbit-glint,
-  .status-pulse,
-  .vehicle-motion {
-    animation: none;
-  }
-}
-
-/* Safari car background animation */
-.psk-safari-car-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
-
-.psk-safari-car-item {
-  position: absolute;
-  width: 180px;
-  height: 110px;
-  opacity: 0.09;
-}
-
-.psk-safari-car-item--1 {
-  bottom: 22%;
-  animation: safariCarDrive 22s linear infinite;
-  animation-delay: 0s;
-}
-
-.psk-safari-car-item--2 {
-  bottom: 58%;
-  animation: safariCarDrive 24s linear infinite;
-  animation-delay: 6s;
-  opacity: 0.07;
-}
-
-.psk-safari-car-item--3 {
-  bottom: 38%;
-  animation: safariCarDrive 26s linear infinite;
-  animation-delay: 12s;
-  opacity: 0.08;
-}
-
-.psk-safari-car-svg {
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-}
-
-@keyframes safariCarDrive {
-  from {
-    left: -15%;
-    transform: scaleX(1);
-  }
-  50% {
-    opacity: 0.14;
-  }
-  to {
-    left: 115%;
-    transform: scaleX(1);
-  }
-}
-
-@media (max-width: 640px) {
-  .psk-login-card {
-    border-radius: 20px;
-  }
-  
-  .psk-safari-car {
-    font-size: 2.5rem;
-  }
+.page-enter {
+  animation: fadeIn 0.2s ease forwards;
 }

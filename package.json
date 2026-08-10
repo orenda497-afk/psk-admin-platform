@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --force",
+    "build": "vite build",
     "clean": "rm -rf dist node_modules/.vite",
     "preview": "vite preview"
   },

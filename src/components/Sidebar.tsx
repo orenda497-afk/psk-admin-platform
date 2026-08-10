@@ -198,7 +198,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
           </button>
 
           {/* Categories */}
-          {NAVIGATION_STRUCTURE.map(category => {
+          {NAVIGATION_STRUCTURE.filter(c => c.id !== 'home').map(category => {
             const isOpen = openCategory === category.id
             const isCategoryActive = getCategoryActive(category.id)
 
@@ -285,25 +285,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
           })}
         </nav>
 
-        {/* Logout button at bottom */}
-        <div
-          className="flex-shrink-0 px-3 py-3 border-t"
-          style={{
-            borderColor: 'rgba(255,215,0,0.10)',
-          }}
-        >
-          <button
-            onClick={onLogout}
-            className="w-full px-3 py-2 rounded-lg text-[11.5px] font-medium transition"
-            style={{
-              color: 'rgba(255,255,255,0.55)',
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.09)',
-            }}
-          >
-            Logout
-          </button>
-        </div>
+
 
         <style>{`
           @keyframes logoPulse {
