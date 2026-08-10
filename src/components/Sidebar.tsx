@@ -179,7 +179,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
             }}
             className="w-full flex items-center gap-[10px] px-3 py-[10px] rounded-[9px] border border-transparent transition-all text-[12.5px] font-normal relative"
             style={{
-              color: location.pathname === '/' ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.42)',
+              color: location.pathname === '/' ? 'rgba(255,255,255,0.98)' : 'rgba(255,255,255,0.65)',
               background: location.pathname === '/' ? 'rgba(255,215,0,0.08)' : 'transparent',
               borderColor: location.pathname === '/' ? 'rgba(255,215,0,0.20)' : 'transparent',
               fontWeight: location.pathname === '/' ? 600 : 400,
@@ -193,7 +193,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                 }}
               />
             )}
-            <span>🏠</span>
+            <span className="text-lg" style={{ filter: 'drop-shadow(0 0 3px rgba(255,215,0,0.4))' }}>🏠</span>
             <span>Home</span>
           </button>
 
@@ -208,8 +208,8 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                 <button
                   onClick={() => handleCategoryClick(category.id)}
                   className="w-full flex items-center gap-[10px] px-3 py-[10px] rounded-[9px] border border-transparent transition-all text-[12.5px] font-normal relative"
-                  style={{
-                    color: isCategoryActive ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.42)',
+            style={{
+              color: isCategoryActive ? 'rgba(255,255,255,0.98)' : 'rgba(255,255,255,0.65)',
                     background: isCategoryActive ? 'rgba(255,215,0,0.08)' : 'transparent',
                     borderColor: isCategoryActive ? 'rgba(255,215,0,0.20)' : 'transparent',
                     fontWeight: isCategoryActive ? 600 : 400,
@@ -223,7 +223,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                       }}
                     />
                   )}
-                  <span>{category.icon}</span>
+                  <span className="text-lg" style={{ filter: 'drop-shadow(0 0 3px rgba(255,215,0,0.4))' }}>{category.icon}</span>
                   <span className="flex-1 text-left">{category.label}</span>
                   {category.id === 'finance' && <span>🔒</span>}
                   {category.subcategories.length > 0 && (
@@ -255,14 +255,14 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                           key={sub.id}
                           onClick={() => handleSubcategoryClick(sub.route)}
                           className="w-full flex items-center gap-2 px-[11px] py-[7px] rounded-[7px] text-[11.5px] mb-[1px] border-l-2 transition-all"
-                          style={{
-                            color: isSubcategoryActive(sub.route) ? 'rgba(255,215,0,0.90)' : 'rgba(255,255,255,0.32)',
-                            background: isSubcategoryActive(sub.route) ? 'rgba(255,215,0,0.06)' : 'transparent',
-                            borderLeftColor: isSubcategoryActive(sub.route) ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.07)',
+            style={{
+              color: isSubcategoryActive(sub.route) ? 'rgba(255,215,0,0.95)' : 'rgba(255,255,255,0.58)',
+              background: isSubcategoryActive(sub.route) ? 'rgba(255,215,0,0.08)' : 'transparent',
+              borderLeftColor: isSubcategoryActive(sub.route) ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.12)',
                             fontWeight: isSubcategoryActive(sub.route) ? 500 : 400,
                           }}
                         >
-                          <span>{sub.icon}</span>
+                          <span className="text-base" style={{ filter: 'drop-shadow(0 0 2px rgba(255,215,0,0.3))' }}>{sub.icon}</span>
                           <span className="flex-1 text-left">{sub.label}</span>
                           {sub.badge && (
                             <span
