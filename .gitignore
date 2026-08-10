@@ -1,6 +1,5 @@
 node_modules/
 dist/
-.env.local
 .DS_Store
 *.log
 .vscode/
@@ -8,3 +7,4 @@ dist/
 
 # Local Netlify folder
 .netlify
+# Keep env for deployment
