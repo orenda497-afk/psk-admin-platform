@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 type DocType = 'quotation' | 'invoice' | 'receipt' | 'credit_note' | 'debit_note'
@@ -66,6 +66,7 @@ const emptyItem = (): LineItem => ({ description: '', qty: 1, unitPrice: 0 })
 
 export default function Documents({ defaultTab }: { defaultTab?: string }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const [docs, setDocs]           = useState<PSKDocument[]>([])
   const [clients, setClients]     = useState<any[]>([])
   const [loading, setLoading]     = useState(true)
@@ -88,6 +89,14 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
   })
 
   useEffect(() => { loadAll() }, [])
+  useEffect(() => {
+    const st = location.state as any
+    if (st?.openAdd) {
+      setActiveTab((st.docType as any) || activeTab)
+      setShowAdd(true)
+      if (st.clientName) setForm(f => ({ ...f, client_name: st.clientName || '', client_phone: st.clientPhone || '', doc_type: st.docType || f.doc_type }))
+    }
+  }, [location.state])
 
   async function loadAll() {
     setLoading(true)
@@ -163,6 +172,29 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
 
   async function updateStatus(id: string, status: string) {
     await supabase.from('psk_documents').update({ status }).eq('id', id)
+    // If marking invoice paid, auto-create receipt if not exists
+    if (status === 'paid') {
+      const doc = docs.find(d => d.id === id)
+      if (doc && doc.doc_type === 'invoice') {
+        const rref = `PSK-REC-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`
+        await supabase.from('psk_documents').insert([{
+          doc_ref: rref, doc_type: 'receipt', branch: doc.branch,
+          client_id: doc.client_id, client_name: doc.client_name,
+          client_phone: doc.client_phone, client_email: doc.client_email,
+          issue_date: new Date().toISOString().split('T')[0],
+          line_items: doc.line_items, subtotal: doc.subtotal,
+          vat_rate: doc.vat_rate, vat_amount: doc.vat_amount,
+          total: doc.total, amount_paid: doc.total, balance: 0,
+          notes: 'Receipt for payment received.', linked_doc_ref: doc.doc_ref, status: 'paid',
+        }])
+        // Send WhatsApp receipt to client
+        if (doc.client_phone) {
+          const ph = doc.client_phone.replace(/\D/g,'')
+          const msg = encodeURIComponent(`Dear ${doc.client_name},\nThank you for your payment!\nReceipt: ${rref}\nInvoice: ${doc.doc_ref}\nAmount: KES ${doc.total?.toLocaleString()}\nPSK Safaris & Car Rentals\nTel: +254 751 855 180`)
+          window.open(`https://wa.me/${ph}?text=${msg}`,'_blank')
+        }
+      }
+    }
     loadAll()
   }
 

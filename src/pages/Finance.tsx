@@ -363,7 +363,7 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
               <thead><tr style={{borderBottom:'1px solid rgba(255,255,255,0.08)'}}>{['Vehicle','Owner','Revenue','Expenses','Net','Owner 70%','PSK 30%'].map(h=><th key={h} style={{...gl.lbl,padding:'0 10px 10px',textAlign:['Revenue','Expenses','Net','Owner 70%','PSK 30%'].includes(h)?'right':'left'}}>{h}</th>)}</tr></thead>
               <tbody>{vehicles.map(v=>{
                 const vRev = docs.filter(d=>d.doc_type==='invoice'&&d.status==='paid').reduce((s,d)=>{
-                  const its=Array.isArray(d.line_items)?d.line_items:[]
+                  const its=Array.isArray(d.line_items)?d.line_items:[] // items
                   return s+(its.some((i:any)=>(i.description||'').toLowerCase().includes(v.reg.toLowerCase()))?(d.total||0):0)
                 },0)
                 const vExp = expenses.filter(e=>e.vehicle_id===v.id).reduce((s,e)=>s+(e.amount||0),0)

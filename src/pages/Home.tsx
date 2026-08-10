@@ -17,18 +17,19 @@ export default function Home() {
         supabase.from('bookings').select('pickup_date, return_date, status'),
         supabase.from('reminders').select('id').eq('resolved', false),
         supabase.from('psk_documents').select('id').eq('doc_type', 'quotation').eq('status', 'draft'),
+        supabase.from('mpesa_transactions').select('id').eq('matched', false),
       ])
       const today = new Date().toISOString().split('T')[0]
       const vehicles = v.data || []
       const bookings = b.data || []
       setStats({
         available:  vehicles.filter((x:any) => x.status === 'available').length,
-        onHire:     vehicles.filter((x:any) => ['chauffeured','safari','self-drive'].includes(x.status)).length,
+        onHire:     vehicles.filter((x:any) => ['chauffeured','safari','self-drive','airport'].includes(x.status)).length,
         inService:  vehicles.filter((x:any) => x.status === 'service').length,
         pickups:    bookings.filter((x:any) => x.pickup_date?.startsWith(today)).length,
         returns:    bookings.filter((x:any) => x.return_date?.startsWith(today)).length,
         quotes:     (d.data || []).length,
-        mpesa:      0,
+        mpesa:      (mp.data || []).length,
         reminders:  (r.data || []).length,
       })
     }
