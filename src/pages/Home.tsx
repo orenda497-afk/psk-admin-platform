@@ -194,7 +194,7 @@ export default function Home() {
           { emoji: '📅', label: 'Out on hire',        value: '0',     color: 'rgba(100,181,246,0.95)', border: 'rgba(100,181,246,0.20)' },
           { emoji: '⚠️', label: 'Overdue returns',   value: '0',     color: 'rgba(239,154,154,0.95)', border: 'rgba(239,154,154,0.20)' },
           { emoji: '📱', label: 'Unmatched M-Pesa',  value: '0',     color: 'rgba(255,183,77,0.92)',  border: 'rgba(255,183,77,0.20)'  },
-          { emoji: '💰', label: 'Revenue this month', value: 'KES 0', color: 'rgba(255,215,0,0.92)',  border: 'rgba(255,215,0,0.20)'   },
+          { emoji: '🔔', label: 'Reminders', value: '0', color: 'rgba(255,183,77,0.92)', border: 'rgba(255,183,77,0.20)' },
         ].map((s, i) => (
           <div key={i} style={{
             flex: 1, background: 'rgba(10,22,34,0.65)',
