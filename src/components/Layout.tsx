@@ -35,7 +35,7 @@ export default function Layout({ userRole = 'owner', userName = '',
     <div style={{ display: 'flex', height: '100vh' }} className="bg-psk-bg-base overflow-hidden">
       {/* Sidebar — fixed width 210px, full height */}
       <aside style={{ width: '210px', minWidth: '210px', flexShrink: 0 }}>
-        <Sidebar userRole={userRole} onLogout={onLogout} currentUser={currentUser} />
+        <Sidebar userRole={userRole} onLogout={onLogout} currentUser={currentUser} userName={userName} userEmail={currentUser} userTitle={userRole} userBranch={displayBranch} />
       </aside>
 
       {/* Main — takes remaining width, flex column layout */}

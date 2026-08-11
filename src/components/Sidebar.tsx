@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import ProfilePanel from './ProfilePanel'
 import { useNavigate, useLocation } from 'react-router-dom'
 import FinancePINLock from './FinancePINLock'
 import { NAVIGATION_STRUCTURE } from '../data/navigation'
@@ -7,9 +8,13 @@ interface SidebarProps {
   userRole?: string
   onLogout: () => void
   currentUser?: string
+  userName?: string
+  userEmail?: string
+  userTitle?: string
+  userBranch?: string
 }
 
-export default function Sidebar({ userRole = 'owner', onLogout }: SidebarProps) {
+export default function Sidebar({ userRole = 'owner', onLogout, userName = '', userEmail = '', userTitle = '', userBranch = 'eldoret' }: SidebarProps) {
   const navigate = useNavigate()
   const location = useLocation()
   const [openCategory, setOpenCategory] = useState<string | null>('operations')
@@ -18,6 +23,7 @@ export default function Sidebar({ userRole = 'owner', onLogout }: SidebarProps) 
   const [pendingFinanceOpen, setPendingFinanceOpen] = useState(false)
 
   const [currentBranch, setCurrentBranch] = useState<'eldoret' | 'kisumu'>('eldoret')
+  const [profileOpen, setProfileOpen] = useState(false)
 
   const handleCategoryClick = (categoryId: string) => {
     if (categoryId === 'finance' && !financeUnlocked) {
@@ -306,20 +312,37 @@ export default function Sidebar({ userRole = 'owner', onLogout }: SidebarProps) 
 
 
 
-        {/* Sign out */}
+        {/* User avatar — opens profile panel */}
         <div style={{ padding:'12px 14px', borderTop:'1px solid rgba(255,255,255,0.07)' }}>
           <button
-            onClick={() => { if (window.confirm('Sign out of PSK Admin?')) onLogout() }}
-            style={{ width:'100%', display:'flex', alignItems:'center', gap:'10px', padding:'10px 12px', borderRadius:'9px', background:'transparent', border:'1px solid rgba(255,255,255,0.08)', color:'rgba(255,255,255,0.40)', cursor:'pointer', fontFamily:'inherit', fontSize:'12px', transition:'all 0.15s' }}
-            onMouseEnter={e=>{ const el=e.currentTarget; el.style.background='rgba(231,76,60,0.10)'; el.style.color='rgba(239,154,154,0.80)'; el.style.borderColor='rgba(231,76,60,0.25)' }}
-            onMouseLeave={e=>{ const el=e.currentTarget; el.style.background='transparent'; el.style.color='rgba(255,255,255,0.40)'; el.style.borderColor='rgba(255,255,255,0.08)' }}
+            onClick={() => setProfileOpen(true)}
+            style={{ width:'100%', display:'flex', alignItems:'center', gap:'10px', padding:'8px 10px', borderRadius:'10px', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', cursor:'pointer', fontFamily:'inherit', transition:'all 0.15s' }}
+            onMouseEnter={e=>{ const el=e.currentTarget; el.style.background='rgba(255,215,0,0.07)'; el.style.borderColor='rgba(255,215,0,0.20)' }}
+            onMouseLeave={e=>{ const el=e.currentTarget; el.style.background='rgba(255,255,255,0.04)'; el.style.borderColor='rgba(255,255,255,0.08)' }}
           >
-            <span style={{ fontSize:'14px' }}>🚪</span>
-            <span>Sign out</span>
+            <div style={{ width:'30px', height:'30px', borderRadius:'50%', flexShrink:0, background:'rgba(255,215,0,0.15)', border:'1.5px solid rgba(255,215,0,0.40)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', fontWeight:800, color:'rgba(255,215,0,0.90)' }}>
+              {(userName || 'U').split(' ').map((w:string) => w[0]).join('').toUpperCase().slice(0,2)}
+            </div>
+            <div style={{ flex:1, textAlign:'left', overflow:'hidden' }}>
+              <div style={{ fontSize:'12px', fontWeight:600, color:'rgba(255,255,255,0.80)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{userName || 'Staff'}</div>
+              <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.30)', textTransform:'capitalize' }}>{userRole}</div>
+            </div>
+            <span style={{ fontSize:'12px', color:'rgba(255,255,255,0.25)' }}>⚙️</span>
           </button>
         </div>
 
-        <style>{\`
+        <ProfilePanel
+          open={profileOpen}
+          onClose={() => setProfileOpen(false)}
+          onLogout={onLogout}
+          userRole={userRole}
+          userName={userName}
+          userEmail={userEmail}
+          userTitle={userTitle}
+          userBranch={userBranch}
+        />
+
+        <style>{`
           @keyframes logoPulse {
             0%, 100% {
               opacity: 0.55;
@@ -330,7 +353,7 @@ export default function Sidebar({ userRole = 'owner', onLogout }: SidebarProps) 
               transform: scale(1.10);
             }
           }
-        \`}</style>
+        `}</style>
       </aside>
     </>
   )

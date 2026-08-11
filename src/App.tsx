@@ -245,7 +245,7 @@ function App() {
 
   return (
     <Router>
-      <Layout onLogout={async () => { await supabase.rpc('log_action', { p_action:'Signed out', p_detail:null, p_entity:'auth', p_entity_id:null, p_icon:'\u{1F6AA}' }); await supabase.auth.signOut(); sessionStorage.clear(); setUser(null); localStorage.removeItem('psk_user') }} currentBranch={currentBranch} userRole={user?.role||'manager'} userName={user?.name||''}>
+      <Layout onLogout={async () => { await supabase.rpc('log_action', { p_action:'Signed out', p_detail:null, p_entity:'auth', p_entity_id:null, p_icon:'\u{1F6AA}' }); await supabase.auth.signOut(); sessionStorage.clear(); setUser(null); localStorage.removeItem('psk_user') }} currentBranch={currentBranch} userRole={user?.role||'manager'} userName={user?.name||''} currentUser={user?.email||''}>
         <Routes>
           {/* HOME */}
           <Route path="/" element={<Home />} />
