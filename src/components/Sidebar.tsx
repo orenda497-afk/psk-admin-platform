@@ -306,7 +306,20 @@ export default function Sidebar({ userRole = 'owner', onLogout }: SidebarProps) 
 
 
 
-        <style>{`
+        {/* Sign out */}
+        <div style={{ padding:'12px 14px', borderTop:'1px solid rgba(255,255,255,0.07)' }}>
+          <button
+            onClick={() => { if (window.confirm('Sign out of PSK Admin?')) onLogout() }}
+            style={{ width:'100%', display:'flex', alignItems:'center', gap:'10px', padding:'10px 12px', borderRadius:'9px', background:'transparent', border:'1px solid rgba(255,255,255,0.08)', color:'rgba(255,255,255,0.40)', cursor:'pointer', fontFamily:'inherit', fontSize:'12px', transition:'all 0.15s' }}
+            onMouseEnter={e=>{ const el=e.currentTarget; el.style.background='rgba(231,76,60,0.10)'; el.style.color='rgba(239,154,154,0.80)'; el.style.borderColor='rgba(231,76,60,0.25)' }}
+            onMouseLeave={e=>{ const el=e.currentTarget; el.style.background='transparent'; el.style.color='rgba(255,255,255,0.40)'; el.style.borderColor='rgba(255,255,255,0.08)' }}
+          >
+            <span style={{ fontSize:'14px' }}>🚪</span>
+            <span>Sign out</span>
+          </button>
+        </div>
+
+        <style>{\`
           @keyframes logoPulse {
             0%, 100% {
               opacity: 0.55;
@@ -317,7 +330,7 @@ export default function Sidebar({ userRole = 'owner', onLogout }: SidebarProps) 
               transform: scale(1.10);
             }
           }
-        `}</style>
+        \`}</style>
       </aside>
     </>
   )
