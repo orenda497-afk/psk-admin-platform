@@ -30,6 +30,33 @@ function App() {
   const [currentBranch, setCurrentBranch] = useState<'eldoret' | 'kisumu'>('eldoret')
   const isAuthenticated = !!user
 
+  // Auto-logout after 30 minutes of inactivity.
+  // Any mouse move, key press or touch resets the timer.
+  useEffect(() => {
+    if (!isAuthenticated) return
+    const IDLE_MS = 30 * 60 * 1000 // 30 minutes
+    let timer: ReturnType<typeof setTimeout>
+
+    const reset = () => {
+      clearTimeout(timer)
+      timer = setTimeout(async () => {
+        await supabase.auth.signOut()
+        sessionStorage.clear()
+        setUser(null)
+        localStorage.removeItem('psk_user')
+      }, IDLE_MS)
+    }
+
+    const events = ['mousemove','mousedown','keydown','touchstart','scroll','click']
+    events.forEach(e => window.addEventListener(e, reset, { passive: true }))
+    reset() // start the timer immediately
+
+    return () => {
+      clearTimeout(timer)
+      events.forEach(e => window.removeEventListener(e, reset))
+    }
+  }, [isAuthenticated])
+
   // The Supabase session is the source of truth. localStorage is only a
   // cache of display fields — it can no longer grant access on its own.
   useEffect(() => {
