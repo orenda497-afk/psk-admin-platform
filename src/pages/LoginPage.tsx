@@ -72,10 +72,12 @@ export default function LoginPage({ onLogin }: Props) {
     }))
     setLoggedInUser(profile)
 
-    await supabase.rpc('log_action', {
-      p_action: 'Signed in', p_detail: null,
-      p_entity: 'auth', p_entity_id: null, p_icon: '\u{1F511}',
-    })
+    try {
+      await supabase.rpc('log_action', {
+        p_action: 'Signed in', p_detail: null,
+        p_entity: 'auth', p_entity_id: null, p_icon: '\u{1F511}',
+      })
+    } catch (_) { /* audit log non-blocking */ }
 
     if (profile.must_change_pw) setMode('change_pw')
     else onLogin(profile.role)
