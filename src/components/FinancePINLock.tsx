@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
 
 interface FinancePINLockProps {
   onUnlock: () => void
@@ -12,9 +13,10 @@ export default function FinancePINLock({ onUnlock, onCancel }: FinancePINLockPro
   const [wrongAttempts, setWrongAttempts] = useState(0)
   const [lockedUntil, setLockedUntil] = useState<number | null>(null)
 
-  const CORRECT_PIN = '1234'
-  const MAX_ATTEMPTS = 3
-  const LOCKOUT_TIME = 10 * 60 * 1000 // 10 minutes
+  // The PIN itself lives only in Postgres, as a bcrypt hash. Attempt
+  // counting and lockout are enforced there too, so clearing browser
+  // storage does not reset them.
+  const LOCKOUT_TIME = 15 * 60 * 1000 // mirrors the server's 15 minutes
 
   useEffect(() => {
     if (lockedUntil) {
@@ -50,31 +52,39 @@ export default function FinancePINLock({ onUnlock, onCancel }: FinancePINLockPro
     setError('')
   }
 
-  const validatePin = (pinToCheck: string) => {
-    if (pinToCheck === CORRECT_PIN) {
+  const validatePin = async (pinToCheck: string) => {
+    const { data, error: rpcErr } = await supabase.rpc('verify_finance_pin', { pin: pinToCheck })
+
+    if (rpcErr) {
+      setShake(true)
+      setError('Could not reach the server')
+      setTimeout(() => { setPin(''); setShake(false) }, 900)
+      return
+    }
+
+    if (data?.ok) {
       setPin('')
       setError('')
       setWrongAttempts(0)
       onUnlock()
-    } else {
-      // Wrong PIN
-      setShake(true)
-      setError('Incorrect PIN')
-      const newAttempts = wrongAttempts + 1
-      setWrongAttempts(newAttempts)
-
-      // Clear PIN after shake
-      setTimeout(() => {
-        setPin('')
-        setShake(false)
-      }, 900)
-
-      // Lockout after 3 wrong attempts
-      if (newAttempts >= MAX_ATTEMPTS) {
-        setLockedUntil(Date.now() + LOCKOUT_TIME)
-        setError('Too many attempts. Locked for 10 minutes.')
-      }
+      return
     }
+
+    setShake(true)
+    setTimeout(() => { setPin(''); setShake(false) }, 900)
+
+    if (data?.reason === 'locked') {
+      setLockedUntil(Date.now() + LOCKOUT_TIME)
+      setError('Too many attempts. Locked for 15 minutes.')
+      return
+    }
+    if (data?.reason === 'not_permitted') { setError('Your role cannot open Finance'); return }
+    if (data?.reason === 'no_pin_set')   { setError('No PIN set yet — open Finance from the menu to create one'); return }
+
+    const left = data?.attempts_left
+    setWrongAttempts(a => a + 1)
+    setError(left ? `Incorrect PIN — ${left} left` : 'Incorrect PIN')
+    if (left === 0) setLockedUntil(Date.now() + LOCKOUT_TIME)
   }
 
   const getRemainingTime = () => {

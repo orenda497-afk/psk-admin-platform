@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
 
 const MASTER_KEY = 'PSK-KEVIN-2026-SUPER'
 
@@ -7,22 +8,16 @@ const gl = {
   lbl: { fontSize:'9px', fontWeight:600, letterSpacing:'1.2px', textTransform:'uppercase' as const, color:'rgba(255,255,255,0.32)' },
 }
 
-const DEFAULT_USERS = [
-  { email:'ken@psksafaris.com',    password:'PSKOwner2026!',   role:'owner',   name:'Ken Mulanya',    title:'Owner',                  finPin:'1234' },
-  { email:'miriam@psksafaris.com', password:'PSKFinance2026!', role:'finance', name:'Miriam Wanjiku', title:'Finance Manager',         finPin:'226688' },
-  { email:'faith@psksafaris.com',  password:'PSKKisumu2026!',  role:'manager', name:'Faith',          title:'Kisumu Branch Manager',   finPin:'N/A' },
-  { email:'evans@psksafaris.com',  password:'PSKOps2026!',     role:'ops',     name:'Evans',          title:'Operations',              finPin:'N/A' },
-  { email:'brenda@psksafaris.com', password:'PSKOps2026!',     role:'ops',     name:'Brenda',         title:'Operations Assistant',    finPin:'N/A' },
-  { email:'intern@psksafaris.com', password:'PSKIntern2026!',  role:'intern',  name:'Intern',         title:'Intern (shared)',         finPin:'N/A' },
-]
+// Staff accounts live in Supabase Auth. Passwords are hashed there and
+// cannot be read back by anyone, including this panel. That is deliberate:
+// this file ships to the browser.
 
 export default function SuperAdmin() {
   const [key, setKey]           = useState('')
   const [unlocked, setUnlocked] = useState(false)
   const [error, setError]       = useState('')
-  const [users, setUsers]       = useState(() => {
-    try { const s = localStorage.getItem('psk_users_override'); return s ? JSON.parse(s) : DEFAULT_USERS } catch { return DEFAULT_USERS }
-  })
+  const [users, setUsers]       = useState<any[]>([])
+  const [loadErr, setLoadErr]   = useState('')
   const [editing, setEditing]   = useState<number|null>(null)
   const [editForm, setEditForm] = useState<any>({})
   const [newUser, setNewUser]   = useState(false)
@@ -35,10 +30,37 @@ export default function SuperAdmin() {
     else { setError('Invalid master key.'); setKey('') }
   }
 
-  function saveUsers(updated: any[]) {
+  useEffect(() => {
+    if (!unlocked) return
+    ;(async () => {
+      const { data, error: e } = await supabase
+        .from('profiles')
+        .select('id,email,name,title,role,branch,active,must_change_pw,backup_email,finance_pin_hash')
+        .order('role')
+      if (e) { setLoadErr('Could not load staff. You must be signed in as Ken to view this list.'); return }
+      setUsers((data || []).map(u => ({ ...u, hasPin: !!u.finance_pin_hash })))
+    })()
+  }, [unlocked])
+
+  async function sendReset(email: string) {
+    await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/' })
+    setSaved('Reset link sent to ' + email + ' \u2713')
+    setTimeout(() => setSaved(''), 3000)
+  }
+
+  async function clearFinancePin(id: string, name: string) {
+    if (!confirm(`Clear ${name}'s Finance PIN? They will set a new one next time they open Finance.`)) return
+    const { error: e } = await supabase.from('profiles')
+      .update({ finance_pin_hash: null, pin_attempts: 0, pin_locked_until: null }).eq('id', id)
+    if (e) { setSaved('Failed \u2014 ' + e.message); return }
+    setUsers(us => us.map(u => u.id === id ? { ...u, hasPin: false } : u))
+    setSaved('PIN cleared \u2713')
+    setTimeout(() => setSaved(''), 3000)
+  }
+
+  async function saveUsers(updated: any[]) {
     setUsers(updated)
-    localStorage.setItem('psk_users_override', JSON.stringify(updated))
-    setSaved('Saved ✓')
+    setSaved('Saved \u2713')
     setTimeout(() => setSaved(''), 2000)
   }
 
@@ -47,31 +69,41 @@ export default function SuperAdmin() {
     setEditForm({ ...users[i] })
   }
 
-  function saveEdit() {
-    const updated = users.map((u: any, i: number) => i === editing ? editForm : u)
-    saveUsers(updated)
+  async function saveEdit() {
+    const { error: e } = await supabase.from('profiles')
+      .update({ name: editForm.name, title: editForm.title, role: editForm.role, branch: editForm.branch })
+      .eq('id', editForm.id)
+    if (e) { setSaved('Failed \u2014 ' + e.message); setTimeout(()=>setSaved(''),4000); return }
+    saveUsers(users.map((u: any, i: number) => i === editing ? editForm : u))
     setEditing(null)
   }
 
-  function deleteUser(i: number) {
-    if (!confirm(`Remove ${users[i].name}?`)) return
-    saveUsers(users.filter((_: any, idx: number) => idx !== i))
+  async function deleteUser(i: number) {
+    if (!confirm(`Deactivate ${users[i].name}? They will no longer be able to sign in.`)) return
+    const { error: e } = await supabase.from('profiles').update({ active: false }).eq('id', users[i].id)
+    if (e) { setSaved('Failed \u2014 ' + e.message); return }
+    saveUsers(users.map((u:any,idx:number) => idx===i ? {...u, active:false} : u))
   }
 
   function addUser() {
-    if (!nf.email || !nf.password || !nf.name) { alert('Email, password and name required'); return }
-    saveUsers([...users, nf])
-    setNf({ email:'', password:'', role:'ops', name:'', title:'', finPin:'N/A' })
-    setNewUser(false)
+    alert(
+      'New staff are created in Supabase, not here.\n\n' +
+      '1. Supabase dashboard \u2192 Authentication \u2192 Add user\n' +
+      '2. Tick Auto Confirm, set a temporary password\n' +
+      '3. Come back here and set their role\n\n' +
+      'Creating users from the browser would require the service role key, ' +
+      'and that key must never ship in this bundle.'
+    )
   }
 
-  function resetPins() {
-    // Clear all locally stored PINs for all roles
-    ['owner','finance'].forEach(r => {
-      localStorage.removeItem(`fin_pin_${r}`)
-      sessionStorage.removeItem(`fin_unlocked_${r}`)
-    })
-    setSaved('All Finance PINs reset to defaults ✓')
+  async function resetPins() {
+    if (!confirm('Clear the Finance PIN for Ken and Miriam? Each will set a new one on next entry.')) return
+    const { error: e } = await supabase.from('profiles')
+      .update({ finance_pin_hash: null, pin_attempts: 0, pin_locked_until: null })
+      .in('role', ['owner','finance'])
+    if (e) { setSaved('Failed \u2014 ' + e.message); return }
+    setUsers(us => us.map(u => ['owner','finance'].includes(u.role) ? { ...u, hasPin:false } : u))
+    setSaved('Finance PINs cleared \u2713')
     setTimeout(() => setSaved(''), 3000)
   }
 
@@ -134,7 +166,7 @@ export default function SuperAdmin() {
 
       {/* Tabs */}
       <div style={{ display:'flex', gap:'6px', marginBottom:'24px' }}>
-        {[['users','👥 Users & Passwords'],['pins','🔐 Finance PINs'],['info','📋 Platform Info']].map(([id,label])=>(
+        {[['users','👥 Staff & Access'],['pins','🔐 Finance PINs'],['info','📋 Platform Info']].map(([id,label])=>(
           <button key={id} onClick={()=>setActiveTab(id)} style={{ padding:'8px 18px', borderRadius:'20px', fontSize:'12px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:activeTab===id?'rgba(255,215,0,0.12)':'rgba(255,255,255,0.05)', border:`1px solid ${activeTab===id?'rgba(255,215,0,0.35)':'rgba(255,255,255,0.10)'}`, color:activeTab===id?'rgba(255,215,0,0.90)':'rgba(255,255,255,0.40)' }}>{label}</button>
         ))}
       </div>
@@ -157,7 +189,7 @@ export default function SuperAdmin() {
                       <div><div style={{ ...gl.lbl, marginBottom:'5px' }}>Name</div>{inp(editForm.name, (v:string)=>setEditForm((f:any)=>({...f,name:v})))}</div>
                       <div><div style={{ ...gl.lbl, marginBottom:'5px' }}>Email</div>{inp(editForm.email, (v:string)=>setEditForm((f:any)=>({...f,email:v})), 'email')}</div>
                       <div><div style={{ ...gl.lbl, marginBottom:'5px' }}>Title</div>{inp(editForm.title, (v:string)=>setEditForm((f:any)=>({...f,title:v})))}</div>
-                      <div><div style={{ ...gl.lbl, marginBottom:'5px' }}>New password</div>{inp(editForm.password, (v:string)=>setEditForm((f:any)=>({...f,password:v})), 'text', 'New password')}</div>
+                      <div><div style={{ ...gl.lbl, marginBottom:'5px' }}>Branch</div>{inp(editForm.branch, (v:string)=>setEditForm((f:any)=>({...f,branch:v})), 'text', 'eldoret or kisumu')}</div>
                       <div><div style={{ ...gl.lbl, marginBottom:'5px' }}>Role</div>{sel(editForm.role, (v:string)=>setEditForm((f:any)=>({...f,role:v})))}</div>
                     </div>
                     <div style={{ display:'flex', gap:'8px' }}>
@@ -181,12 +213,12 @@ export default function SuperAdmin() {
                       {/* Password shown to Kevin only */}
                       <div style={{ background:'rgba(0,0,0,0.30)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'8px', padding:'8px 14px' }}>
                         <div style={{ ...gl.lbl, marginBottom:'3px' }}>Password</div>
-                        <div style={{ fontSize:'13px', fontWeight:600, color:'rgba(255,215,0,0.75)', fontFamily:'monospace' }}>{u.password}</div>
+                        <button onClick={()=>sendReset(u.email)} style={{ padding:'5px 12px', borderRadius:'7px', fontSize:'11px', fontWeight:600, background:'rgba(255,215,0,0.10)', border:'1px solid rgba(255,215,0,0.28)', color:'rgba(255,215,0,0.85)', cursor:'pointer', fontFamily:'inherit' }}>Send reset link</button>
                       </div>
-                      {u.finPin !== 'N/A' && (
+                      {['owner','finance'].includes(u.role) && (
                         <div style={{ background:'rgba(0,0,0,0.30)', border:'1px solid rgba(255,215,0,0.12)', borderRadius:'8px', padding:'8px 14px' }}>
                           <div style={{ ...gl.lbl, marginBottom:'3px' }}>Default Finance PIN</div>
-                          <div style={{ fontSize:'13px', fontWeight:600, color:'rgba(255,215,0,0.75)', fontFamily:'monospace' }}>{u.finPin}</div>
+                          <div style={{ fontSize:'12px', fontWeight:600, color:'rgba(255,255,255,0.45)' }}>{u.hasPin ? 'Set \u2014 hidden' : 'Not set yet'}</div>
                         </div>
                       )}
                     </div>
@@ -208,7 +240,6 @@ export default function SuperAdmin() {
                 <div><div style={{ ...gl.lbl, marginBottom:'5px' }}>Full name *</div>{inp(nf.name, (v:string)=>setNf(f=>({...f,name:v})), 'text', 'e.g. Sarah Kamau')}</div>
                 <div><div style={{ ...gl.lbl, marginBottom:'5px' }}>Email *</div>{inp(nf.email, (v:string)=>setNf(f=>({...f,email:v})), 'email', 'sarah@psksafaris.com')}</div>
                 <div><div style={{ ...gl.lbl, marginBottom:'5px' }}>Title</div>{inp(nf.title, (v:string)=>setNf(f=>({...f,title:v})), 'text', 'e.g. Driver')}</div>
-                <div><div style={{ ...gl.lbl, marginBottom:'5px' }}>Password *</div>{inp(nf.password, (v:string)=>setNf(f=>({...f,password:v})), 'text', 'e.g. PSKStaff2026!')}</div>
                 <div><div style={{ ...gl.lbl, marginBottom:'5px' }}>Role</div>{sel(nf.role, (v:string)=>setNf(f=>({...f,role:v})))}</div>
               </div>
               <div style={{ display:'flex', gap:'8px' }}>
@@ -226,13 +257,13 @@ export default function SuperAdmin() {
           <div style={{ ...gl.panel, padding:'20px' }}>
             <div style={{ fontSize:'14px', fontWeight:700, color:'rgba(255,255,255,0.85)', marginBottom:'16px' }}>Finance PIN Management</div>
             {[
-              { role:'owner', name:'Ken Mulanya', defaultPin:'1234', digits:4 },
-              { role:'finance', name:'Miriam Wanjiku', defaultPin:'226688', digits:6 },
+              { role:'owner', name:'Ken Mulanya', digits:4 },
+              { role:'finance', name:'Miriam Wanjiku', digits:6 },
             ].map((u,i)=>(
               <div key={i} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px', background:'rgba(255,255,255,0.03)', borderRadius:'10px', marginBottom:'10px', border:'1px solid rgba(255,255,255,0.07)' }}>
                 <div>
                   <div style={{ fontSize:'13px', fontWeight:700, color:'rgba(255,255,255,0.88)', marginBottom:'3px' }}>{u.name}</div>
-                  <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.35)' }}>Default PIN: <span style={{ fontFamily:'monospace', color:'rgba(255,215,0,0.70)' }}>{u.defaultPin}</span> · {u.digits}-digit</div>
+                  <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.35)' }}>{u.digits}-digit PIN · stored hashed, cannot be displayed</div>
                   <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.30)', marginTop:'2px' }}>
                     Current: <span style={{ fontFamily:'monospace', color:'rgba(129,199,132,0.70)' }}>{localStorage.getItem(`fin_pin_${u.role}`) || `${u.defaultPin} (default)`}</span>
                   </div>

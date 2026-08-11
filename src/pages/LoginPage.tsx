@@ -1,41 +1,10 @@
 import { useState } from 'react'
+import { supabase } from '../lib/supabase'
 
 interface Props { onLogin: (role: string) => void }
 
-const DEFAULT_USERS = [
-  { email:'ken@psksafaris.com',    password:'PSKOwner2026!',   role:'owner',   name:'Ken Mulanya',    title:'Owner' },
-  { email:'miriam@psksafaris.com', password:'PSKFinance2026!', role:'finance', name:'Miriam Wanjiku', title:'Finance Manager' },
-  { email:'faith@psksafaris.com',  password:'PSKKisumu2026!',  role:'manager', name:'Faith',          title:'Kisumu Branch Manager' },
-  { email:'evans@psksafaris.com',  password:'PSKOps2026!',     role:'ops',     name:'Evans',          title:'Operations' },
-  { email:'brenda@psksafaris.com', password:'PSKOps2026!',     role:'ops',     name:'Brenda',         title:'Operations Assistant' },
-  { email:'intern@psksafaris.com', password:'PSKIntern2026!',  role:'intern',  name:'Intern',         title:'Intern' },
-]
-
-// Roles that can change password and set backup email
-const CAN_CHANGE_PASSWORD = ['owner','finance','ops']
-
-function getUsers() {
-  try {
-    const override = localStorage.getItem('psk_users_override')
-    return override ? JSON.parse(override) : DEFAULT_USERS
-  } catch { return DEFAULT_USERS }
-}
-
-function saveUsers(users: any[]) {
-  localStorage.setItem('psk_users_override', JSON.stringify(users))
-}
-
-function isFirstLogin(email: string) {
-  return !localStorage.getItem(`psk_pw_changed_${email}`)
-}
-
-function getBackupEmail(email: string) {
-  return localStorage.getItem(`psk_backup_${email}`) || ''
-}
-
-function saveBackupEmail(email: string, backup: string) {
-  localStorage.setItem(`psk_backup_${email}`, backup)
-}
+// Staff accounts live in Supabase Auth, not here. There are deliberately
+// no passwords in this file — anything in this bundle is public.
 
 export default function LoginPage({ onLogin }: Props) {
   const [mode, setMode]         = useState<'login'|'forgot'|'change_pw'|'backup_email'>('login')
@@ -60,82 +29,100 @@ export default function LoginPage({ onLogin }: Props) {
   const [forgotEmail, setForgotEmail] = useState('')
   const [forgotMsg, setForgotMsg] = useState('')
 
-  function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     if (!email || !password) { setError('Please enter your email and password.'); return }
 
-    const users = getUsers()
-    const user = users.find((u: any) =>
-      u.email.toLowerCase() === email.toLowerCase().trim() &&
-      u.password === password
-    )
-
-    if (!user) { setError('Invalid email or password. Please try again.'); return }
-
     setLoading(true)
-    setTimeout(() => {
-      localStorage.setItem('psk_user', JSON.stringify({
-        name: user.name, role: user.role, title: user.title, email: user.email
-      }))
-      setLoggedInUser(user)
+    const { data, error: authErr } = await supabase.auth.signInWithPassword({
+      email: email.toLowerCase().trim(),
+      password,
+    })
+
+    if (authErr || !data.user) {
       setLoading(false)
-
-      // First login + can change password → prompt
-      if (isFirstLogin(user.email) && CAN_CHANGE_PASSWORD.includes(user.role)) {
-        setMode('change_pw')
-      } else {
-        onLogin(user.role)
-      }
-    }, 500)
-  }
-
-  function handleChangePassword(skip = false) {
-    if (skip) {
-      onLogin(loggedInUser.role)
+      setError('Invalid email or password. Please try again.')
       return
     }
+
+    // Role and name come from the profiles table, guarded by RLS.
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('name, role, title, email, branch, must_change_pw')
+      .eq('id', data.user.id)
+      .maybeSingle()
+
+    setLoading(false)
+
+    if (!profile) {
+      await supabase.auth.signOut()
+      setError('Your account has no role assigned yet. Please contact Kevin.')
+      return
+    }
+    if (profile.active === false) {
+      await supabase.auth.signOut()
+      setError('This account has been deactivated.')
+      return
+    }
+
+    localStorage.setItem('psk_user', JSON.stringify({
+      name: profile.name, role: profile.role, title: profile.title,
+      email: profile.email, branch: profile.branch,
+    }))
+    setLoggedInUser(profile)
+
+    await supabase.rpc('log_action', {
+      p_action: 'Signed in', p_detail: null,
+      p_entity: 'auth', p_entity_id: null, p_icon: '\u{1F511}',
+    })
+
+    if (profile.must_change_pw) setMode('change_pw')
+    else onLogin(profile.role)
+  }
+
+  async function handleChangePassword(skip = false) {
+    if (skip) { onLogin(loggedInUser.role); return }
     setPwError('')
-    if (newPw.length < 6) { setPwError('Password must be at least 6 characters.'); return }
+    if (newPw.length < 8) { setPwError('Password must be at least 8 characters.'); return }
     if (newPw !== confirmPw) { setPwError('Passwords do not match.'); return }
 
-    // Save new password
-    const users = getUsers()
-    const updated = users.map((u: any) =>
-      u.email === loggedInUser.email ? { ...u, password: newPw } : u
-    )
-    saveUsers(updated)
-    localStorage.setItem(`psk_pw_changed_${loggedInUser.email}`, '1')
+    const { error: updErr } = await supabase.auth.updateUser({ password: newPw })
+    if (updErr) { setPwError(updErr.message || 'Could not update password.'); return }
 
-    // Move to backup email step
+    await supabase.from('profiles')
+      .update({ must_change_pw: false })
+      .eq('email', loggedInUser.email)
+
+    await supabase.rpc('log_action', {
+      p_action: 'Password changed', p_detail: null,
+      p_entity: 'auth', p_entity_id: null, p_icon: '\u{1F510}',
+    })
+
     setMode('backup_email')
   }
 
-  function handleSaveBackup(skip = false) {
+  async function handleSaveBackup(skip = false) {
     if (!skip) {
       if (!backupEmail || !backupEmail.includes('@')) { setBackupError('Please enter a valid email address.'); return }
-      saveBackupEmail(loggedInUser.email, backupEmail)
+      await supabase.from('profiles')
+        .update({ backup_email: backupEmail.trim() })
+        .eq('email', loggedInUser.email)
       setBackupSaved(true)
     }
     setTimeout(() => onLogin(loggedInUser.role), skip ? 0 : 1200)
   }
 
-  function handleForgotPassword() {
+  async function handleForgotPassword() {
     setForgotMsg('')
     if (!forgotEmail || !forgotEmail.includes('@')) { setForgotMsg('Please enter your work email address.'); return }
 
-    const users = getUsers()
-    const user = users.find((u: any) => u.email.toLowerCase() === forgotEmail.toLowerCase().trim())
-    if (!user) { setForgotMsg('No account found with that email.'); return }
-
-    const backup = getBackupEmail(user.email)
-    if (!backup) {
-      setForgotMsg('No backup email set for this account. Please contact Kevin to reset your password.')
-      return
-    }
-
-    // Show password hint (in production this would email it)
-    setForgotMsg(`Your backup email is ${backup}. Please contact Kevin referencing your account and he will send your new password to that address.`)
+    // Always the same message, whether or not the account exists — telling
+    // a stranger which emails are real is a free gift to anyone guessing.
+    await supabase.auth.resetPasswordForEmail(forgotEmail.toLowerCase().trim(), {
+      redirectTo: window.location.origin + '/',
+    })
+    setForgotMsg('If that email matches a PSK account, a reset link is on its way. Check your inbox, including spam.')
   }
 
   const inputStyle = {
@@ -231,7 +218,7 @@ export default function LoginPage({ onLogin }: Props) {
               You're using a temporary password. We recommend setting your own personal password now.
             </div>
             <div style={{ marginBottom:'14px' }}>
-              <label style={lbl}>New password (min 6 characters)</label>
+              <label style={lbl}>New password (min 8 characters)</label>
               <div style={{ position:'relative' }}>
                 <input type={showPw?'text':'password'} value={newPw} onChange={e=>{setNewPw(e.target.value);setPwError('')}}
                   placeholder="Choose a strong password" style={{ ...inputStyle, paddingRight:'44px' }} />

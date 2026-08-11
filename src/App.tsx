@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from './lib/supabase'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
 import Layout from './components/Layout'
@@ -24,11 +25,46 @@ import HandoverChecklists from './pages/HandoverChecklists'
 interface PSKUser { name:string; role:string; title:string; email:string }
 
 function App() {
-  const [user, setUser] = useState<PSKUser|null>(() => {
-    try { const s = localStorage.getItem('psk_user'); return s ? JSON.parse(s) : null } catch { return null }
-  })
-  const [currentBranch] = useState<'eldoret' | 'kisumu'>('eldoret')
+  const [user, setUser] = useState<PSKUser|null>(null)
+  const [checking, setChecking] = useState(true)
+  const [currentBranch, setCurrentBranch] = useState<'eldoret' | 'kisumu'>('eldoret')
   const isAuthenticated = !!user
+
+  // The Supabase session is the source of truth. localStorage is only a
+  // cache of display fields — it can no longer grant access on its own.
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadProfile() {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        if (!cancelled) { setUser(null); setChecking(false) }
+        return
+      }
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('name, role, title, email, branch, active')
+        .eq('id', session.user.id)
+        .maybeSingle()
+
+      if (cancelled) return
+      if (!profile || profile.active === false) {
+        await supabase.auth.signOut()
+        setUser(null)
+      } else {
+        setUser({ name: profile.name, role: profile.role, title: profile.title, email: profile.email })
+        if (profile.branch === 'kisumu' || profile.branch === 'eldoret') setCurrentBranch(profile.branch)
+      }
+      setChecking(false)
+    }
+
+    loadProfile()
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') { setUser(null); localStorage.removeItem('psk_user') }
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') loadProfile()
+    })
+    return () => { cancelled = true; sub.subscription.unsubscribe() }
+  }, [])
 
   const ComingSoon = ({ title }: { title: string }) => (
     <div style={{ padding: '40px', textAlign: 'center' }}>
@@ -48,15 +84,8 @@ function App() {
   )
 
   const FinancePIN = ({ children, userRole }: { children: React.ReactNode; userRole: string }) => {
-    const sessionKey  = `fin_unlocked_${userRole}`
-    const customPinKey = `fin_pin_${userRole}`
-
-    // Default PINs — user can override by setting their own
-    const DEFAULT_PINS: Record<string,string> = { owner:'1234', finance:'226688' }
+    const sessionKey = `fin_unlocked_${userRole}`
     const pinLength = userRole === 'owner' ? 4 : 6
-
-    const getCorrectPin = () => localStorage.getItem(customPinKey) || DEFAULT_PINS[userRole] || ''
-    const isDefaultPin = () => !localStorage.getItem(customPinKey)
 
     const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem(sessionKey) === '1')
     const [mode, setMode] = useState<'enter'|'set_new'|'confirm_new'>('enter')
@@ -64,103 +93,81 @@ function App() {
     const [newPin, setNewPin] = useState('')
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
-
-    const activeLength = mode === 'enter' ? pinLength : pinLength
-    const activePin = mode === 'confirm_new' ? newPin : (mode === 'set_new' ? '' : '')
+    const [busy, setBusy] = useState(false)
 
     function handleKey(k: string) {
       setError('')
-      if (k === '⌫') {
-        setPin(p => p.slice(0,-1))
-      } else if (k && pin.length < pinLength) {
-        setPin(p => p + k)
-      }
+      if (k === '\u232B') setPin(p => p.slice(0, -1))
+      else if (k && pin.length < pinLength) setPin(p => p + k)
     }
 
-    function tryPin() {
-      const correct = getCorrectPin()
-      if (pin === correct) {
-        sessionStorage.setItem(sessionKey, '1')
-        setUnlocked(true)
-        // If still on default PIN, prompt to change
-        if (isDefaultPin()) {
-          setMode('set_new')
-          setUnlocked(false)
-          setPin('')
-          return
-        }
-      } else {
-        setError('Incorrect PIN. Try again.')
-        setPin('')
+    // The PIN is checked in Postgres against a bcrypt hash. It is never
+    // compared in the browser, so reading this file tells you nothing.
+    async function tryPin() {
+      if (busy) return
+      setBusy(true)
+      const { data, error: rpcErr } = await supabase.rpc('verify_finance_pin', { pin })
+      setBusy(false)
+      setPin('')
+
+      if (rpcErr) { setError('Could not reach the server. Try again.'); return }
+
+      if (data?.ok) { sessionStorage.setItem(sessionKey, '1'); setUnlocked(true); return }
+
+      if (data?.reason === 'no_pin_set') { setMode('set_new'); setError(''); return }
+      if (data?.reason === 'locked') {
+        setError('Too many wrong attempts. Finance is locked for 15 minutes.')
+        return
       }
+      if (data?.reason === 'not_permitted') { setError('Your role cannot open Finance.'); return }
+      const left = data?.attempts_left
+      setError(left ? `Incorrect PIN. ${left} attempt${left === 1 ? '' : 's'} left.` : 'Incorrect PIN.')
     }
 
-    function saveNewPin() {
+    async function saveNewPin() {
       if (pin.length < pinLength) return
-      if (mode === 'set_new') {
-        setNewPin(pin)
-        setPin('')
-        setMode('confirm_new')
-      } else if (mode === 'confirm_new') {
-        if (pin === newPin) {
-          localStorage.setItem(customPinKey, pin)
-          sessionStorage.setItem(sessionKey, '1')
-          setSuccess('PIN saved! Finance section unlocked.')
-          setTimeout(() => setUnlocked(true), 1200)
-        } else {
-          setError('PINs do not match. Try again.')
-          setPin('')
-          setNewPin('')
-          setMode('set_new')
-        }
+      if (mode === 'set_new') { setNewPin(pin); setPin(''); setMode('confirm_new'); return }
+      if (pin !== newPin) {
+        setError('PINs do not match. Try again.')
+        setPin(''); setNewPin(''); setMode('set_new'); return
       }
-    }
-
-    function skipPinChange() {
+      setBusy(true)
+      const { error: rpcErr } = await supabase.rpc('set_finance_pin', { new_pin: pin })
+      setBusy(false)
+      if (rpcErr) { setError(rpcErr.message || 'Could not save PIN.'); return }
       sessionStorage.setItem(sessionKey, '1')
-      setUnlocked(true)
+      setSuccess('PIN saved. Finance section unlocked.')
+      setTimeout(() => setUnlocked(true), 1000)
     }
 
     if (unlocked) return <>{children}</>
 
-    const titleMap = {
-      enter:       'Finance Section',
-      set_new:     'Set Your Personal PIN',
-      confirm_new: 'Confirm New PIN',
-    }
+    const titleMap = { enter:'Finance Section', set_new:'Set Your Personal PIN', confirm_new:'Confirm New PIN' }
     const subMap = {
-      enter:       `Enter your ${pinLength}-digit PIN`,
-      set_new:     `Choose a new ${pinLength}-digit PIN you will remember`,
-      confirm_new: `Enter your new PIN again to confirm`,
+      enter: `Enter your ${pinLength}-digit PIN`,
+      set_new: `Choose a ${pinLength}-digit PIN you will remember`,
+      confirm_new: 'Enter your new PIN again to confirm',
     }
-    const btnMap = {
-      enter:       'Unlock Finance',
-      set_new:     'Continue',
-      confirm_new: 'Save PIN',
-    }
+    const btnMap = { enter:'Unlock Finance', set_new:'Continue', confirm_new:'Save PIN' }
 
     return (
       <div style={{ minHeight:'70vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
         <div style={{ background:'rgba(10,22,34,0.92)', border:'1.5px solid rgba(255,215,0,0.25)', borderRadius:'18px', padding:'40px 36px', width:'340px', textAlign:'center', backdropFilter:'blur(20px)', boxShadow:'0 24px 60px rgba(0,0,0,0.60)' }}>
-          <div style={{ fontSize:'40px', marginBottom:'12px' }}>{mode==='enter'?'🔐':'🔑'}</div>
+          <div style={{ fontSize:'40px', marginBottom:'12px' }}>{mode==='enter'?'\u{1F510}':'\u{1F511}'}</div>
           <div style={{ fontSize:'16px', fontWeight:700, color:'rgba(255,255,255,0.92)', marginBottom:'4px' }}>{titleMap[mode]}</div>
-          <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.40)', marginBottom:'6px' }}>
-            {userRole === 'owner' ? 'Ken Mulanya — Owner' : 'Miriam Wanjiku — Finance Manager'}
-          </div>
+          <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.40)', marginBottom:'6px' }}>{user?.name} \u2014 {user?.title}</div>
           <div style={{ fontSize:'11px', color:'rgba(255,215,0,0.55)', marginBottom:'24px' }}>{subMap[mode]}</div>
 
-          {/* PIN dots */}
           <div style={{ display:'flex', gap:'10px', justifyContent:'center', marginBottom:'20px' }}>
             {Array.from({length: pinLength}).map((_,i)=>(
               <div key={i} style={{ width:'38px', height:'46px', borderRadius:'10px', background:'rgba(255,255,255,0.06)', border:`1.5px solid ${pin.length>i ? 'rgba(255,215,0,0.70)' : 'rgba(255,255,255,0.12)'}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'22px', color:'rgba(255,215,0,0.90)', transition:'border 0.15s' }}>
-                {pin.length > i ? '●' : ''}
+                {pin.length > i ? '\u25CF' : ''}
               </div>
             ))}
           </div>
 
-          {/* Numpad */}
           <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'8px', marginBottom:'14px' }}>
-            {['1','2','3','4','5','6','7','8','9','','0','⌫'].map((k,i)=>(
+            {['1','2','3','4','5','6','7','8','9','','0','\u232B'].map((k,i)=>(
               <button key={i} onClick={()=>handleKey(k)}
                 style={{ padding:'15px', borderRadius:'10px', fontSize:'20px', fontWeight:600, background:k?'rgba(255,255,255,0.08)':'transparent', border:k?'1px solid rgba(255,255,255,0.10)':'none', color:'rgba(255,255,255,0.88)', cursor:k?'pointer':'default', fontFamily:'inherit' }}
                 onMouseEnter={e=>k&&((e.target as HTMLElement).style.background='rgba(255,215,0,0.12)')}
@@ -173,24 +180,14 @@ function App() {
 
           <button
             onClick={mode === 'enter' ? tryPin : saveNewPin}
-            disabled={pin.length < pinLength}
-            style={{ width:'100%', padding:'13px', borderRadius:'11px', fontSize:'13px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.20),rgba(255,149,0,0.12))', border:'1.5px solid rgba(255,215,0,0.40)', color:'rgba(255,215,0,0.95)', cursor:pin.length<pinLength?'not-allowed':'pointer', fontFamily:'inherit', opacity:pin.length<pinLength?0.45:1, marginBottom:'10px' }}>
-            {btnMap[mode]}
+            disabled={pin.length < pinLength || busy}
+            style={{ width:'100%', padding:'13px', borderRadius:'11px', fontSize:'13px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.20),rgba(255,149,0,0.12))', border:'1.5px solid rgba(255,215,0,0.40)', color:'rgba(255,215,0,0.95)', cursor:(pin.length<pinLength||busy)?'not-allowed':'pointer', fontFamily:'inherit', opacity:(pin.length<pinLength||busy)?0.45:1, marginBottom:'10px' }}>
+            {busy ? 'Checking\u2026' : btnMap[mode]}
           </button>
 
-          {/* Skip PIN change option */}
-          {mode === 'set_new' && (
-            <button onClick={skipPinChange} style={{ width:'100%', padding:'10px', borderRadius:'11px', fontSize:'12px', fontWeight:500, background:'transparent', border:'1px solid rgba(255,255,255,0.10)', color:'rgba(255,255,255,0.35)', cursor:'pointer', fontFamily:'inherit' }}>
-              Skip for now — keep default PIN
-            </button>
-          )}
-
-          {mode === 'enter' && (
-            <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.18)', marginTop:'8px' }}>Stays unlocked until you log out</div>
-          )}
-          {mode === 'set_new' && (
-            <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.25)', marginTop:'8px' }}>Your PIN is saved locally on this device</div>
-          )}
+          <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.20)', marginTop:'8px' }}>
+            {mode === 'enter' ? 'Every attempt is recorded in the audit log' : 'Stored securely \u2014 nobody can read it back'}
+          </div>
         </div>
       </div>
     )
@@ -205,15 +202,23 @@ function App() {
     return <SuperAdmin />
   }
 
+  if (checking) {
+    return (
+      <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'#0A1622', color:'rgba(255,215,0,0.55)', fontSize:'13px' }}>
+        Loading PSK Admin\u2026
+      </div>
+    )
+  }
+
   if (!isAuthenticated) {
-    return <LoginPage onLogin={(role) => {
-      try { const s = localStorage.getItem('psk_user'); setUser(s ? JSON.parse(s) : {name:'Admin',role,title:'Admin',email:''}) } catch { setUser({name:'Admin',role,title:'Admin',email:''}) }
+    return <LoginPage onLogin={() => {
+      try { const s = localStorage.getItem('psk_user'); if (s) setUser(JSON.parse(s)) } catch { /* session listener will fill this in */ }
     }} />
   }
 
   return (
     <Router>
-      <Layout onLogout={() => { setUser(null); localStorage.removeItem('psk_user') }} currentBranch={currentBranch} userRole={user?.role||'manager'} userName={user?.name||''}>
+      <Layout onLogout={async () => { await supabase.rpc('log_action', { p_action:'Signed out', p_detail:null, p_entity:'auth', p_entity_id:null, p_icon:'\u{1F6AA}' }); await supabase.auth.signOut(); sessionStorage.clear(); setUser(null); localStorage.removeItem('psk_user') }} currentBranch={currentBranch} userRole={user?.role||'manager'} userName={user?.name||''}>
         <Routes>
           {/* HOME */}
           <Route path="/" element={<Home />} />
