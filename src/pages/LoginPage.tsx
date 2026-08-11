@@ -148,8 +148,8 @@ export default function LoginPage({ onLogin }: Props) {
 
   return (
     <main style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', position:'relative', overflow:'hidden', fontFamily:'system-ui,sans-serif' }}>
-      <div style={{ position:'absolute', inset:0, backgroundImage:'url(/branding/registry-landrover-bg.jpg)', backgroundSize:'cover', backgroundPosition:'center', filter:'brightness(0.45)' }} />
-      <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg,rgba(10,22,34,0.75),rgba(27,77,92,0.50),rgba(10,22,34,0.80))' }} />
+      <div style={{ position:'absolute', inset:0, backgroundImage:'url(/branding/registry-landrover-bg.jpg)', backgroundSize:'cover', backgroundPosition:'center', filter:'brightness(0.75)' }} />
+      <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg,rgba(10,22,34,0.35),rgba(27,77,92,0.20),rgba(10,22,34,0.40))' }} />
 
       <div style={{ position:'relative', zIndex:10, width:'100%', maxWidth:'420px', margin:'0 20px', background:'rgba(8,18,30,0.88)', border:'1.5px solid rgba(255,255,255,0.10)', borderRadius:'20px', backdropFilter:'blur(32px)', boxShadow:'0 32px 80px rgba(0,0,0,0.60)', padding:'40px 36px' }}>
 
