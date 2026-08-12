@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import ProfilePanel from './ProfilePanel'
 import { useNavigate, useLocation } from 'react-router-dom'
-import FinancePINLock from './FinancePINLock'
 import { NAVIGATION_STRUCTURE } from '../data/navigation'
 
 interface SidebarProps {
@@ -18,40 +17,21 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
   const navigate = useNavigate()
   const location = useLocation()
   const [openCategory, setOpenCategory] = useState<string | null>('operations')
-  const [financeUnlocked, setFinanceUnlocked] = useState(false)
-  const [showFinancePIN, setShowFinancePIN] = useState(false)
-  const [pendingFinanceOpen, setPendingFinanceOpen] = useState(false)
 
   const [currentBranch, setCurrentBranch] = useState<'eldoret' | 'kisumu'>('eldoret')
   const [profileOpen, setProfileOpen] = useState(false)
 
   const handleCategoryClick = (categoryId: string) => {
-    if (categoryId === 'finance' && !financeUnlocked) {
-      setShowFinancePIN(true)
-      setPendingFinanceOpen(true)
-      return
-    }
-
     if (categoryId === 'home') {
       navigate('/')
       setOpenCategory(null)
       return
     }
-
     setOpenCategory(openCategory === categoryId ? null : categoryId)
   }
 
   const handleSubcategoryClick = (route: string) => {
     navigate(route)
-  }
-
-  const handleFinanceUnlock = () => {
-    setShowFinancePIN(false)
-    setFinanceUnlocked(true)
-    if (pendingFinanceOpen) {
-      setOpenCategory('finance')
-      setPendingFinanceOpen(false)
-    }
   }
 
   const isSubcategoryActive = (route: string) => {
@@ -72,8 +52,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
 
   return (
     <>
-      {showFinancePIN && <FinancePINLock onUnlock={handleFinanceUnlock} onBack={()=>{setShowFinancePIN(false);setPendingFinanceOpen(false)}} />}
-
+      
       {/* Sidebar — 232px fixed width */}
       <aside
         className="h-screen flex flex-col flex-shrink-0 overflow-hidden"
