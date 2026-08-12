@@ -230,8 +230,10 @@ export default function LoginPage({ onLogin }: Props) {
             <div style={{ marginBottom:'18px' }}>
               <label style={lbl}>Confirm new password</label>
               <div style={{ position:'relative' }}>
-              <input type={showConfirmPw?'text':'password'} value={confirmPw} onChange={e=>{setConfirmPw(e.target.value);setPwError('')}}
-                placeholder="Type password again" style={inputStyle} />
+                <input type={showConfirmPw?'text':'password'} value={confirmPw} onChange={e=>{setConfirmPw(e.target.value);setPwError('')}}
+                  placeholder="Type password again" style={{ ...inputStyle, paddingRight:'44px' }} />
+                <button type="button" onClick={()=>setShowConfirmPw(v=>!v)} style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', color:'rgba(255,255,255,0.35)', cursor:'pointer', fontSize:'14px' }}>{showConfirmPw?'🙈':'👁️'}</button>
+              </div>
             </div>
             {pwError && <div style={{ marginBottom:'14px', padding:'10px 14px', borderRadius:'9px', background:'rgba(231,76,60,0.12)', border:'1px solid rgba(231,76,60,0.30)', color:'rgba(239,154,154,0.95)', fontSize:'12px' }}>{pwError}</div>}
             <button onClick={()=>handleChangePassword(false)} style={{ ...btnPrimary, marginBottom:'10px' }}>Set my password</button>
