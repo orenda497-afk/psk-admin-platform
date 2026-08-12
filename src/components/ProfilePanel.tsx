@@ -43,7 +43,13 @@ export default function ProfilePanel({
 
   // Title editing
   const [editingTitle, setEditingTitle] = useState(false)
-  const [titleVal, setTitleVal] = useState(userTitle || '')
+  const [titleVal, setTitleVal] = useState(() => {
+    try {
+      const stored = localStorage.getItem('psk_user')
+      if (stored) { const u = JSON.parse(stored); if (u.title) return u.title }
+    } catch(_) {}
+    return userTitle || ''
+  })
   const [titleSaved, setTitleSaved] = useState(false)
 
   // Password change
@@ -76,7 +82,6 @@ export default function ProfilePanel({
     setPwMsg(''); setPwErr(''); setCurPw(''); setNewPw(''); setConfirmPw('')
     setPinMsg(''); setPinErr(''); setNewPin(''); setConfirmPin(''); setPinStep('new')
     setShowAvatarPicker(false); setEditingTitle(false); setTitleSaved(false)
-    setTitleVal(userTitle || '')
 
     // Load saved avatar
     const saved = localStorage.getItem(STORAGE_KEY(userEmail))
@@ -119,6 +124,15 @@ export default function ProfilePanel({
     const { error } = await supabase.from('profiles')
       .update({ title: titleVal.trim() }).eq('email', userEmail)
     if (!error) {
+      // Update localStorage so the title persists when panel reopens
+      try {
+        const stored = localStorage.getItem('psk_user')
+        if (stored) {
+          const u = JSON.parse(stored)
+          u.title = titleVal.trim()
+          localStorage.setItem('psk_user', JSON.stringify(u))
+        }
+      } catch(_) {}
       setTitleSaved(true); setEditingTitle(false)
       setTimeout(() => setTitleSaved(false), 2000)
     }
