@@ -200,7 +200,6 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
                 }}
               />
             )}
-            <span className="text-lg" style={{ filter: 'drop-shadow(0 0 3px rgba(255,215,0,0.4))' }}>🏠</span>
             <span>Home</span>
           </button>
 
@@ -230,25 +229,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
                       }}
                     />
                   )}
-                  {category.iconImg ? (
-                    <img
-                      src={category.iconImg}
-                      alt=""
-                      className="flex-shrink-0"
-                      style={{
-                        width: '30px',
-                        height: '30px',
-                        objectFit: 'contain',
-                        filter: isCategoryActive
-                          ? 'drop-shadow(0 0 5px rgba(255,215,0,0.45))'
-                          : 'drop-shadow(0 0 3px rgba(0,0,0,0.35))',
-                        opacity: isCategoryActive ? 1 : 0.88,
-                        transition: 'opacity 200ms ease, filter 200ms ease',
-                      }}
-                    />
-                  ) : (
-                    <span className="text-2xl" style={{ filter: 'drop-shadow(0 0 3px rgba(255,215,0,0.4))' }}>{category.icon}</span>
-                  )}
+
                   <span className="flex-1 text-left" style={{ fontSize:'14px', fontWeight:600, color:'rgba(255,255,255,0.92)' }}>{category.label}</span>
                   {category.id === 'finance' && <span>🔒</span>}
                   {category.subcategories.length > 0 && (
@@ -287,7 +268,6 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
                             fontWeight: isSubcategoryActive(sub.route) ? 500 : 400,
                           }}
                         >
-                          <span className="text-lg" style={{ filter: 'drop-shadow(0 0 2px rgba(255,215,0,0.3))' }}>{sub.icon}</span>
                           <span className="flex-1 text-left">{sub.label}</span>
                           {sub.badge && (
                             <span
