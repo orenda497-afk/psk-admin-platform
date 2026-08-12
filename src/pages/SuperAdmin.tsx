@@ -160,7 +160,7 @@ export default function SuperAdmin() {
         </div>
         <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
           {saved && <span style={{ fontSize:'12px', color:'rgba(129,199,132,0.90)', fontWeight:600 }}>{saved}</span>}
-          <button onClick={()=>window.location.href='/'} style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.55)', cursor:'pointer', fontFamily:'inherit' }}>← Back to platform</button>
+          <button onClick={()=>window.open('/','_blank')} style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.55)', cursor:'pointer', fontFamily:'inherit' }}>↗ Open platform</button>
         </div>
       </div>
 
