@@ -460,7 +460,7 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
                     {photos.map((photo,idx)=>(
                       <div key={idx} style={{ aspectRatio:'1', borderRadius:'8px', border:`1.5px dashed ${photo?'rgba(129,199,132,0.50)':'rgba(255,255,255,0.14)'}`, background:photo?'transparent':'rgba(255,255,255,0.03)', overflow:'hidden', position:'relative', cursor:'pointer' }}
                         onClick={()=>photoRefs[idx].current?.click()}>
-                        <input type="file" accept="image/*" capture="environment" ref={photoRefs[idx]}
+                        <input type="file" accept="image/*,application/pdf" ref={photoRefs[idx]}
                           onChange={e=>{ if(e.target.files?.[0]){ const r=new FileReader(); r.onload=ev=>{ const arr=[...photos]; arr[idx]=(ev.target?.result as string)||''; setPhotos(arr); if(idx===0)setIdPhoto(arr[0]) }; r.readAsDataURL(e.target.files[0]) } }}
                           style={{ display:'none' }} />
                         {photo
