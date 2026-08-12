@@ -338,14 +338,14 @@ function App() {
           <Route path="/owner-portal" element={<VehicleOwners defaultTab="portal" />} />
 
           {/* FINANCE — blocked for branch manager role */}
-          <Route path="/finance" element={['manager','ops','intern'].includes(user?.role||'') ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} userRole={user?.role||'manager'} /></FinancePIN>} />
+          <Route path="/finance" element={['manager','intern'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} userRole={user?.role||'manager'} />} />
           <Route path="/finance/documents" element={<Documents />} />
-          <Route path="/finance/mpesa" element={['manager','ops','intern'].includes(user?.role||'') ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} defaultTab="mpesa" userRole={user?.role||'manager'} /></FinancePIN>} />
-          <Route path="/finance/expenses" element={['manager','ops','intern'].includes(user?.role||'') ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} defaultTab="expenses" userRole={user?.role||'manager'} /></FinancePIN>} />
-          <Route path="/finance/pl" element={['manager','ops','intern'].includes(user?.role||'') ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} defaultTab="pl" userRole={user?.role||'manager'} /></FinancePIN>} />
-          <Route path="/finance/payouts" element={['manager','ops','intern'].includes(user?.role||'') ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} defaultTab="payouts" userRole={user?.role||'manager'} /></FinancePIN>} />
-          <Route path="/finance/receivables" element={['manager','ops','intern'].includes(user?.role||'') ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} defaultTab="receivables" userRole={user?.role||'manager'} /></FinancePIN>} />
-          <Route path="/finance/reports" element={['manager','ops','intern'].includes(user?.role||'') ? <FinanceBlocked /> : <FinancePIN userRole={user?.role||'manager'}><Finance currentBranch={currentBranch} defaultTab="reports" userRole={user?.role||'manager'} /></FinancePIN>} />
+          <Route path="/finance/mpesa" element={['manager','intern'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} defaultTab="mpesa" userRole={user?.role||'manager'} />} />
+          <Route path="/finance/expenses" element={['manager','intern'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} defaultTab="expenses" userRole={user?.role||'manager'} />} />
+          <Route path="/finance/pl" element={['manager','intern'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} defaultTab="pl" userRole={user?.role||'manager'} />} />
+          <Route path="/finance/payouts" element={['manager','intern'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} defaultTab="payouts" userRole={user?.role||'manager'} />} />
+          <Route path="/finance/receivables" element={['manager','intern'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} defaultTab="receivables" userRole={user?.role||'manager'} />} />
+          <Route path="/finance/reports" element={['manager','intern'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} defaultTab="reports" userRole={user?.role||'manager'} />} />
 
           {/* INTELLIGENCE */}
           <Route path="/analytics" element={<Analytics />} />

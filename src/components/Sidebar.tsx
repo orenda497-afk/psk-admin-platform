@@ -204,7 +204,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
           </button>
 
           {/* Categories */}
-          {NAVIGATION_STRUCTURE.filter(c => c.id !== 'home').map(category => {
+          {NAVIGATION_STRUCTURE.filter(c => c.id !== 'home' && !(c.id === 'finance' && ['manager','intern'].includes(userRole))).map(category => {
             const isOpen = openCategory === category.id
             const isCategoryActive = getCategoryActive(category.id)
 
@@ -231,7 +231,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
                   )}
 
                   <span className="flex-1 text-left" style={{ fontSize:'14px', fontWeight:600, color:'rgba(255,255,255,0.92)' }}>{category.label}</span>
-                  {category.id === 'finance' && <span>🔒</span>}
+                  
                   {category.subcategories.length > 0 && (
                     <span
                       className="text-[11px] transition-transform"
