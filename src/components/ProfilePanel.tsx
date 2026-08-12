@@ -324,24 +324,45 @@ export default function ProfilePanel({
               {/* Title editor */}
               <div style={{ marginBottom:'16px' }}>
                 <div style={{ fontSize:'10px', fontWeight:600, letterSpacing:'1px',
-                  textTransform:'uppercase', color:'rgba(255,255,255,0.30)', marginBottom:'8px' }}>Job Title</div>
-                <input value={titleVal} onChange={e=>setTitleVal(e.target.value)}
-                  onKeyDown={e=>{ if(e.key==='Enter') saveTitle() }}
-                  placeholder="e.g. Operations Manager"
-                  style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'13px',
-                    background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.14)',
-                    color:'rgba(255,255,255,0.88)', outline:'none', fontFamily:'inherit',
-                    boxSizing:'border-box', marginBottom:'10px' }} />
-                <button onClick={saveTitle}
-                  style={{ width:'100%', padding:'12px', borderRadius:'10px', fontSize:'14px',
-                    fontWeight:700, cursor:'pointer', fontFamily:'inherit',
-                    background:'linear-gradient(135deg,rgba(255,215,0,0.25),rgba(255,149,0,0.18))',
-                    border:'2px solid rgba(255,215,0,0.60)',
-                    color:'rgba(255,215,0,1)', letterSpacing:'0.3px' }}>
-                  Save Title
-                </button>
-                {titleSaved && <div style={{ fontSize:'12px', color:'rgba(129,199,132,0.90)',
-                  marginTop:'8px', textAlign:'center' }}>✓ Title saved successfully</div>}
+                  textTransform:'uppercase', color:'rgba(255,255,255,0.30)', marginBottom:'6px' }}>Job Title</div>
+                {editingTitle ? (
+                  <div>
+                    <input value={titleVal} onChange={e=>setTitleVal(e.target.value)}
+                      onKeyDown={e=>{ if(e.key==='Enter') saveTitle(); if(e.key==='Escape') setEditingTitle(false) }}
+                      placeholder="e.g. Platform Developer"
+                      autoFocus
+                      style={{ width:'100%', padding:'9px 12px', borderRadius:'9px', fontSize:'13px',
+                        background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,215,0,0.40)',
+                        color:'rgba(255,255,255,0.90)', outline:'none', fontFamily:'inherit',
+                        boxSizing:'border-box', marginBottom:'8px' }} />
+                    <div style={{ display:'flex', gap:'8px' }}>
+                      <button onClick={saveTitle}
+                        style={{ flex:1, padding:'8px', borderRadius:'8px', fontSize:'12px', fontWeight:700,
+                          cursor:'pointer', fontFamily:'inherit',
+                          background:'rgba(255,215,0,0.18)', border:'1.5px solid rgba(255,215,0,0.50)',
+                          color:'rgba(255,215,0,1)' }}>Save</button>
+                      <button onClick={()=>setEditingTitle(false)}
+                        style={{ flex:1, padding:'8px', borderRadius:'8px', fontSize:'12px', fontWeight:600,
+                          cursor:'pointer', fontFamily:'inherit',
+                          background:'transparent', border:'1px solid rgba(255,255,255,0.12)',
+                          color:'rgba(255,255,255,0.40)' }}>Cancel</button>
+                    </div>
+                    {titleSaved && <div style={{ fontSize:'11px', color:'rgba(129,199,132,0.85)',
+                      marginTop:'6px' }}>✓ Saved</div>}
+                  </div>
+                ) : (
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between',
+                    padding:'9px 12px', borderRadius:'9px',
+                    background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)' }}>
+                    <span style={{ fontSize:'13px', color:'rgba(255,255,255,0.80)' }}>
+                      {titleVal || <span style={{ color:'rgba(255,255,255,0.30)' }}>Not set</span>}
+                    </span>
+                    <button onClick={()=>setEditingTitle(true)}
+                      style={{ background:'none', border:'none', cursor:'pointer', padding:'2px 6px',
+                        fontSize:'13px', color:'rgba(255,255,255,0.35)', lineHeight:1 }}
+                      title="Edit title">✏️</button>
+                  </div>
+                )}
               </div>
 
               <div style={{ padding:'12px', borderRadius:'10px', background:'rgba(255,255,255,0.03)',
