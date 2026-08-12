@@ -325,21 +325,23 @@ export default function ProfilePanel({
               <div style={{ marginBottom:'16px' }}>
                 <div style={{ fontSize:'10px', fontWeight:600, letterSpacing:'1px',
                   textTransform:'uppercase', color:'rgba(255,255,255,0.30)', marginBottom:'8px' }}>Job Title</div>
-                <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
-                  <input value={titleVal} onChange={e=>setTitleVal(e.target.value)}
-                    onKeyDown={e=>{ if(e.key==='Enter') saveTitle() }}
-                    placeholder="e.g. Operations Manager"
-                    style={{ flex:1, padding:'9px 12px', borderRadius:'9px', fontSize:'13px',
-                      background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.14)',
-                      color:'rgba(255,255,255,0.88)', outline:'none', fontFamily:'inherit' }} />
-                  <button onClick={saveTitle}
-                    style={{ padding:'9px 14px', borderRadius:'9px', fontSize:'12px', fontWeight:700,
-                      background:'rgba(255,215,0,0.15)', border:'1.5px solid rgba(255,215,0,0.38)',
-                      color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap' }}>
-                    Save
-                  </button>
-                </div>
-                {titleSaved && <div style={{ fontSize:'11px', color:'rgba(129,199,132,0.80)', marginTop:'6px' }}>✓ Title saved</div>}
+                <input value={titleVal} onChange={e=>setTitleVal(e.target.value)}
+                  onKeyDown={e=>{ if(e.key==='Enter') saveTitle() }}
+                  placeholder="e.g. Operations Manager"
+                  style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'13px',
+                    background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.14)',
+                    color:'rgba(255,255,255,0.88)', outline:'none', fontFamily:'inherit',
+                    boxSizing:'border-box', marginBottom:'10px' }} />
+                <button onClick={saveTitle}
+                  style={{ width:'100%', padding:'12px', borderRadius:'10px', fontSize:'14px',
+                    fontWeight:700, cursor:'pointer', fontFamily:'inherit',
+                    background:'linear-gradient(135deg,rgba(255,215,0,0.25),rgba(255,149,0,0.18))',
+                    border:'2px solid rgba(255,215,0,0.60)',
+                    color:'rgba(255,215,0,1)', letterSpacing:'0.3px' }}>
+                  Save Title
+                </button>
+                {titleSaved && <div style={{ fontSize:'12px', color:'rgba(129,199,132,0.90)',
+                  marginTop:'8px', textAlign:'center' }}>✓ Title saved successfully</div>}
               </div>
 
               <div style={{ padding:'12px', borderRadius:'10px', background:'rgba(255,255,255,0.03)',
