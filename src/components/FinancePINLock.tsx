@@ -57,7 +57,7 @@ export default function FinancePINLock({ onUnlock, onCancel }: FinancePINLockPro
 
     if (rpcErr) {
       setShake(true)
-      setError('Could not reach the server')
+      setError('Error: ' + (rpcErr.message || JSON.stringify(rpcErr)))
       setTimeout(() => { setPin(''); setShake(false) }, 900)
       return
     }

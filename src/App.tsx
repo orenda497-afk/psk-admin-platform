@@ -137,7 +137,7 @@ function App() {
       setBusy(false)
       setPin('')
 
-      if (rpcErr) { setError('Could not reach the server. Try again.'); return }
+      if (rpcErr) { setError('Error: ' + (rpcErr.message || JSON.stringify(rpcErr))); return }
 
       if (data?.ok) { sessionStorage.setItem(sessionKey, '1'); setUnlocked(true); return }
 
