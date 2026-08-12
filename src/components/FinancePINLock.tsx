@@ -57,7 +57,7 @@ export default function FinancePINLock({ onUnlock, onCancel }: FinancePINLockPro
 
     if (rpcErr) {
       setShake(true)
-      setError('Error: ' + (rpcErr.message || JSON.stringify(rpcErr)))
+      setError('PIN check failed: ' + (rpcErr.message || rpcErr.code || 'unknown error'))
       setTimeout(() => { setPin(''); setShake(false) }, 900)
       return
     }

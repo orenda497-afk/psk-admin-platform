@@ -133,19 +133,54 @@ function App() {
     async function tryPin() {
       if (busy) return
       setBusy(true)
+
+      // Get current user id
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { setBusy(false); setError('Not signed in.'); return }
+
+      // Fetch profile directly - no RPC needed
+      const { data: profile, error: pErr } = await supabase
+        .from('profiles')
+        .select('finance_pin_hash, pin_attempts, pin_locked_until, role, active')
+        .eq('id', user.id)
+        .maybeSingle()
+
+      if (pErr || !profile) {
+        setBusy(false); setPin('')
+        setError('Could not load profile: ' + (pErr?.message || 'not found'))
+        return
+      }
+
+      if (!['owner','finance'].includes(profile.role)) {
+        setBusy(false); setPin('')
+        setError('Your role cannot access Finance.')
+        return
+      }
+
+      if (!profile.finance_pin_hash) {
+        setBusy(false); setPin('')
+        setMode('set_new'); return
+      }
+
+      if (profile.pin_locked_until && new Date(profile.pin_locked_until) > new Date()) {
+        setBusy(false); setPin('')
+        setError('Finance locked for 15 minutes after too many attempts.')
+        return
+      }
+
+      // Verify PIN via RPC (bcrypt check happens in Postgres)
       const { data, error: rpcErr } = await supabase.rpc('verify_finance_pin', { pin })
       setBusy(false)
       setPin('')
 
-      if (rpcErr) { setError('Error: ' + (rpcErr.message || JSON.stringify(rpcErr))); return }
-
-      if (data?.ok) { sessionStorage.setItem(sessionKey, '1'); setUnlocked(true); return }
-
-      if (data?.reason === 'no_pin_set') { setMode('set_new'); setError(''); return }
-      if (data?.reason === 'locked') {
-        setError('Too many wrong attempts. Finance is locked for 15 minutes.')
+      if (rpcErr) {
+        setError('PIN verification failed: ' + (rpcErr.message || rpcErr.code || 'unknown'))
         return
       }
+
+      if (data?.ok) { sessionStorage.setItem(sessionKey, '1'); setUnlocked(true); return }
+      if (data?.reason === 'no_pin_set') { setMode('set_new'); setError(''); return }
+      if (data?.reason === 'locked') { setError('Finance locked for 15 minutes.'); return }
       if (data?.reason === 'not_permitted') { setError('Your role cannot open Finance.'); return }
       const left = data?.attempts_left
       setError(left ? `Incorrect PIN. ${left} attempt${left === 1 ? '' : 's'} left.` : 'Incorrect PIN.')
