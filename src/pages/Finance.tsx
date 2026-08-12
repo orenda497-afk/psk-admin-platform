@@ -13,6 +13,9 @@ const MPESA_TYPES  = ['Customer payment','Deposit received','Refund sent','Owner
 export default function Finance({ currentBranch='eldoret', defaultTab='dashboard', userRole='owner' }: { currentBranch?:string; defaultTab?:string; userRole?:string }) {
   const navigate = useNavigate()
   const [tab, setTab]           = useState(defaultTab)
+
+  // Sync tab when route changes (e.g. sidebar navigates to /finance/mpesa)
+  useEffect(() => { setTab(defaultTab) }, [defaultTab])
   const [docs, setDocs]         = useState<any[]>([])
   const [expenses, setExpenses] = useState<any[]>([])
   const [mpesa, setMpesa]       = useState<any[]>([])
