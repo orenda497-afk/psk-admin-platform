@@ -5,8 +5,11 @@ import { supabase } from '../lib/supabase'
 export default function Home() {
   const navigate = useNavigate()
   const hour = new Date().getHours()
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
+  const greetWord = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
   const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  const storedUser = (() => { try { const s = localStorage.getItem('psk_user'); return s ? JSON.parse(s) : null } catch { return null } })()
+  const firstName = storedUser?.name ? storedUser.name.split(' ')[0] : ''
+  const greeting = firstName ? `${greetWord}, ${firstName}` : greetWord
 
   const [stats, setStats] = useState({ available:0, onHire:0, inService:0, pickups:0, returns:0, quotes:0, mpesa:0, reminders:0 })
 
