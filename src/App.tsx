@@ -88,7 +88,15 @@ function App() {
     loadProfile()
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_OUT') { setUser(null); localStorage.removeItem('psk_user') }
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') loadProfile()
+      if (event === 'SIGNED_IN') {
+        // Always go home on sign-in regardless of browser URL
+        if (window.location.pathname !== '/' && !window.location.pathname.startsWith('/kevin-admin') && !window.location.pathname.startsWith('/help')) {
+          window.location.replace('/')
+        } else {
+          loadProfile()
+        }
+      }
+      if (event === 'TOKEN_REFRESHED') loadProfile()
     })
     return () => { cancelled = true; sub.subscription.unsubscribe() }
   }, [])
