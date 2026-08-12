@@ -11,15 +11,16 @@
 html, body, #root {
   height: 100%;
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 15px;
 }
 
 body {
   background:
-    radial-gradient(ellipse 80% 70% at 70% 0%, rgba(27,77,92,0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 60% at 5% 100%, rgba(45,95,63,0.14) 0%, transparent 60%),
-    linear-gradient(160deg, #0f2535 0%, #112b2e 40%, #0e2420 75%, #101e2a 100%);
+    radial-gradient(ellipse 80% 70% at 70% 0%, rgba(27,77,92,0.28) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 5% 100%, rgba(45,95,63,0.20) 0%, transparent 60%),
+    linear-gradient(160deg, #152d42 0%, #163538 40%, #12302a 75%, #142538 100%);
   min-height: 100vh;
-  color: rgba(255,255,255,0.92);
+  color: rgba(255,255,255,0.96);
 }
 
 ::-webkit-scrollbar {
@@ -73,4 +74,33 @@ input[type="date"],
 input[type="time"] {
   color-scheme: dark;
   color: rgba(255,255,255,0.80) !important;
+}
+
+/* ── Global readability upgrades ── */
+
+/* Boost all label-style text */
+[style*="fontSize:'9px'"], [style*='fontSize:"9px"'] { font-size: 11px !important; }
+[style*="fontSize:'10px'"], [style*='fontSize:"10px"'] { font-size: 12px !important; }
+[style*="fontSize:'11px'"], [style*='fontSize:"11px"'] { font-size: 13px !important; }
+[style*="fontSize:'12px'"], [style*='fontSize:"12px"'] { font-size: 14px !important; }
+[style*="fontSize:'13px'"], [style*='fontSize:"13px"'] { font-size: 15px !important; }
+
+/* All inputs and textareas bigger */
+input, textarea, select {
+  font-size: 14px !important;
+}
+
+/* Table cells more readable */
+td, th {
+  font-size: 13px !important;
+}
+
+/* Sidebar nav items */
+.sidebar-nav-item {
+  font-size: 14px !important;
+}
+
+/* Cards and panels - brighter text */
+p, span, div {
+  letter-spacing: 0.01em;
 }

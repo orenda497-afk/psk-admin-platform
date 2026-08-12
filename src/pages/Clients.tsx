@@ -45,6 +45,68 @@ const TYPE_FIELDS: Record<ClientType, { showIdFields:boolean; showKRA:boolean; s
   government: { showIdFields:false, showKRA:true,  showContact:true,  showCredit:false },
 }
 
+
+const KENYA_COUNTIES = [
+  'Baringo','Bomet','Bungoma','Busia','Elgeyo-Marakwet','Embu','Garissa',
+  'Homa Bay','Isiolo','Kajiado','Kakamega','Kericho','Kiambu','Kilifi',
+  'Kirinyaga','Kisii','Kisumu','Kitui','Kwale','Laikipia','Lamu','Machakos',
+  'Makueni','Mandera','Marsabit','Meru','Migori','Mombasa',"Murang'a",
+  'Nairobi','Nakuru','Nandi','Narok','Nyamira','Nyandarua','Nyeri',
+  'Samburu','Siaya','Taita-Taveta','Tana River','Tharaka-Nithi','Trans Nzoia',
+  'Turkana','Uasin Gishu','Vihiga','Wajir','West Pokot'
+]
+
+const KENYA_TOWNS: Record<string,string[]> = {
+  'Uasin Gishu':['Eldoret','Turbo','Ziwa','Burnt Forest','Moiben','Huruma'],
+  'Kisumu':['Kisumu City','Ahero','Muhoroni','Maseno','Kombewa','Katito'],
+  'Nairobi':['Nairobi CBD','Westlands','Karen','Eastleigh','Kasarani','Embakasi','Ruaka','Thika Road'],
+  'Mombasa':['Mombasa CBD','Nyali','Bamburi','Likoni','Changamwe'],
+  'Nakuru':['Nakuru Town','Naivasha','Gilgil','Molo','Njoro','Rongai'],
+  'Kisii':['Kisii Town','Suneka','Ogembo','Keroka'],
+  'Kakamega':['Kakamega Town','Mumias','Butere','Malava','Lugari'],
+  'Kericho':['Kericho Town','Litein','Londiani','Fort Ternan'],
+  'Bomet':['Bomet Town','Sotik','Longisa','Chepalungu'],
+  'Nandi':['Kapsabet','Nandi Hills','Mosoriot','Kobujoi'],
+  'Trans Nzoia':['Kitale','Kiminini','Saboti','Endebess'],
+  'Bungoma':['Bungoma Town','Webuye','Kimilili','Chwele'],
+  'Vihiga':['Mbale','Vihiga Town','Luanda','Hamisi'],
+  'Busia':['Busia Town','Malaba','Nambale','Butula'],
+  'Siaya':['Siaya Town','Bondo','Ukwala','Ugunja'],
+  'Homa Bay':['Homa Bay Town','Oyugis','Kendu Bay','Mbita'],
+  'Migori':['Migori Town','Awendo','Uriri','Suna'],
+  'Nyamira':['Nyamira Town','Keroka','Nyansiongo'],
+  'Kiambu':['Thika','Ruiru','Limuru','Kikuyu','Githunguri','Kiambu Town'],
+  'Machakos':['Machakos Town','Athi River','Matuu','Mwala'],
+  'Makueni':['Wote','Mtito Andei','Sultan Hamud','Emali'],
+  'Meru':['Meru Town','Nkubu','Timau','Maua'],
+  'Embu':['Embu Town','Runyenjes','Siakago'],
+  'Kirinyaga':['Kerugoya','Sagana','Kutus','Wanguru'],
+  "Murang'a":["Murang'a Town",'Kenol','Maragua','Kangema'],
+  'Nyeri':['Nyeri Town','Karatina','Othaya','Mukurwe-ini'],
+  'Nyandarua':['Ol Kalou','Nyahururu','Ndaragwa'],
+  'Laikipia':['Nanyuki','Rumuruti','Nyahururu'],
+  'Samburu':['Maralal','Baragoi','Wamba'],
+  'Isiolo':['Isiolo Town','Merti','Garbatulla'],
+  'Marsabit':['Marsabit Town','Moyale','Laisamis'],
+  'Mandera':['Mandera Town','Takaba','Rhamu'],
+  'Wajir':['Wajir Town','Habaswein','Tarbaj'],
+  'Garissa':['Garissa Town','Dadaab','Balambala'],
+  'Tana River':['Hola','Garsen','Bura'],
+  'Kilifi':['Kilifi Town','Malindi','Watamu','Kaloleni'],
+  'Kwale':['Kwale Town','Ukunda','Shimba Hills','Lungalunga'],
+  'Taita-Taveta':['Voi','Taveta','Wundanyi'],
+  'Lamu':['Lamu Town','Mpeketoni','Mokowe'],
+  'Kajiado':['Kajiado Town','Ongata Rongai','Ngong','Kitengela','Namanga'],
+  'Narok':['Narok Town','Narok North','Suswa'],
+  'Baringo':['Kabarnet','Eldama Ravine','Marigat'],
+  'Elgeyo-Marakwet':['Iten','Eldoret','Kapsowar'],
+  'West Pokot':['Kapenguria','Lodwar','Sigor'],
+  'Turkana':['Lodwar','Kakuma','Lokichar'],
+  'Tharaka-Nithi':['Chuka','Kathwana','Marimanti'],
+  'Kitui':['Kitui Town','Mwingi','Mutomo'],
+  'Kwale':['Kwale Town','Ukunda','Msambweni'],
+}
+
 export default function Clients({ defaultTab = 'all' }: { defaultTab?: string }) {
   const navigate = useNavigate()
   const [clients, setClients]     = useState<Client[]>([])
@@ -56,8 +118,13 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
   const [selected, setSelected]   = useState<Client | null>(null)
   const [clientType, setClientType] = useState<ClientType>('individual')
   const [idPhoto, setIdPhoto]     = useState<string>('')
+  const [photos, setPhotos]         = useState<string[]>(['','','','',''])
+  const [county, setCounty]         = useState('')
+  const [customTown, setCustomTown] = useState('')
+  const [showCustomTown, setShowCustomTown] = useState(false)
   const cameraRef = useRef<HTMLInputElement>(null)
   const uploadRef = useRef<HTMLInputElement>(null)
+  const photoRefs = [useRef<HTMLInputElement>(null),useRef<HTMLInputElement>(null),useRef<HTMLInputElement>(null),useRef<HTMLInputElement>(null),useRef<HTMLInputElement>(null)]
 
   const [form, setForm] = useState({
     name:'', phone:'', secondary_phone:'', email:'',
@@ -91,10 +158,10 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
       id_number: fields.showIdFields ? form.id_number || null : null,
       id_photo_url: idPhoto || null,
       address: form.address || null,
-      city: form.city || null,
+      city: showCustomTown ? (customTown || null) : (form.city || null),
+      county: county || null,
       kra_pin:       fields.showKRA     ? form.kra_pin || null : null,
-      contact_person:fields.showContact ? form.contact_person || null : null,
-      contact_title: fields.showContact ? form.contact_title || null : null,
+      // contact_person/title stored in notes if needed (column not in schema)
       credit_limit:  fields.showCredit  ? form.credit_limit || 0 : 0,
       payment_terms: fields.showCredit  ? form.payment_terms || 0 : 0,
       branch: form.branch,
@@ -104,6 +171,10 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
     if (!error) {
       setShowAdd(false)
       setIdPhoto('')
+      setPhotos(['','','','',''])
+      setCounty('')
+      setCustomTown('')
+      setShowCustomTown(false)
       setForm({ name:'', phone:'', secondary_phone:'', email:'', id_type:'National ID', id_number:'', address:'', city:'', kra_pin:'', contact_person:'', contact_title:'', credit_limit:0, payment_terms:30, branch:'eldoret', notes:'' })
       load()
     } else alert('Error: ' + error.message)
@@ -355,7 +426,22 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
                 {fld('Phone number *', inp('phone','tel','+254...'), true)}
                 {fld('Secondary phone', inp('secondary_phone','tel','+254...'))}
                 {fld('Email (optional)', inp('email','email','client@email.com'))}
-                {fld('City / Town', inp('city','text','e.g. Eldoret'))}
+                {fld('County', (
+                  <select value={county} onChange={e=>{setCounty(e.target.value);setForm(f=>({...f,city:''}));setCustomTown('');setShowCustomTown(false)}} style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:county?'rgba(255,255,255,0.80)':'rgba(255,255,255,0.35)', outline:'none', fontFamily:'inherit', cursor:'pointer' }}>
+                    <option value=''>Select county...</option>
+                    {KENYA_COUNTIES.map(c=><option key={c} value={c}>{c}</option>)}
+                  </select>
+                ))}
+                {county && fld('Town / Area', (
+                  <>
+                    <select value={showCustomTown?'__other__':form.city} onChange={e=>{if(e.target.value==='__other__'){setShowCustomTown(true);setForm(f=>({...f,city:''}))}else{setShowCustomTown(false);setForm(f=>({...f,city:e.target.value}))}}} style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', cursor:'pointer', marginBottom:'6px' }}>
+                      <option value=''>Select town...</option>
+                      {(KENYA_TOWNS[county]||[]).map(t=><option key={t} value={t}>{t}</option>)}
+                      <option value='__other__'>Other (type below)</option>
+                    </select>
+                    {showCustomTown && <input type='text' value={customTown} onChange={e=>setCustomTown(e.target.value)} placeholder='Enter town name...' style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,215,0,0.30)', color:'rgba(255,255,255,0.88)', outline:'none', fontFamily:'inherit' }} />}
+                  </>
+                ))}
               </div>
               {fld('Address', inp('address','text','Physical address'))}
 
@@ -367,17 +453,28 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
                   {fld('ID number', inp('id_number','text','e.g. 12345678'))}
                 </div>
 
-                {/* Photo capture */}
+                {/* Photo capture - 5 slots */}
                 <div style={{ marginBottom:'14px' }}>
-                  <div style={{ fontSize:'10px', fontWeight:600, color:'rgba(255,255,255,0.38)', letterSpacing:'0.5px', marginBottom:'8px', textTransform:'uppercase' }}>ID photo (optional)</div>
-                  <input type="file" accept="image/*" capture="environment" ref={cameraRef} onChange={e=>e.target.files?.[0]&&handlePhoto(e.target.files[0])} style={{ display:'none' }} />
-                  <input type="file" accept="image/*,application/pdf" ref={uploadRef} onChange={e=>e.target.files?.[0]&&handlePhoto(e.target.files[0])} style={{ display:'none' }} />
-                  <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
-                    <button type="button" onClick={()=>cameraRef.current?.click()} style={{ padding:'8px 14px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.22)', color:'rgba(255,215,0,0.80)' }}>📷 Take photo</button>
-                    <button type="button" onClick={()=>uploadRef.current?.click()} style={{ padding:'8px 14px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.14)', color:'rgba(255,255,255,0.55)' }}>📁 Upload file</button>
-                    {idPhoto && <span style={{ fontSize:'11px', color:'rgba(129,199,132,0.90)' }}>✓ Photo captured</span>}
+                  <div style={{ fontSize:'10px', fontWeight:600, color:'rgba(255,255,255,0.38)', letterSpacing:'0.5px', marginBottom:'10px', textTransform:'uppercase' }}>Photos — up to 5 (ID, licence, vehicle, etc.)</div>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:'8px' }}>
+                    {photos.map((photo,idx)=>(
+                      <div key={idx} style={{ aspectRatio:'1', borderRadius:'8px', border:`1.5px dashed ${photo?'rgba(129,199,132,0.50)':'rgba(255,255,255,0.14)'}`, background:photo?'transparent':'rgba(255,255,255,0.03)', overflow:'hidden', position:'relative', cursor:'pointer' }}
+                        onClick={()=>photoRefs[idx].current?.click()}>
+                        <input type="file" accept="image/*" capture="environment" ref={photoRefs[idx]}
+                          onChange={e=>{ if(e.target.files?.[0]){ const r=new FileReader(); r.onload=ev=>{ const arr=[...photos]; arr[idx]=(ev.target?.result as string)||''; setPhotos(arr); if(idx===0)setIdPhoto(arr[0]) }; r.readAsDataURL(e.target.files[0]) } }}
+                          style={{ display:'none' }} />
+                        {photo
+                          ? <img src={photo} alt={`Photo ${idx+1}`} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                          : <div style={{ width:'100%', height:'100%', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'4px' }}>
+                              <span style={{ fontSize:'18px' }}>📷</span>
+                              <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.25)' }}>{idx===0?'ID front':idx===1?'ID back':idx===2?'Licence':'Photo '+(idx+1)}</span>
+                            </div>}
+                        {photo && <button onClick={e=>{e.stopPropagation();const arr=[...photos];arr[idx]='';setPhotos(arr);if(idx===0)setIdPhoto('')}}
+                          style={{ position:'absolute', top:'2px', right:'2px', width:'16px', height:'16px', borderRadius:'50%', background:'rgba(231,76,60,0.80)', border:'none', color:'white', fontSize:'9px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700 }}>✕</button>}
+                      </div>
+                    ))}
                   </div>
-                  {idPhoto && <img src={idPhoto} alt="ID preview" style={{ width:'100%', maxHeight:'140px', objectFit:'cover', borderRadius:'8px', marginTop:'10px', border:'1px solid rgba(255,255,255,0.10)' }} />}
+                  <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.25)', marginTop:'6px' }}>Tap any slot to take or choose a photo. First slot is the primary ID photo.</div>
                 </div>
               </>}
 

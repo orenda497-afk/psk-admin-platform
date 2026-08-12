@@ -215,6 +215,9 @@ function App() {
           <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.20)', marginTop:'8px' }}>
             {mode === 'enter' ? 'Every attempt is recorded in the audit log' : 'Stored securely \u2014 nobody can read it back'}
           </div>
+          <button onClick={()=>window.history.back()} style={{ marginTop:'16px', background:'none', border:'none', color:'rgba(255,255,255,0.30)', cursor:'pointer', fontSize:'13px', fontFamily:'inherit', textDecoration:'underline' }}>
+            \u2190 Back to dashboard
+          </button>
         </div>
       </div>
     )

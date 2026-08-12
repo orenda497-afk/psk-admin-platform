@@ -72,7 +72,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
 
   return (
     <>
-      {showFinancePIN && <FinancePINLock onUnlock={handleFinanceUnlock} />}
+      {showFinancePIN && <FinancePINLock onUnlock={handleFinanceUnlock} onBack={()=>{setShowFinancePIN(false);setPendingFinanceOpen(false)}} />}
 
       {/* Sidebar — 232px fixed width */}
       <aside
