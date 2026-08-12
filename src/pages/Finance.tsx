@@ -272,14 +272,7 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
               {label:'Receipts sent',  value:`${mpesa.filter(m=>m.receipt_sent).length}`,                    c:'rgba(100,181,246,0.90)'},
             ].map((s,i)=><div key={i} style={{...gl.panel,padding:'14px 16px'}}><div style={{...gl.lbl,marginBottom:'6px'}}>{s.label}</div><div style={{fontSize:'18px',fontWeight:800,color:s.c}}>{s.value}</div></div>)}
           </div>
-          {/* Daraja integration info */}
-          <div style={{background:'rgba(129,199,132,0.06)',border:'1px solid rgba(129,199,132,0.18)',borderRadius:'10px',padding:'14px 16px',marginBottom:'14px'}}>
-            <div style={{fontSize:'11px',fontWeight:700,color:'rgba(129,199,132,0.85)',marginBottom:'6px'}}>🔗 Daraja Auto-capture — Paybill: 4563877</div>
-            <div style={{fontSize:'11px',color:'rgba(255,255,255,0.45)',lineHeight:'1.6'}}>
-              Webhook URL: <span style={{color:'rgba(129,199,132,0.70)',fontFamily:'monospace'}}>https://svijjousbophivmgsftm.supabase.co/functions/v1/mpesa-callback</span><br/>
-              When a customer pays to Paybill 4563877, it appears here instantly and auto-matches to a same-amount invoice.
-            </div>
-          </div>
+
           <div style={{display:'flex',justifyContent:'space-between',marginBottom:'14px'}}>
             <div style={{fontSize:'13px',fontWeight:700,color:'rgba(255,255,255,0.88)'}}>M-Pesa Transactions {unmatched>0&&<span style={{fontSize:'11px',padding:'2px 8px',borderRadius:'20px',background:'rgba(239,154,154,0.10)',border:'1px solid rgba(239,154,154,0.25)',color:'rgba(239,154,154,0.90)',marginLeft:'8px'}}>{unmatched} unmatched</span>}</div>
             <button onClick={()=>setShowMp(true)} style={{padding:'7px 16px',borderRadius:'9px',fontSize:'12px',fontWeight:600,background:'linear-gradient(135deg,rgba(129,199,132,0.16),rgba(45,95,63,0.09))',border:'1.5px solid rgba(129,199,132,0.32)',color:'rgba(129,199,132,0.95)',cursor:'pointer',fontFamily:'inherit'}}>+ Log M-Pesa</button>
