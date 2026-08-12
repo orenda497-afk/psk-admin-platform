@@ -204,7 +204,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
           </button>
 
           {/* Categories */}
-          {NAVIGATION_STRUCTURE.filter(c => c.id !== 'home' && !(c.id === 'finance' && ['manager','intern'].includes(userRole))).map(category => {
+          {NAVIGATION_STRUCTURE.filter(c => c.id !== 'home' && !(c.id === 'finance' && ['manager','intern','social_media'].includes(userRole))).map(category => {
             const isOpen = openCategory === category.id
             const isCategoryActive = getCategoryActive(category.id)
 
