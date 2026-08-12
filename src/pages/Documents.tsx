@@ -238,7 +238,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
       <div style={{ position:'fixed', inset:0, zIndex:200, display:'flex', alignItems:'flex-start', justifyContent:'center', background:'rgba(0,0,0,0.82)', backdropFilter:'blur(12px)', overflowY:'auto', padding:'32px 20px' }}>
         <div style={{ width:'760px', maxWidth:'100%' }}>
           {/* Action bar */}
-          <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'16px', flexWrap:'wrap', gap:'8px' }}>
+          <div className="psk-no-print" style={{ display:'flex', justifyContent:'space-between', marginBottom:'16px', flexWrap:'wrap', gap:'8px' }}>
             <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
               <button onClick={() => window.print()} style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,149,0,0.10))', border:'1.5px solid rgba(255,215,0,0.35)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit' }}>🖨 Print / PDF</button>
               <button onClick={sendWhatsApp} style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(37,211,102,0.10)', border:'1px solid rgba(37,211,102,0.28)', color:'rgba(37,211,102,0.90)', cursor:'pointer', fontFamily:'inherit' }}>📱 WhatsApp</button>
@@ -250,7 +250,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
           </div>
 
           {/* ── THE DOCUMENT ── */}
-          <div style={{ background:'#FFFDF7', borderRadius:'10px', overflow:'hidden', fontFamily:'Arial, sans-serif', color:'#1a1a1a', boxShadow:'0 20px 60px rgba(0,0,0,0.50)' }}>
+          <div className="psk-document" style={{ background:'#FFFDF7', borderRadius:'10px', overflow:'hidden', fontFamily:'Arial, sans-serif', color:'#1a1a1a', boxShadow:'0 20px 60px rgba(0,0,0,0.50)' }}>
 
             {/* GOLD HEADER */}
             <div style={{ background:'#FFD700', padding:'24px 32px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:'20px' }}>

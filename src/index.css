@@ -70,9 +70,9 @@ input, textarea, select {
   color: rgba(255,255,255,0.92) !important;
 }
 
-/* Table cells */
-td { font-size: 14px !important; color: rgba(255,255,255,0.90) !important; }
-th { font-size: 13px !important; color: rgba(255,255,255,0.60) !important; font-weight: 600 !important; letter-spacing: 0.5px; }
+/* Table cells - but NOT inside documents */
+td:not(.psk-document td) { font-size: 14px !important; color: rgba(255,255,255,0.90) !important; }
+th:not(.psk-document th) { font-size: 13px !important; color: rgba(255,255,255,0.60) !important; font-weight: 600 !important; letter-spacing: 0.5px; }
 
 /* Cards / panels — bright enough to read */
 [style*="rgba(10,22,34"] {
@@ -117,4 +117,13 @@ span, p, label, div, td, th, li, a, button {
 /* Stat numbers on home screen - make them pop */
 [style*="fontSize:'28px'"], [style*="fontSize:'32px'"], [style*="fontSize:'36px'"] {
   font-weight: 800 !important;
+}
+
+/* ── Print styles ── */
+@media print {
+  .psk-no-print { display: none !important; }
+  .psk-document { box-shadow: none !important; border-radius: 0 !important; }
+  body > * { visibility: hidden; }
+  .psk-document, .psk-document * { visibility: visible; }
+  .psk-document { position: absolute; top: 0; left: 0; width: 100%; }
 }
