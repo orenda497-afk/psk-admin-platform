@@ -169,16 +169,19 @@ export default function ProfilePanel({
   }
 
   const pwField = (val: string, set: (v:string)=>void, placeholder: string, show: boolean, setShow: (v:boolean)=>void) => (
-    <div style={{ position:'relative', marginBottom:'10px' }}>
-      <input type={show?'text':'password'} value={val} placeholder={placeholder}
-        onChange={e => set(e.target.value)}
-        style={{ ...inpStyle, marginBottom:0, paddingRight:'38px' }} />
-      <button type="button" onClick={()=>setShow(!show)}
-        style={{ position:'absolute', right:'10px', top:'50%', transform:'translateY(-50%)',
-          background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.30)',
-          fontSize:'11px', lineHeight:1, padding:'2px', fontFamily:'inherit' }}>
-        {show ? 'hide' : 'show'}
-      </button>
+    <div style={{ marginBottom:'10px' }}>
+      <div style={{ position:'relative' }}>
+        <input type={show?'text':'password'} value={val} placeholder={placeholder}
+          onChange={e => set(e.target.value)}
+          style={{ ...inpStyle, marginBottom:0, paddingRight:'44px' }} />
+        <button type="button" onClick={()=>setShow(!show)}
+          style={{ position:'absolute', right:'8px', top:'50%', transform:'translateY(-50%)',
+            background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.28)',
+            fontSize:'9px', letterSpacing:'0.3px', lineHeight:1, padding:'3px 4px',
+            fontFamily:'inherit', whiteSpace:'nowrap' }}>
+          {show ? 'HIDE' : 'SHOW'}
+        </button>
+      </div>
     </div>
   )
 
