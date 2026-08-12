@@ -242,28 +242,10 @@ export default function ProfilePanel({
               <div style={{ fontSize:'16px', fontWeight:700, color:'rgba(255,255,255,0.93)',
                 marginBottom:'3px', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{userName}</div>
 
-              {/* Editable title */}
-              {editingTitle ? (
-                <div style={{ display:'flex', gap:'6px', alignItems:'center', marginBottom:'5px' }}>
-                  <input value={titleVal} onChange={e=>setTitleVal(e.target.value)}
-                    onKeyDown={e=>{ if(e.key==='Enter') saveTitle(); if(e.key==='Escape') setEditingTitle(false) }}
-                    style={{ flex:1, padding:'4px 8px', borderRadius:'6px', fontSize:'11px',
-                      background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,215,0,0.35)',
-                      color:'rgba(255,255,255,0.88)', outline:'none', fontFamily:'inherit' }} autoFocus />
-                  <button onClick={saveTitle} style={{ padding:'4px 8px', borderRadius:'6px',
-                    fontSize:'10px', fontWeight:700, background:'rgba(255,215,0,0.15)',
-                    border:'1px solid rgba(255,215,0,0.35)', color:'rgba(255,215,0,0.90)',
-                    cursor:'pointer', fontFamily:'inherit' }}>Save</button>
-                </div>
-              ) : (
-                <div onClick={()=>setEditingTitle(true)}
-                  style={{ fontSize:'11px', color:'rgba(255,255,255,0.40)', marginBottom:'5px',
-                    cursor:'pointer', display:'flex', alignItems:'center', gap:'4px' }}>
-                  {titleVal || 'Add title…'}
-                  {titleSaved && <span style={{ color:'rgba(129,199,132,0.80)', fontSize:'10px' }}>✓</span>}
-                  <span style={{ fontSize:'9px', opacity:0.5 }}>✏️</span>
-                </div>
-              )}
+              <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.40)', marginBottom:'5px' }}>
+                {titleVal || userTitle || ROLE_LABEL[userRole] || userRole}
+                {titleSaved && <span style={{ color:'rgba(129,199,132,0.80)', fontSize:'10px', marginLeft:'4px' }}>✓ saved</span>}
+              </div>
 
               <div style={{ display:'flex', gap:'5px', flexWrap:'wrap' }}>
                 <span style={{ fontSize:'10px', fontWeight:600, padding:'2px 8px', borderRadius:'20px',
@@ -339,6 +321,27 @@ export default function ProfilePanel({
                     fontWeight:label==='Full name'?600:400 }}>{value}</div>
                 </div>
               ))}
+              {/* Title editor */}
+              <div style={{ marginBottom:'16px' }}>
+                <div style={{ fontSize:'10px', fontWeight:600, letterSpacing:'1px',
+                  textTransform:'uppercase', color:'rgba(255,255,255,0.30)', marginBottom:'8px' }}>Job Title</div>
+                <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
+                  <input value={titleVal} onChange={e=>setTitleVal(e.target.value)}
+                    onKeyDown={e=>{ if(e.key==='Enter') saveTitle() }}
+                    placeholder="e.g. Operations Manager"
+                    style={{ flex:1, padding:'9px 12px', borderRadius:'9px', fontSize:'13px',
+                      background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.14)',
+                      color:'rgba(255,255,255,0.88)', outline:'none', fontFamily:'inherit' }} />
+                  <button onClick={saveTitle}
+                    style={{ padding:'9px 14px', borderRadius:'9px', fontSize:'12px', fontWeight:700,
+                      background:'rgba(255,215,0,0.15)', border:'1.5px solid rgba(255,215,0,0.38)',
+                      color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap' }}>
+                    Save
+                  </button>
+                </div>
+                {titleSaved && <div style={{ fontSize:'11px', color:'rgba(129,199,132,0.80)', marginTop:'6px' }}>✓ Title saved</div>}
+              </div>
+
               <div style={{ padding:'12px', borderRadius:'10px', background:'rgba(255,255,255,0.03)',
                 border:'1px solid rgba(255,255,255,0.07)', fontSize:'11px',
                 color:'rgba(255,255,255,0.28)', lineHeight:'1.6' }}>
