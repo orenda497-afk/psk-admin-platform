@@ -278,6 +278,8 @@ function App() {
   if (!isAuthenticated) {
     return <LoginPage onLogin={() => {
       try { const s = localStorage.getItem('psk_user'); if (s) setUser(JSON.parse(s)) } catch { /* session listener will fill this in */ }
+      // Always go home after login regardless of what URL the browser remembers
+      window.history.replaceState(null, '', '/')
     }} />
   }
 
