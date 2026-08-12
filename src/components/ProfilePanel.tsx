@@ -39,7 +39,10 @@ export default function ProfilePanel({
   const [tab, setTab] = useState<'profile' | 'password' | 'pin'>('profile')
 
   // Password change
-  const [curPw, setCurPw]       = useState('')
+  const [showCurPw, setShowCurPw]   = useState(false)
+  const [showNewPw, setShowNewPw]   = useState(false)
+  const [showConPw, setShowConPw]   = useState(false)
+  const [curPw, setCurPw]           = useState('')
   const [newPw, setNewPw]       = useState('')
   const [confirmPw, setConfirmPw] = useState('')
   const [pwMsg, setPwMsg]       = useState('')
@@ -141,6 +144,25 @@ export default function ProfilePanel({
         marginBottom: '10px', boxSizing: 'border-box',
       }}
     />
+  )
+
+  const pwInp = (val: string, set: (v: string) => void, placeholder: string, show: boolean, setShow: (v:boolean)=>void) => (
+    <div style={{ position:'relative', marginBottom:'10px' }}>
+      <input
+        type={show ? 'text' : 'password'} value={val} placeholder={placeholder}
+        onChange={e => set(e.target.value)}
+        style={{
+          width: '100%', padding: '10px 40px 10px 12px', borderRadius: '9px', fontSize: '12px',
+          background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+          color: 'rgba(255,255,255,0.88)', outline: 'none', fontFamily: 'inherit',
+          boxSizing: 'border-box',
+        }}
+      />
+      <button type="button" onClick={()=>setShow(!show)}
+        style={{ position:'absolute', right:'10px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', fontSize:'16px', color:'rgba(255,255,255,0.45)', lineHeight:1, padding:'2px' }}>
+        {show ? '🙈' : '👁️'}
+      </button>
+    </div>
   )
 
   const btn = (label: string, onClick: () => void, busy = false, danger = false) => (
@@ -262,9 +284,9 @@ export default function ProfilePanel({
               <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.40)', marginBottom: '18px', lineHeight: '1.6' }}>
                 Choose a strong password — at least 8 characters.
               </div>
-              {inp(curPw, setCurPw, 'Current password', 'password')}
-              {inp(newPw, setNewPw, 'New password (min 8 chars)', 'password')}
-              {inp(confirmPw, setConfirmPw, 'Confirm new password', 'password')}
+              {pwInp(curPw, setCurPw, 'Current password', showCurPw, setShowCurPw)}
+              {pwInp(newPw, setNewPw, 'New password (min 8 chars)', showNewPw, setShowNewPw)}
+              {pwInp(confirmPw, setConfirmPw, 'Confirm new password', showConPw, setShowConPw)}
               {pwErr && <div style={{ fontSize: '11px', color: 'rgba(239,154,154,0.90)', marginBottom: '10px', padding: '8px 12px', background: 'rgba(231,76,60,0.10)', borderRadius: '8px' }}>{pwErr}</div>}
               {pwMsg && <div style={{ fontSize: '11px', color: 'rgba(129,199,132,0.90)', marginBottom: '10px', padding: '8px 12px', background: 'rgba(45,95,63,0.15)', borderRadius: '8px' }}>{pwMsg}</div>}
               {btn('Update password', handleChangePassword, pwBusy)}

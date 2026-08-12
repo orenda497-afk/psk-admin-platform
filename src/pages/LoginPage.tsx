@@ -229,7 +229,8 @@ export default function LoginPage({ onLogin }: Props) {
             </div>
             <div style={{ marginBottom:'18px' }}>
               <label style={lbl}>Confirm new password</label>
-              <input type="password" value={confirmPw} onChange={e=>{setConfirmPw(e.target.value);setPwError('')}}
+              <div style={{ position:'relative' }}>
+              <input type={showConfirmPw?'text':'password'} value={confirmPw} onChange={e=>{setConfirmPw(e.target.value);setPwError('')}}
                 placeholder="Type password again" style={inputStyle} />
             </div>
             {pwError && <div style={{ marginBottom:'14px', padding:'10px 14px', borderRadius:'9px', background:'rgba(231,76,60,0.12)', border:'1px solid rgba(231,76,60,0.30)', color:'rgba(239,154,154,0.95)', fontSize:'12px' }}>{pwError}</div>}
