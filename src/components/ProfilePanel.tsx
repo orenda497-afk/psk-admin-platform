@@ -243,7 +243,7 @@ export default function ProfilePanel({
                 marginBottom:'3px', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{userName}</div>
 
               <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.40)', marginBottom:'5px' }}>
-                {titleVal || userTitle || ROLE_LABEL[userRole] || userRole}
+                {titleVal || userTitle || ''}
                 {titleSaved && <span style={{ color:'rgba(129,199,132,0.80)', fontSize:'10px', marginLeft:'4px' }}>✓ saved</span>}
               </div>
 
