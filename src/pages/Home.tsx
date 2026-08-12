@@ -116,7 +116,7 @@ export default function Home() {
 
   const tagStyle = (c: string) => {
     if (c === 'gold') return { background: 'rgba(255,215,0,0.10)', border: '1px solid rgba(255,215,0,0.30)', color: 'rgba(255,215,0,0.88)' }
-    return { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.45)' }
+    return { background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.20)', color: 'rgba(255,255,255,0.85)' }
   }
 
   return (
@@ -133,7 +133,7 @@ export default function Home() {
 
       {/* Welcome Banner */}
       <div style={{
-        background: 'rgba(255,255,255,0.032)',
+        background: 'rgba(255,255,255,0.09)',
         border: '1.5px solid rgba(255,215,0,0.14)',
         borderRadius: '16px', padding: '20px 26px', marginBottom: '18px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -143,7 +143,7 @@ export default function Home() {
           <div style={{ fontSize: '22px', fontWeight: 800, color: 'rgba(255,255,255,0.95)', marginBottom: '4px', letterSpacing: '-0.4px' }}>
             {greeting}
           </div>
-          <div style={{ fontSize: '12.5px', color: 'rgba(255,255,255,0.36)' }}>
+          <div style={{ fontSize: '12.5px', color: 'rgba(255,255,255,0.72)' }}>
             Here's what's happening across both branches today — {today}
           </div>
         </div>
@@ -161,7 +161,7 @@ export default function Home() {
                 borderRadius: '10px', padding: '9px 16px', textAlign: 'center', minWidth: '74px',
               }}>
                 <div style={{ fontSize: '20px', fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</div>
-                <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.30)', marginTop: '3px' }}>{s.label}</div>
+                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.70)', marginTop: '3px' }}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -188,7 +188,7 @@ export default function Home() {
                   <div style={{ fontSize: '14px', fontWeight: 700, color: 'rgba(255,255,255,0.95)', letterSpacing: '-0.2px', lineHeight: 1.2 }}>
                     {cat.title}
                   </div>
-                  <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.32)', marginTop: '3px', fontWeight: 400 }}>
+                  <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.75)', marginTop: '3px', fontWeight: 400 }}>
                     {cat.subtitle}
                   </div>
                 </div>
@@ -204,7 +204,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.36)', lineHeight: '1.55', margin: '10px 0 12px' }}>
+              <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.80)', lineHeight: '1.55', margin: '10px 0 12px' }}>
                 {cat.description}
               </div>
 
@@ -238,7 +238,7 @@ export default function Home() {
             <span style={{ fontSize: '19px', flexShrink: 0 }}>{s.emoji}</span>
             <div>
               <div style={{ fontSize: '17px', fontWeight: 800, color: s.color, lineHeight: 1, letterSpacing: '-0.3px' }}>{s.value}</div>
-              <div style={{ fontSize: '9.5px', color: 'rgba(255,255,255,0.28)', marginTop: '3px' }}>{s.label}</div>
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.70)', marginTop: '3px' }}>{s.label}</div>
             </div>
           </div>
         ))}
