@@ -57,7 +57,7 @@ export default function ProfilePanel({
   // Last login from audit log
   const [lastLogin, setLastLogin] = useState('')
 
-  const pinLength = userRole === 'owner' ? 4 : 6
+  const pinLength = 4
   const canFinance = ['owner', 'finance'].includes(userRole)
 
   useEffect(() => {

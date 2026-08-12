@@ -112,7 +112,7 @@ function App() {
 
   const FinancePIN = ({ children, userRole }: { children: React.ReactNode; userRole: string }) => {
     const sessionKey = `fin_unlocked_${userRole}`
-    const pinLength = userRole === 'owner' ? 4 : 6
+    const pinLength = 4
 
     const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem(sessionKey) === '1')
     const [mode, setMode] = useState<'enter'|'set_new'|'confirm_new'>('enter')
