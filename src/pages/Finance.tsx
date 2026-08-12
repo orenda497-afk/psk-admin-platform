@@ -28,8 +28,8 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
   const camRef = useRef<HTMLInputElement>(null)
   const uplRef = useRef<HTMLInputElement>(null)
 
-  const [ef, setEf] = useState({ date:new Date().toISOString().split('T')[0], category:'Fuel', description:'', amount:0, vehicle_id:'', branch:currentBranch, notes:'' })
-  const [mf, setMf] = useState({ date:new Date().toISOString().split('T')[0], mpesa_ref:'', type:'Customer payment', amount:0, phone:'', name:'', invoice_ref:'', booking_ref:'', branch:currentBranch, notes:'' })
+  const [ef, setEf] = useState({ date:new Date().toISOString().split('T')[0], category:'Fuel', description:'', amount:'' as any, vehicle_id:'', branch:currentBranch, notes:'' })
+  const [mf, setMf] = useState({ date:new Date().toISOString().split('T')[0], mpesa_ref:'', type:'Customer payment', amount:'' as any, phone:'', name:'', invoice_ref:'', booking_ref:'', branch:currentBranch, notes:'' })
   const [pf, setPf] = useState({ owner_id:'', period:'', vehicle_id:'', gross_revenue:0, expenses:0, method:'M-Pesa', notes:'' })
 
   useEffect(() => { load() }, [])
@@ -72,7 +72,7 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
       receipt_url:receipt||null, notes:ef.notes||null,
     }])
     setSaving(false)
-    if(!error){setShowExp(false);setReceipt('');setEf({date:new Date().toISOString().split('T')[0],category:'Fuel',description:'',amount:0,vehicle_id:'',branch:currentBranch,notes:''});load()}
+    if(!error){setShowExp(false);setReceipt('');setEf({date:new Date().toISOString().split('T')[0],category:'Fuel',description:'',amount:'' as any,vehicle_id:'',branch:currentBranch,notes:''});load()}
     else alert(error.message)
   }
 
@@ -111,7 +111,7 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
       }
     }
     setSaving(false)
-    if(!error){setShowMp(false);setMf({date:new Date().toISOString().split('T')[0],mpesa_ref:'',type:'Customer payment',amount:0,phone:'',name:'',invoice_ref:'',booking_ref:'',branch:currentBranch,notes:''});load()}
+    if(!error){setShowMp(false);setMf({date:new Date().toISOString().split('T')[0],mpesa_ref:'',type:'Customer payment',amount:'' as any,phone:'',name:'',invoice_ref:'',booking_ref:'',branch:currentBranch,notes:''});load()}
     else alert(error.message)
   }
 
