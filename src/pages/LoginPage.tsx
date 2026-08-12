@@ -181,7 +181,7 @@ export default function LoginPage({ onLogin }: Props) {
                   onChange={e=>{setPassword(e.target.value);setError('')}}
                   placeholder="••••••••"
                   style={{ ...inputStyle, paddingRight:'44px', border:`1px solid ${error?'rgba(239,154,154,0.50)':'rgba(255,255,255,0.12)'}` }} />
-                <button type="button" onClick={()=>setShowPw(!showPw)} style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', color:'rgba(255,255,255,0.35)', cursor:'pointer', fontSize:'14px' }}>{showPw?'🙈':'👁'}</button>
+                <button type="button" onClick={()=>setShowPw(!showPw)} style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', color:'rgba(255,255,255,0.35)', cursor:'pointer', fontSize:'12px' }}>{showPw?'🙈':'👁'}</button>
               </div>
             </div>
             {error && <div style={{ marginBottom:'16px', padding:'10px 14px', borderRadius:'9px', background:'rgba(231,76,60,0.12)', border:'1px solid rgba(231,76,60,0.30)', color:'rgba(239,154,154,0.95)', fontSize:'12px' }}>{error}</div>}
@@ -224,7 +224,7 @@ export default function LoginPage({ onLogin }: Props) {
               <div style={{ position:'relative' }}>
                 <input type={showPw?'text':'password'} value={newPw} onChange={e=>{setNewPw(e.target.value);setPwError('')}}
                   placeholder="Choose a strong password" style={{ ...inputStyle, paddingRight:'44px' }} />
-                <button type="button" onClick={()=>setShowPw(!showPw)} style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', color:'rgba(255,255,255,0.35)', cursor:'pointer', fontSize:'14px' }}>{showPw?'🙈':'👁'}</button>
+                <button type="button" onClick={()=>setShowPw(!showPw)} style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', color:'rgba(255,255,255,0.35)', cursor:'pointer', fontSize:'12px' }}>{showPw?'🙈':'👁'}</button>
               </div>
             </div>
             <div style={{ marginBottom:'18px' }}>
@@ -232,7 +232,7 @@ export default function LoginPage({ onLogin }: Props) {
               <div style={{ position:'relative' }}>
                 <input type={showConfirmPw?'text':'password'} value={confirmPw} onChange={e=>{setConfirmPw(e.target.value);setPwError('')}}
                   placeholder="Type password again" style={{ ...inputStyle, paddingRight:'44px' }} />
-                <button type="button" onClick={()=>setShowConfirmPw(v=>!v)} style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', color:'rgba(255,255,255,0.35)', cursor:'pointer', fontSize:'14px' }}>{showConfirmPw?'🙈':'👁️'}</button>
+                <button type="button" onClick={()=>setShowConfirmPw(v=>!v)} style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', color:'rgba(255,255,255,0.35)', cursor:'pointer', fontSize:'12px' }}>{showConfirmPw?'🙈':'👁️'}</button>
               </div>
             </div>
             {pwError && <div style={{ marginBottom:'14px', padding:'10px 14px', borderRadius:'9px', background:'rgba(231,76,60,0.12)', border:'1px solid rgba(231,76,60,0.30)', color:'rgba(239,154,154,0.95)', fontSize:'12px' }}>{pwError}</div>}

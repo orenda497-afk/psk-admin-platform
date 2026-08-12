@@ -159,7 +159,7 @@ export default function ProfilePanel({
         }}
       />
       <button type="button" onClick={()=>setShow(!show)}
-        style={{ position:'absolute', right:'10px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', fontSize:'16px', color:'rgba(255,255,255,0.45)', lineHeight:1, padding:'2px' }}>
+        style={{ position:'absolute', right:'10px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', fontSize:'13px', color:'rgba(255,255,255,0.28)', lineHeight:1, padding:'2px' }}>
         {show ? '🙈' : '👁️'}
       </button>
     </div>
