@@ -157,9 +157,10 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
       id_type:   fields.showIdFields ? form.id_type : null,
       id_number: fields.showIdFields ? form.id_number || null : null,
       id_photo_url: idPhoto || null,
+      ...(photos.some(p=>p) ? { photos: photos.filter(p=>p) } : {}),
       address: form.address || null,
       city: showCustomTown ? (customTown || null) : (form.city || null),
-      county: county || null,
+      ...(county ? { county } : {}),
       kra_pin:       fields.showKRA     ? form.kra_pin || null : null,
       // contact_person/title stored in notes if needed (column not in schema)
       credit_limit:  fields.showCredit  ? form.credit_limit || 0 : 0,
