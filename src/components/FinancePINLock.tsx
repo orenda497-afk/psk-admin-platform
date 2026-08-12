@@ -117,17 +117,18 @@ export default function FinancePINLock({ onUnlock, onCancel }: FinancePINLockPro
             />
           </div>
           
-          {/* Logo Circle */}
-          <div 
-            className="w-16 h-16 rounded-full flex items-center justify-center text-white font-black text-2xl relative z-10"
+          {/* PSK Logo */}
+          <img
+            src="/branding/psk-logo.png"
+            alt="PSK Safaris"
+            className="w-16 h-16 rounded-full relative z-10"
             style={{
-              background: 'linear-gradient(135deg, #FF9500, #FFD700 45%, #2D5F3F)',
               border: '2px solid rgba(255,215,0,0.45)',
-              boxShadow: '0 0 24px rgba(255,215,0,0.2)',
+              boxShadow: '0 0 24px rgba(255,215,0,0.25)',
+              objectFit: 'cover',
+              background: 'rgba(0,0,0,0.3)',
             }}
-          >
-            P
-          </div>
+          />
         </div>
 
         {/* Title */}
