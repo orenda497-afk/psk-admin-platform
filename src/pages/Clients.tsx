@@ -148,7 +148,10 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
     if (!form.name || !form.phone) { alert('Name and phone are required'); return }
     setSaving(true)
     const fields = TYPE_FIELDS[clientType]
-    const { error } = await supabase.from('clients').insert([{
+    // Only send columns that exist in the DB schema.
+    // Extra fields (county, photos, kra_pin, credit_limit, payment_terms)
+    // are sent conditionally so a missing column never throws.
+    const insertPayload: Record<string,unknown> = {
       type: clientType,
       name: form.name.trim(),
       phone: form.phone.trim(),
@@ -157,17 +160,20 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
       id_type:   fields.showIdFields ? form.id_type : null,
       id_number: fields.showIdFields ? form.id_number || null : null,
       id_photo_url: idPhoto || null,
-      ...(photos.some(p=>p) ? { photos: photos.filter(p=>p) } : {}),
       address: form.address || null,
       city: showCustomTown ? (customTown || null) : (form.city || null),
-      ...(county ? { county } : {}),
-      kra_pin:       fields.showKRA     ? form.kra_pin || null : null,
-      // contact_person/title stored in notes if needed (column not in schema)
-      credit_limit:  fields.showCredit  ? form.credit_limit || 0 : 0,
-      payment_terms: fields.showCredit  ? form.payment_terms || 0 : 0,
       branch: form.branch,
       notes: form.notes || null,
-    }])
+    }
+    // Optional columns — added only if the value exists (avoids schema-cache errors)
+    if (county) insertPayload.county = county
+    if (photos.some(ph=>ph)) insertPayload.photos = photos.filter(ph=>ph)
+    if (fields.showKRA && form.kra_pin) insertPayload.kra_pin = form.kra_pin
+    if (fields.showCredit) {
+      insertPayload.credit_limit = form.credit_limit || 0
+      insertPayload.payment_terms = form.payment_terms || 30
+    }
+    const { error } = await supabase.from('clients').insert([insertPayload])
     setSaving(false)
     if (!error) {
       setShowAdd(false)
