@@ -11,96 +11,102 @@
 html, body, #root {
   height: 100%;
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 body {
   background:
-    radial-gradient(ellipse 80% 70% at 70% 0%, rgba(27,77,92,0.28) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 60% at 5% 100%, rgba(45,95,63,0.20) 0%, transparent 60%),
-    linear-gradient(160deg, #152d42 0%, #163538 40%, #12302a 75%, #142538 100%);
+    radial-gradient(ellipse 80% 70% at 70% 0%, rgba(27,77,92,0.45) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 5% 100%, rgba(45,95,63,0.32) 0%, transparent 60%),
+    linear-gradient(160deg, #1a3a55 0%, #1d4442 40%, #173d34 75%, #1a3248 100%);
   min-height: 100vh;
-  color: rgba(255,255,255,0.96);
+  color: rgba(255,255,255,0.97);
 }
 
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255,215,0,0.15);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,215,0,0.25);
-}
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.20); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,215,0,0.35); }
 
+/* ── Animations ── */
 @keyframes logoPulse {
-  0%, 100% { opacity: 0.55; transform: scale(1); }
+  0%, 100% { opacity: 0.65; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.10); }
 }
-
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+.page-enter { animation: fadeIn 0.2s ease forwards; }
 
-.page-enter {
-  animation: fadeIn 0.2s ease forwards;
-}
-
-/* Fix all dropdowns/selects across the platform */
+/* ── Selects ── */
 select {
-  background: rgba(255,255,255,0.06) !important;
-  color: rgba(255,255,255,0.85) !important;
-  border: 1px solid rgba(255,255,255,0.12) !important;
+  background: rgba(255,255,255,0.08) !important;
+  color: rgba(255,255,255,0.92) !important;
+  border: 1px solid rgba(255,255,255,0.16) !important;
   border-radius: 9px !important;
 }
-
 select option {
   background: #0d1f2e !important;
-  color: rgba(255,255,255,0.85) !important;
-  padding: 8px 12px !important;
+  color: rgba(255,255,255,0.90) !important;
 }
-
 select:focus {
-  border-color: rgba(255,215,0,0.40) !important;
+  border-color: rgba(255,215,0,0.45) !important;
   outline: none !important;
 }
-
-input[type="date"],
-input[type="time"] {
+input[type="date"], input[type="time"] {
   color-scheme: dark;
-  color: rgba(255,255,255,0.80) !important;
+  color: rgba(255,255,255,0.88) !important;
 }
 
-/* ── Global readability upgrades ── */
+/* ══════════════════════════════════════════
+   GLOBAL READABILITY — bigger, brighter, bolder
+   ══════════════════════════════════════════ */
 
-/* Boost all label-style text */
-[style*="fontSize:'9px'"], [style*='fontSize:"9px"'] { font-size: 11px !important; }
-[style*="fontSize:'10px'"], [style*='fontSize:"10px"'] { font-size: 12px !important; }
-[style*="fontSize:'11px'"], [style*='fontSize:"11px"'] { font-size: 13px !important; }
-[style*="fontSize:'12px'"], [style*='fontSize:"12px"'] { font-size: 14px !important; }
-[style*="fontSize:'13px'"], [style*='fontSize:"13px"'] { font-size: 15px !important; }
-
-/* All inputs and textareas bigger */
+/* All inputs, textareas, selects */
 input, textarea, select {
-  font-size: 14px !important;
+  font-size: 15px !important;
+  color: rgba(255,255,255,0.92) !important;
 }
 
-/* Table cells more readable */
-td, th {
-  font-size: 13px !important;
+/* Table cells */
+td { font-size: 14px !important; color: rgba(255,255,255,0.90) !important; }
+th { font-size: 13px !important; color: rgba(255,255,255,0.60) !important; font-weight: 600 !important; letter-spacing: 0.5px; }
+
+/* Cards / panels — lift the background so they read against the darker bg */
+[style*="rgba(10,22,34"] {
+  background: rgba(18,38,58,0.85) !important;
+}
+[style*="rgba(5,15,24"] {
+  background: rgba(15,32,50,0.92) !important;
 }
 
-/* Sidebar nav items */
-.sidebar-nav-item {
-  font-size: 14px !important;
-}
-
-/* Cards and panels - brighter text */
-p, span, div {
+/* ALL text nodes — minimum readable brightness */
+span, p, label, div, td, th, li, a, button {
   letter-spacing: 0.01em;
+}
+
+/* Dimmed text — lift rgba(255,255,255,0.35-0.45) range */
+[style*="rgba(255,255,255,0.35)"] { color: rgba(255,255,255,0.65) !important; }
+[style*="rgba(255,255,255,0.38)"] { color: rgba(255,255,255,0.68) !important; }
+[style*="rgba(255,255,255,0.40)"] { color: rgba(255,255,255,0.70) !important; }
+[style*="rgba(255,255,255,0.42)"] { color: rgba(255,255,255,0.72) !important; }
+[style*="rgba(255,255,255,0.45)"] { color: rgba(255,255,255,0.75) !important; }
+[style*="rgba(255,255,255,0.50)"] { color: rgba(255,255,255,0.80) !important; }
+[style*="rgba(255,255,255,0.55)"] { color: rgba(255,255,255,0.84) !important; }
+[style*="rgba(255,255,255,0.58)"] { color: rgba(255,255,255,0.86) !important; }
+
+/* Inline fontSize overrides — scale everything up one notch */
+[style*="font-size: 9px"],  [style*="fontSize:'9px'"]  { font-size: 12px !important; }
+[style*="font-size: 10px"], [style*="fontSize:'10px'"] { font-size: 13px !important; }
+[style*="font-size: 11px"], [style*="fontSize:'11px'"] { font-size: 14px !important; }
+[style*="font-size: 11.5px"] { font-size: 14px !important; }
+[style*="font-size: 12px"], [style*="fontSize:'12px'"] { font-size: 15px !important; }
+[style*="font-size: 13px"], [style*="fontSize:'13px'"] { font-size: 16px !important; }
+[style*="font-size: 14px"], [style*="fontSize:'14px'"] { font-size: 17px !important; }
+
+/* Stat numbers on home screen - make them pop */
+[style*="fontSize:'28px'"], [style*="fontSize:'32px'"], [style*="fontSize:'36px'"] {
+  font-weight: 800 !important;
 }

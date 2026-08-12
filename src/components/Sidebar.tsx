@@ -236,8 +236,8 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
                       alt=""
                       className="flex-shrink-0"
                       style={{
-                        width: '22px',
-                        height: '22px',
+                        width: '30px',
+                        height: '30px',
                         objectFit: 'contain',
                         filter: isCategoryActive
                           ? 'drop-shadow(0 0 5px rgba(255,215,0,0.45))'
@@ -247,9 +247,9 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
                       }}
                     />
                   ) : (
-                    <span className="text-lg" style={{ filter: 'drop-shadow(0 0 3px rgba(255,215,0,0.4))' }}>{category.icon}</span>
+                    <span className="text-2xl" style={{ filter: 'drop-shadow(0 0 3px rgba(255,215,0,0.4))' }}>{category.icon}</span>
                   )}
-                  <span className="flex-1 text-left">{category.label}</span>
+                  <span className="flex-1 text-left" style={{ fontSize:'14px', fontWeight:600, color:'rgba(255,255,255,0.92)' }}>{category.label}</span>
                   {category.id === 'finance' && <span>🔒</span>}
                   {category.subcategories.length > 0 && (
                     <span
@@ -279,7 +279,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
                         <button
                           key={sub.id}
                           onClick={() => handleSubcategoryClick(sub.route)}
-                          className="w-full flex items-center gap-2 px-[11px] py-[7px] rounded-[7px] text-[11.5px] mb-[1px] border-l-2 transition-all"
+                          className="w-full flex items-center gap-2 px-[11px] py-[8px] rounded-[7px] text-[13px] mb-[1px] border-l-2 transition-all"
             style={{
               color: isSubcategoryActive(sub.route) ? 'rgba(255,215,0,0.95)' : 'rgba(255,255,255,0.58)',
               background: isSubcategoryActive(sub.route) ? 'rgba(255,215,0,0.08)' : 'transparent',
@@ -287,7 +287,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
                             fontWeight: isSubcategoryActive(sub.route) ? 500 : 400,
                           }}
                         >
-                          <span className="text-base" style={{ filter: 'drop-shadow(0 0 2px rgba(255,215,0,0.3))' }}>{sub.icon}</span>
+                          <span className="text-lg" style={{ filter: 'drop-shadow(0 0 2px rgba(255,215,0,0.3))' }}>{sub.icon}</span>
                           <span className="flex-1 text-left">{sub.label}</span>
                           {sub.badge && (
                             <span
