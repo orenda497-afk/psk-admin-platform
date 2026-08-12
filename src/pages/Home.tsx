@@ -205,9 +205,9 @@ export default function Home() {
                 {cat.description}
               </div>
 
-              <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '11px', display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '11px', display: 'flex', flexWrap: 'nowrap', gap: '5px', overflowX: 'auto', scrollbarWidth: 'none' }}>
                 {cat.tags.map((tag, i) => (
-                  <span key={i} style={{ fontSize: '9px', fontWeight: 600, padding: '3px 8px', borderRadius: '20px', ...tagStyle(tag.c) }}>
+                  <span key={i} style={{ fontSize: '10px', fontWeight: 600, padding: '3px 9px', borderRadius: '20px', whiteSpace: 'nowrap', flexShrink: 0, ...tagStyle(tag.c) }}>
                     {tag.label}
                   </span>
                 ))}
