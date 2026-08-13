@@ -50,7 +50,7 @@ const DOC_CONFIG: Record<DocType,{label:string;prefix:string;color:string;bg:str
 }
 
 const STATUS_CFG: Record<string,{label:string;color:string;bg:string;border:string}> = {
-  draft:     { label:'Draft',     color:'rgba(255,255,255,0.45)', bg:'rgba(255,255,255,0.05)', border:'rgba(255,255,255,0.12)' },
+  draft:     { label:'Draft',     color:'#FFFFFF', bg:'rgba(255,255,255,0.20)', border:'rgba(255,255,255,0.40)' },
   sent:      { label:'Sent',      color:'rgba(100,181,246,0.95)', bg:'rgba(100,181,246,0.08)', border:'rgba(100,181,246,0.25)' },
   paid:      { label:'Paid',      color:'rgba(129,199,132,0.95)', bg:'rgba(129,199,132,0.09)', border:'rgba(129,199,132,0.25)' },
   accepted:  { label:'Accepted',  color:'rgba(129,199,132,0.95)', bg:'rgba(129,199,132,0.09)', border:'rgba(129,199,132,0.25)' },
@@ -309,7 +309,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
 
             {/* GREEN BANNER */}
             <div style={{ background:'#2D5F3F', padding:'12px 32px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-              <div style={{ fontSize:'20px', fontWeight:800, color:'#1B4D5C', letterSpacing:'1px' }}>{cfg.label.toUpperCase()}</div>
+              <div style={{ fontSize:'20px', fontWeight:800, color:'#FFFFFF', letterSpacing:'2px', textShadow:'0 1px 3px rgba(0,0,0,0.30)' }}>{cfg.label.toUpperCase()}</div>
               <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
                 {doc.booking_ref && <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.65)' }}>Booking: {doc.booking_ref}</div>}
                 <span style={{ fontSize:'10px', fontWeight:700, padding:'3px 10px', borderRadius:'20px', color: sc.color, background:'rgba(255,255,255,0.12)', border:`1px solid rgba(255,255,255,0.20)` }}>{sc.label}</span>
@@ -342,7 +342,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
                 <thead>
                   <tr style={{ background:'#2D5F3F' }}>
                     {['#','Description','Qty','Unit Price (KES)','Amount (KES)'].map(h => (
-                      <th key={h} style={{ padding:'10px 12px', textAlign: h === '#' || h === 'Qty' ? 'center' : h.includes('KES') ? 'right' : 'left', fontSize:'10px', fontWeight:700, letterSpacing:'0.8px', textTransform:'uppercase', color:'#1a1a1a', whiteSpace:'nowrap' }}>{h}</th>
+                      <th key={h} style={{ padding:'10px 12px', textAlign: h === '#' || h === 'Qty' ? 'center' : h.includes('KES') ? 'right' : 'left', fontSize:'10px', fontWeight:700, letterSpacing:'0.8px', textTransform:'uppercase', color:'#FFFFFF', whiteSpace:'nowrap' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -370,8 +370,8 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
                     ...(doc.doc_type === 'invoice' && doc.balance && doc.balance > 0 ? [{ label:'Balance Due', value:`KES ${doc.balance?.toLocaleString()}`, strong:true }] : []),
                   ].map((row, i) => (
                     <div key={i} style={{ display:'flex', justifyContent:'space-between', padding:'8px 16px', background: row.strong ? '#2D5F3F' : i % 2 === 0 ? '#F5F0E8' : '#FFFDF7', borderBottom:'1px solid #E0D5C0' }}>
-                      <span style={{ fontSize: row.strong ? '13px' : '12px', fontWeight: row.strong ? 700 : 400, color: row.strong ? '#1B4D5C' : '#333' }}>{row.label}</span>
-                      <span style={{ fontSize: row.strong ? '14px' : '12px', fontWeight: row.strong ? 800 : 600, color: row.strong ? '#1B4D5C' : '#1a1a1a' }}>{row.value}</span>
+                      <span style={{ fontSize: row.strong ? '13px' : '12px', fontWeight: row.strong ? 700 : 400, color: row.strong ? '#FFFFFF' : '#333' }}>{row.label}</span>
+                      <span style={{ fontSize: row.strong ? '14px' : '12px', fontWeight: row.strong ? 800 : 600, color: row.strong ? '#FFFFFF' : '#1a1a1a' }}>{row.value}</span>
                     </div>
                   ))}
                 </div>
@@ -407,10 +407,10 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
 
             {/* FOOTER */}
             <div style={{ background:'#2D5F3F', padding:'12px 32px', textAlign:'center' }}>
-              <div style={{ fontSize:'11px', color:'#1a1a1a', fontWeight:500 }}>
+              <div style={{ fontSize:'11px', color:'#FFFFFF', fontWeight:500 }}>
                 Easy car rentals · Self drive/chauffeur driven · Airport transfers · Safaris and excursion
               </div>
-              <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.50)', marginTop:'3px' }}>
+              <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.80)', marginTop:'3px' }}>
                 {br.name} | {br.tel} | PIN: {br.pin}
               </div>
             </div>
