@@ -27,7 +27,7 @@ export default function Home() {
       const bookings = b.data || []
       setStats({
         available:  vehicles.filter((x:any) => x.status === 'available').length,
-        onHire:     vehicles.filter((x:any) => ['chauffeured','safari','self-drive','airport'].includes(x.status)).length,
+        onHire:     vehicles.filter((x:any) => ['chauffeured','safari','self-drive'].includes(x.status)).length,
         inService:  vehicles.filter((x:any) => x.status === 'service').length,
         pickups:    bookings.filter((x:any) => x.pickup_date?.startsWith(today)).length,
         returns:    bookings.filter((x:any) => x.return_date?.startsWith(today)).length,

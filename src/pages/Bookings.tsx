@@ -146,10 +146,28 @@ export default function Bookings() {
     }])
     setSaving(false)
     if (!error) {
+      // Update vehicle status to reflect it's now on hire
+      const tripToStatus: Record<string,string> = {
+        chauffeured: 'chauffeured', safari: 'safari',
+        'self-drive': 'self-drive', airport: 'chauffeured',
+      }
+      const newStatus = tripToStatus[form.trip_type] || 'chauffeured'
+      await supabase.from('vehicles').update({ status: newStatus }).eq('id', form.vehicle_id)
+
       setShowAdd(false)
       setForm({ branch:'eldoret', client_id:'', vehicle_id:'', driver_id:'', trip_type:'chauffeured', pickup_date:'', pickup_time:'08:00', return_date:'', return_time:'17:00', pickup_location:'', dropoff_location:'', distance_band:'driver_only', overnight:false, overnight_nights:1, notes:'' })
       loadAll()
     } else alert('Error: ' + error.message)
+  }
+
+  // Update booking status — and sync vehicle status back when done/cancelled
+  async function updateBookingStatus(bookingId: string, vehicleId: string, newStatus: string) {
+    await supabase.from('bookings').update({ status: newStatus }).eq('id', bookingId)
+    // When completed or cancelled, free the vehicle
+    if (newStatus === 'completed' || newStatus === 'cancelled') {
+      await supabase.from('vehicles').update({ status: 'available' }).eq('id', vehicleId)
+    }
+    loadAll()
   }
 
   const filtered = bookings.filter(b => {
@@ -293,13 +311,27 @@ export default function Bookings() {
               <div style={{ fontSize:'11px', color:'rgba(255,215,0,0.55)' }}>🔒 Invoice and payment details live in Finance → Documents</div>
             </div>
             <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
-              {[
-                { label:'Extend booking', primary:true },
-                { label:'Mark returned', primary:false },
-                { label:'Cancel', primary:false },
-              ].map((btn,i) => (
-                <button key={i} style={{ padding:'8px 14px', borderRadius:'9px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:btn.primary?'linear-gradient(135deg,rgba(255,215,0,0.16),rgba(255,149,0,0.09))':'rgba(255,255,255,0.06)', border:`1px solid ${btn.primary?'rgba(255,215,0,0.32)':'rgba(255,255,255,0.12)'}`, color:btn.primary?'rgba(255,215,0,0.95)':'rgba(255,255,255,0.60)' }}>{btn.label}</button>
-              ))}
+              {selected.status !== 'completed' && selected.status !== 'cancelled' && (<>
+                {selected.status === 'confirmed' && (
+                  <button onClick={()=>updateBookingStatus(selected.id, selected.vehicle_id, 'active')}
+                    style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'linear-gradient(135deg,rgba(255,215,0,0.16),rgba(255,149,0,0.09))', border:'1px solid rgba(255,215,0,0.32)', color:'rgba(255,215,0,0.95)' }}>
+                    ▶ Mark Active
+                  </button>
+                )}
+                <button onClick={()=>{ if(window.confirm('Mark this booking as completed? Vehicle will be set back to available.')) updateBookingStatus(selected.id, selected.vehicle_id, 'completed') }}
+                  style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(34,197,94,0.10)', border:'1px solid rgba(34,197,94,0.30)', color:'rgba(34,197,94,0.90)' }}>
+                  ✓ Mark Completed
+                </button>
+                <button onClick={()=>{ if(window.confirm('Cancel this booking? Vehicle will be set back to available.')) updateBookingStatus(selected.id, selected.vehicle_id, 'cancelled') }}
+                  style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.25)', color:'rgba(239,68,68,0.85)' }}>
+                  ✕ Cancel
+                </button>
+              </>)}
+              {(selected.status === 'completed' || selected.status === 'cancelled') && (
+                <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.35)', padding:'8px 0' }}>
+                  This booking is {selected.status}.
+                </div>
+              )}
             </div>
           </div>
         </div>
