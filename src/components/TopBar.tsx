@@ -59,17 +59,17 @@ export default function TopBar({ currentBranch = 'eldoret' }: TopBarProps) {
   return (
     <header style={{
       minHeight: '68px', padding: '0 28px',
-      background: 'rgba(8,20,30,0.55)',
-      borderBottom: '1.5px solid rgba(255,215,0,0.10)',
+      background: '#0F1E2E',
+      borderBottom: '1px solid rgba(255,255,255,0.10)',
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       flexShrink: 0,
     }}>
       {/* Left */}
       <div>
-        <div style={{ fontSize:'17px', fontWeight:700, color:'rgba(255,255,255,0.95)', letterSpacing:'-0.3px' }}>
+        <div style={{ fontSize:'17px', fontWeight:700, color:'#F1F5F9', letterSpacing:'-0.3px' }}>
           {pageInfo.title}
         </div>
-        <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.32)', marginTop:'3px' }}>
+        <div style={{ fontSize:'11px', color:'#64748B', marginTop:'3px' }}>
           {pageInfo.subtitle}
         </div>
       </div>
@@ -77,18 +77,18 @@ export default function TopBar({ currentBranch = 'eldoret' }: TopBarProps) {
       {/* Right */}
       <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
         {/* Branch pill */}
-        <div style={{ display:'flex', alignItems:'center', gap:'7px', fontSize:'11.5px', color:'rgba(255,255,255,0.55)', fontWeight:500, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,215,0,0.18)', borderRadius:'8px', padding:'7px 14px' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'7px', fontSize:'11.5px', color:'#CBD5E1', fontWeight:600, background:'rgba(255,215,0,0.06)', border:'1px solid rgba(255,215,0,0.22)', borderRadius:'8px', padding:'7px 14px' }}>
           <div style={{ width:'6px', height:'6px', borderRadius:'50%', background:'#FFD700', boxShadow:'0 0 7px rgba(255,215,0,0.65)', flexShrink:0 }} />
           {branchLabel}
         </div>
 
         {/* Date chip */}
-        <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.35)', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.09)', borderRadius:'7px', padding:'7px 14px' }}>
+        <div style={{ fontSize:'11px', color:'#94A3B8', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.10)', borderRadius:'7px', padding:'7px 14px' }}>
           {format(new Date(), 'd MMM')}
         </div>
 
         {/* Bell */}
-        <div style={{ position:'relative', width:'38px', height:'38px', borderRadius:'10px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,215,0,0.14)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
+        <div style={{ position:'relative', width:'38px', height:'38px', borderRadius:'10px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.10)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
           <span style={{ fontSize:'16px' }}>🔔</span>
         </div>
 

@@ -48,7 +48,7 @@ export default function Layout({ userRole = 'owner', userName = '',
         </header>
 
         {/* Page content */}
-        <main style={{ flex: 1, overflowY: 'auto' }}>
+        <main style={{ flex: 1, overflowY: 'auto', background: '#0D1B2A' }}>
           <div className="p-6">
             {children}
           </div>

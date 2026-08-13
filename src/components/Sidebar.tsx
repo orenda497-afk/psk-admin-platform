@@ -59,7 +59,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
         style={{
           width: '232px',
           minWidth: '232px',
-          background: 'rgba(8,20,30,0.72)',
+          background: '#0F1E2E',
           borderRight: '1.5px solid rgba(255,215,0,0.13)',
         }}
       >
@@ -134,7 +134,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
           <div
             className="absolute top-full left-0 right-0 mt-1 rounded-lg overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50"
             style={{
-              background: 'rgba(8,20,30,0.95)',
+              background: '#0F1E2E',
               border: '1px solid rgba(255,215,0,0.16)',
               boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
             }}
@@ -146,7 +146,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
                 className="w-full text-left px-3 py-2 text-[11px] transition"
                 style={{
                   color: currentBranch === id ? 'rgba(255,215,0,0.95)' : 'rgba(255,255,255,0.55)',
-                  background: currentBranch === id ? 'rgba(255,215,0,0.08)' : 'transparent',
+                  background: currentBranch === id ? 'rgba(255,215,0,0.13)' : 'transparent',
                 }}
               >
                 {label}
@@ -166,7 +166,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
             className="w-full flex items-center gap-[10px] px-3 py-[10px] rounded-[9px] border border-transparent transition-all text-[12.5px] font-normal relative"
             style={{
               color: location.pathname === '/' ? 'rgba(255,255,255,0.98)' : 'rgba(255,255,255,0.65)',
-              background: location.pathname === '/' ? 'rgba(255,215,0,0.08)' : 'transparent',
+              background: location.pathname === '/' ? 'rgba(255,215,0,0.13)' : 'transparent',
               borderColor: location.pathname === '/' ? 'rgba(255,215,0,0.20)' : 'transparent',
               fontWeight: location.pathname === '/' ? 600 : 400,
             }}
@@ -195,7 +195,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
                   className="w-full flex items-center gap-[10px] px-3 py-[10px] rounded-[9px] border border-transparent transition-all text-[12.5px] font-normal relative"
             style={{
               color: isCategoryActive ? 'rgba(255,255,255,0.98)' : 'rgba(255,255,255,0.65)',
-                    background: isCategoryActive ? 'rgba(255,215,0,0.08)' : 'transparent',
+                    background: isCategoryActive ? 'rgba(255,215,0,0.13)' : 'transparent',
                     borderColor: isCategoryActive ? 'rgba(255,215,0,0.20)' : 'transparent',
                     fontWeight: isCategoryActive ? 600 : 400,
                   }}
@@ -242,7 +242,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
                           className="w-full flex items-center gap-2 px-[11px] py-[8px] rounded-[7px] text-[13px] mb-[1px] border-l-2 transition-all"
             style={{
               color: isSubcategoryActive(sub.route) ? 'rgba(255,215,0,0.95)' : 'rgba(255,255,255,0.58)',
-              background: isSubcategoryActive(sub.route) ? 'rgba(255,215,0,0.08)' : 'transparent',
+              background: isSubcategoryActive(sub.route) ? 'rgba(255,215,0,0.13)' : 'transparent',
               borderLeftColor: isSubcategoryActive(sub.route) ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.12)',
                             fontWeight: isSubcategoryActive(sub.route) ? 500 : 400,
                           }}
