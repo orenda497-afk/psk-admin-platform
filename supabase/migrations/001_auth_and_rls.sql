@@ -57,7 +57,7 @@ as $$ select coalesce(public.my_role() = 'owner', false) $$;
 create or replace function public.can_write()
 returns boolean
 language sql stable security definer set search_path = public
-as $$ select coalesce(public.my_role() in ('owner','finance','manager','ops'), false) $$;
+as $$ select coalesce(public.my_role() in ('owner','finance','manager','ops','social_media'), false) $$;
 
 -- ---------------------------------------------------------------------
 -- 3. PROFILE POLICIES
