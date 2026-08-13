@@ -297,7 +297,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
               {/* Doc ref */}
               <div style={{ textAlign:'right', flexShrink:0 }}>
                 <div style={{ fontSize:'11px', color:'rgba(0,0,0,0.50)', marginBottom:'2px' }}>Document Reference</div>
-                <div style={{ fontSize:'18px', fontWeight:800, color:'#1a1a1a', letterSpacing:'-0.3px' }}>{doc.doc_ref}</div>
+                <div style={{ fontSize:'18px', fontWeight:800, color:'#000000', letterSpacing:'-0.3px' }}>{doc.doc_ref}</div>
                 <div style={{ fontSize:'11px', color:'rgba(0,0,0,0.55)', marginTop:'4px' }}>Date: {doc.issue_date}</div>
                 {doc.due_date && <div style={{ fontSize:'11px', color:'rgba(0,0,0,0.55)', marginTop:'1px' }}>Due: {doc.due_date}</div>}
                 {doc.valid_until && <div style={{ fontSize:'11px', color:'rgba(0,0,0,0.55)', marginTop:'1px' }}>Valid until: {doc.valid_until}</div>}
@@ -309,7 +309,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
 
             {/* GREEN BANNER */}
             <div style={{ background:'#2D5F3F', padding:'12px 32px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-              <div style={{ fontSize:'20px', fontWeight:800, color:'#FFD700', letterSpacing:'1px' }}>{cfg.label.toUpperCase()}</div>
+              <div style={{ fontSize:'20px', fontWeight:800, color:'#1B4D5C', letterSpacing:'1px' }}>{cfg.label.toUpperCase()}</div>
               <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
                 {doc.booking_ref && <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.65)' }}>Booking: {doc.booking_ref}</div>}
                 <span style={{ fontSize:'10px', fontWeight:700, padding:'3px 10px', borderRadius:'20px', color: sc.color, background:'rgba(255,255,255,0.12)', border:`1px solid rgba(255,255,255,0.20)` }}>{sc.label}</span>
@@ -322,18 +322,18 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
               {/* Bill To */}
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px', marginBottom:'24px' }}>
                 <div style={{ background:'#F5F0E8', border:'1px solid #E0D5C0', borderRadius:'8px', padding:'16px' }}>
-                  <div style={{ fontSize:'9px', fontWeight:700, letterSpacing:'1.2px', textTransform:'uppercase', color:'#2D5F3F', marginBottom:'10px' }}>Bill To</div>
+                  <div style={{ fontSize:'9px', fontWeight:800, letterSpacing:'1.2px', textTransform:'uppercase', color:'#1B4D5C', marginBottom:'10px' }}>Bill To</div>
                   <div style={{ fontSize:'15px', fontWeight:700, color:'#1a1a1a', marginBottom:'5px' }}>{doc.client_name}</div>
-                  {doc.client_address && <div style={{ fontSize:'12px', color:'#555', marginBottom:'3px' }}>{doc.client_address}</div>}
-                  {doc.client_phone && <div style={{ fontSize:'12px', color:'#555', marginBottom:'2px' }}>Tel: {doc.client_phone}</div>}
-                  {doc.client_email && <div style={{ fontSize:'12px', color:'#555' }}>Email: {doc.client_email}</div>}
+                  {doc.client_address && <div style={{ fontSize:'12px', color:'#333', marginBottom:'3px' }}>{doc.client_address}</div>}
+                  {doc.client_phone && <div style={{ fontSize:'12px', color:'#333', marginBottom:'2px' }}>Tel: {doc.client_phone}</div>}
+                  {doc.client_email && <div style={{ fontSize:'12px', color:'#333' }}>Email: {doc.client_email}</div>}
                 </div>
                 <div style={{ background:'#F5F0E8', border:'1px solid #E0D5C0', borderRadius:'8px', padding:'16px' }}>
-                  <div style={{ fontSize:'9px', fontWeight:700, letterSpacing:'1.2px', textTransform:'uppercase', color:'#2D5F3F', marginBottom:'10px' }}>From</div>
+                  <div style={{ fontSize:'9px', fontWeight:800, letterSpacing:'1.2px', textTransform:'uppercase', color:'#1B4D5C', marginBottom:'10px' }}>From</div>
                   <div style={{ fontSize:'15px', fontWeight:700, color:'#1a1a1a', marginBottom:'5px' }}>{br.name}</div>
-                  <div style={{ fontSize:'12px', color:'#555', marginBottom:'2px' }}>{br.branch}</div>
-                  <div style={{ fontSize:'12px', color:'#555', marginBottom:'2px' }}>{br.address}</div>
-                  <div style={{ fontSize:'12px', color:'#555' }}>Tel: {br.tel}</div>
+                  <div style={{ fontSize:'12px', color:'#333', marginBottom:'2px' }}>{br.branch}</div>
+                  <div style={{ fontSize:'12px', color:'#333', marginBottom:'2px' }}>{br.address}</div>
+                  <div style={{ fontSize:'12px', color:'#333' }}>Tel: {br.tel}</div>
                 </div>
               </div>
 
@@ -342,14 +342,14 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
                 <thead>
                   <tr style={{ background:'#2D5F3F' }}>
                     {['#','Description','Qty','Unit Price (KES)','Amount (KES)'].map(h => (
-                      <th key={h} style={{ padding:'10px 12px', textAlign: h === '#' || h === 'Qty' ? 'center' : h.includes('KES') ? 'right' : 'left', fontSize:'10px', fontWeight:700, letterSpacing:'0.8px', textTransform:'uppercase', color:'#FFD700', whiteSpace:'nowrap' }}>{h}</th>
+                      <th key={h} style={{ padding:'10px 12px', textAlign: h === '#' || h === 'Qty' ? 'center' : h.includes('KES') ? 'right' : 'left', fontSize:'10px', fontWeight:700, letterSpacing:'0.8px', textTransform:'uppercase', color:'#1a1a1a', whiteSpace:'nowrap' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {items.map((item, i) => (
                     <tr key={i} style={{ background: i % 2 === 0 ? '#FFFDF7' : '#FFFDF0', borderBottom:'1px solid #E8E0D0' }}>
-                      <td style={{ padding:'11px 12px', textAlign:'center', fontSize:'12px', color:'#888' }}>{i+1}</td>
+                      <td style={{ padding:'11px 12px', textAlign:'center', fontSize:'12px', color:'#333' }}>{i+1}</td>
                       <td style={{ padding:'11px 12px', fontSize:'13px', color:'#1a1a1a' }}>{item.description}</td>
                       <td style={{ padding:'11px 12px', textAlign:'center', fontSize:'12px', color:'#444' }}>{item.qty}</td>
                       <td style={{ padding:'11px 12px', textAlign:'right', fontSize:'12px', color:'#444' }}>{item.unitPrice.toLocaleString()}</td>
@@ -370,8 +370,8 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
                     ...(doc.doc_type === 'invoice' && doc.balance && doc.balance > 0 ? [{ label:'Balance Due', value:`KES ${doc.balance?.toLocaleString()}`, strong:true }] : []),
                   ].map((row, i) => (
                     <div key={i} style={{ display:'flex', justifyContent:'space-between', padding:'8px 16px', background: row.strong ? '#2D5F3F' : i % 2 === 0 ? '#F5F0E8' : '#FFFDF7', borderBottom:'1px solid #E0D5C0' }}>
-                      <span style={{ fontSize: row.strong ? '13px' : '12px', fontWeight: row.strong ? 700 : 400, color: row.strong ? '#FFD700' : '#555' }}>{row.label}</span>
-                      <span style={{ fontSize: row.strong ? '14px' : '12px', fontWeight: row.strong ? 800 : 600, color: row.strong ? '#FFD700' : '#1a1a1a' }}>{row.value}</span>
+                      <span style={{ fontSize: row.strong ? '13px' : '12px', fontWeight: row.strong ? 700 : 400, color: row.strong ? '#1B4D5C' : '#333' }}>{row.label}</span>
+                      <span style={{ fontSize: row.strong ? '14px' : '12px', fontWeight: row.strong ? 800 : 600, color: row.strong ? '#1B4D5C' : '#1a1a1a' }}>{row.value}</span>
                     </div>
                   ))}
                 </div>
@@ -387,7 +387,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
 
               {/* Linked doc */}
               {doc.linked_doc_ref && (
-                <div style={{ fontSize:'11px', color:'#888', marginBottom:'16px' }}>Linked to: {doc.linked_doc_ref}</div>
+                <div style={{ fontSize:'11px', color:'#333', marginBottom:'16px' }}>Linked to: {doc.linked_doc_ref}</div>
               )}
 
               {/* Signature */}
@@ -407,7 +407,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
 
             {/* FOOTER */}
             <div style={{ background:'#2D5F3F', padding:'12px 32px', textAlign:'center' }}>
-              <div style={{ fontSize:'11px', color:'#FFD700', fontWeight:500 }}>
+              <div style={{ fontSize:'11px', color:'#1a1a1a', fontWeight:500 }}>
                 Easy car rentals · Self drive/chauffeur driven · Airport transfers · Safaris and excursion
               </div>
               <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.50)', marginTop:'3px' }}>
