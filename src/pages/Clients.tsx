@@ -139,7 +139,7 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
 
   async function load() {
     setLoading(true)
-    const { data } = await supabase.from('clients').select('*').order('name', { ascending: true })
+    const { data } = await supabase.from('clients').select('id,type,name,phone,secondary_phone,email,id_type,id_number,id_photo_url,address,city,county,branch,notes,kra_pin,credit_limit,payment_terms,created_at').order('name', { ascending: true })
     if (data) setClients(data as Client[])
     setLoading(false)
   }

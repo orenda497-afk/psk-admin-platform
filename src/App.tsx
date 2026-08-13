@@ -86,11 +86,19 @@ function App() {
     }
 
     loadProfile()
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_OUT') { setUser(null); localStorage.removeItem('psk_user') }
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setUser(null)
+        localStorage.removeItem('psk_user')
+      }
       if (event === 'SIGNED_IN') {
-        // Always go home on sign-in regardless of browser URL
-        if (window.location.pathname !== '/' && !window.location.pathname.startsWith('/kevin-admin') && !window.location.pathname.startsWith('/help')) {
+        // Only redirect to home if user was not already logged in (real fresh login).
+        // TOKEN_REFRESHED and tab-focus session restores must NOT redirect —
+        // that breaks navigation when returning from a popup or new tab.
+        const wasLoggedOut = !localStorage.getItem('psk_user')
+        if (wasLoggedOut && window.location.pathname !== '/' &&
+            !window.location.pathname.startsWith('/kevin-admin') &&
+            !window.location.pathname.startsWith('/help')) {
           window.location.replace('/')
         } else {
           loadProfile()
