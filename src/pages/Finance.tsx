@@ -7,7 +7,46 @@ const gl = {
   lbl: { fontSize:'9px', fontWeight:600, letterSpacing:'1.2px', textTransform:'uppercase' as const, color:'rgba(255,255,255,0.32)' },
 }
 
-const EXPENSE_CATS = ['Fuel','Maintenance','Driver allowance','Insurance','Road licence','NTSA Inspection','Office supplies','Marketing','Utilities','Repairs','Tyres','Other']
+const EXPENSE_ACCOUNTS = ['M-Pesa','Cash','SBM/KEN','KCB','I&M Bank','Written off','Liability','Non Cash Receipts']
+
+const EXPENSE_CATS = [
+  'Stationery',
+  'Advertisement & Marketing',
+  'Meals & Entertainment',
+  'Travel/Transport',
+  'Cost of Gas/Fuel',
+  'Branch Expenses',
+  'Repairs & Maintenance',
+  'Remittances',
+  'Professional Expert',
+  'Employees Wages & Deductibles',
+  'Insurance',
+  'Tires',
+  'Licences, Permits & Fees',
+  'Shipping',
+  'Taxes',
+  'Bad Debts',
+  'Transactional Costs',
+  'Office Cleaning & Hygiene',
+  'Park Fees',
+  'Office Supplies',
+  'Airtime',
+  'Furniture',
+  'Hire Payments',
+  'Commissions',
+  'Rent',
+  'Charities/Bonus',
+  'Renovations & Office Repairs',
+  'Computer & Accessories',
+  'Web Hosting & Domain',
+  'Depreciation',
+  'Legal Fees',
+  'Interest Income',
+  'Income from Other Cars',
+  'Cost of Outsourcing Cars',
+  'Account Transfer',
+  'Miscellaneous/Others',
+]
 const MPESA_TYPES  = ['Customer payment','Deposit received','Refund sent','Owner payout','Expense payment','Other']
 
 export default function Finance({ currentBranch='eldoret', defaultTab='dashboard', userRole='owner' }: { currentBranch?:string; defaultTab?:string; userRole?:string }) {
@@ -31,7 +70,7 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
   const camRef = useRef<HTMLInputElement>(null)
   const uplRef = useRef<HTMLInputElement>(null)
 
-  const [ef, setEf] = useState({ date:new Date().toISOString().split('T')[0], category:'Fuel', description:'', amount:'' as any, vehicle_id:'', branch:currentBranch, notes:'' })
+  const [ef, setEf] = useState({ date:new Date().toISOString().split('T')[0], account:'M-Pesa', category:'Cost of Gas/Fuel', description:'', amount:'' as any, vehicle_id:'', branch:currentBranch, notes:'' })
   const [mf, setMf] = useState({ date:new Date().toISOString().split('T')[0], mpesa_ref:'', type:'Customer payment', amount:'' as any, phone:'', name:'', invoice_ref:'', booking_ref:'', branch:currentBranch, notes:'' })
   const [pf, setPf] = useState({ owner_id:'', period:'', vehicle_id:'', gross_revenue:0, expenses:0, method:'M-Pesa', notes:'' })
 
@@ -70,12 +109,12 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
     if(!ef.description||!ef.amount){alert('Description and amount required');return}
     setSaving(true)
     const {error} = await supabase.from('expenses').insert([{
-      date:ef.date, category:ef.category, description:ef.description,
+      date:ef.date, account:ef.account, category:ef.category, description:ef.description,
       amount:ef.amount, vehicle_id:ef.vehicle_id||null, branch:ef.branch,
       receipt_url:receipt||null, notes:ef.notes||null,
     }])
     setSaving(false)
-    if(!error){setShowExp(false);setReceipt('');setEf({date:new Date().toISOString().split('T')[0],category:'Fuel',description:'',amount:'' as any,vehicle_id:'',branch:currentBranch,notes:''});load()}
+    if(!error){setShowExp(false);setReceipt('');setEf({date:new Date().toISOString().split('T')[0],account:'M-Pesa',category:'Cost of Gas/Fuel',description:'',amount:'' as any,vehicle_id:'',branch:currentBranch,notes:''});load()}
     else alert(error.message)
   }
 
@@ -579,6 +618,7 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
             <div style={{padding:'22px 26px'}}>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
                 {F('Date',I(ef.date,(v:string)=>setEf(f=>({...f,date:v})),'date'))}
+                {F('Account',S(ef.account,(v:string)=>setEf(f=>({...f,account:v})),EXPENSE_ACCOUNTS.map(c=>({value:c,label:c}))))}
                 {F('Category',S(ef.category,(v:string)=>setEf(f=>({...f,category:v})),EXPENSE_CATS.map(c=>({value:c,label:c}))))}
                 {F('Branch',S(ef.branch,(v:string)=>setEf(f=>({...f,branch:v})),[{value:'eldoret',label:'Eldoret HQ'},{value:'kisumu',label:'Kisumu Branch'}]))}
                 {F('Vehicle (optional)',S(ef.vehicle_id,(v:string)=>setEf(f=>({...f,vehicle_id:v})),[{value:'',label:'Not vehicle-specific'},...vehicles.map(v=>({value:v.id,label:`${v.reg} — ${v.make} ${v.model}`}))]))}
