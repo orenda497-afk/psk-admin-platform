@@ -63,6 +63,7 @@ const TERMS = `1. The vehicle must be returned in the same condition as received
 
 export default function RentalAgreements() {
   const navigate = useNavigate()
+  const location = window.location
   const [agreements, setAgreements] = useState<Agreement[]>([])
   const [bookings, setBookings]     = useState<any[]>([])
   const [clients, setClients]       = useState<any[]>([])
@@ -85,7 +86,34 @@ export default function RentalAgreements() {
     special_conditions: '',
   })
 
-  useEffect(() => { loadAll() }, [])
+  useEffect(() => {
+    loadAll().then(() => {
+      // Check if navigated from booking with prefill params
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('new') === '1') {
+        setForm(f => ({
+          ...f,
+          booking_id:      params.get('booking_id') || '',
+          branch:          (params.get('branch') as any) || 'eldoret',
+          client_name:     params.get('client_name') || '',
+          client_phone:    params.get('client_phone') || '',
+          vehicle_reg:     params.get('vehicle_reg') || '',
+          vehicle_make:    params.get('vehicle_make') || '',
+          vehicle_model:   params.get('vehicle_model') || '',
+          pickup_location: params.get('pickup') || '',
+          dropoff_location:params.get('dropoff') || '',
+          pickup_date:     params.get('pickup_date') || '',
+          return_date:     params.get('return_date') || '',
+          daily_rate:      Number(params.get('amount')) || 0,
+          total_amount:    Number(params.get('amount')) || 0,
+          trip_type:       params.get('trip_type') || 'Chauffeured',
+        }))
+        setShowAdd(true)
+        // Clean URL
+        window.history.replaceState({}, '', '/rental-agreements')
+      }
+    })
+  }, [])
 
   async function loadAll() {
     setLoading(true)

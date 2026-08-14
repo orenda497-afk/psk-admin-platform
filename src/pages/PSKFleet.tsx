@@ -44,6 +44,9 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
   const [fuelLogs, setFuelLogs]   = useState<any[]>([])
   const [loading, setLoading]     = useState(true)
   const [selectedV, setSelectedV] = useState<any>(null)
+  const [editingV, setEditingV] = useState(false)
+  const [editForm, setEditForm] = useState<any>({})
+  const [editSaving, setEditSaving] = useState(false)
   const [showSvc, setShowSvc]     = useState(false)
   const [showFuel, setShowFuel]   = useState(false)
   const [saving, setSaving]       = useState(false)
@@ -124,6 +127,31 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
     await supabase.from('vehicles').update({ status }).eq('id', id)
     setSelectedV((v: any) => v ? {...v, status} : null)
     loadAll()
+  }
+
+  function startEditVehicle(v: any) {
+    setEditForm({ reg:v.reg||'', make:v.make||'', model:v.model||'', year:v.year||new Date().getFullYear(), colour:v.colour||'', seats:v.seats||4, vehicle_class:v.vehicle_class||'', owner_name:v.owner_name||'', odometer:v.odometer||'', insurance_expiry:v.insurance_expiry||'', inspection_expiry:v.inspection_expiry||'', condition_notes:v.condition_notes||'' })
+    setEditingV(true)
+  }
+
+  async function saveEditVehicle() {
+    if (!selectedV) return
+    setEditSaving(true)
+    const { error } = await supabase.from('vehicles').update({
+      reg: editForm.reg.toUpperCase().trim(), make: editForm.make, model: editForm.model,
+      year: Number(editForm.year), colour: editForm.colour, seats: Number(editForm.seats),
+      vehicle_class: editForm.vehicle_class, owner_name: editForm.owner_name || null,
+      odometer: Number(editForm.odometer) || null,
+      insurance_expiry: editForm.insurance_expiry || null,
+      inspection_expiry: editForm.inspection_expiry || null,
+      condition_notes: editForm.condition_notes || null,
+    }).eq('id', selectedV.id)
+    setEditSaving(false)
+    if (!error) {
+      setEditingV(false)
+      setSelectedV((v:any) => ({...v, ...editForm, reg:editForm.reg.toUpperCase().trim()}))
+      loadAll()
+    } else alert('Error: ' + error.message)
   }
 
   const fld = (label: string, children: React.ReactNode) => (
@@ -444,7 +472,26 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
         <div style={{ position:'fixed', inset:0, zIndex:100, display:'flex', justifyContent:'flex-end' }}>
           <div onClick={()=>setSelectedV(null)} style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.45)' }} />
           <div style={{ position:'relative', width:'440px', height:'100vh', background:'rgba(6,16,28,0.97)', backdropFilter:'blur(32px)', borderLeft:'1px solid rgba(255,255,255,0.12)', overflowY:'auto', zIndex:1, padding:'24px' }}>
-            <button onClick={()=>setSelectedV(null)} style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'8px', padding:'6px 12px', color:'rgba(255,255,255,0.55)', cursor:'pointer', fontSize:'12px', fontFamily:'inherit', marginBottom:'20px' }}>✕ Close</button>
+            <div style={{ display:'flex', gap:'8px', marginBottom:'20px' }}>
+              <button onClick={()=>{setSelectedV(null);setEditingV(false)}} style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'8px', padding:'6px 12px', color:'rgba(255,255,255,0.55)', cursor:'pointer', fontSize:'12px', fontFamily:'inherit' }}>✕ Close</button>
+              <button onClick={()=>startEditVehicle(selectedV)} style={{ background:'rgba(255,215,0,0.10)', border:'1px solid rgba(255,215,0,0.30)', borderRadius:'8px', padding:'6px 14px', color:'rgba(255,215,0,0.90)', cursor:'pointer', fontSize:'12px', fontFamily:'inherit', fontWeight:600 }}>✏️ Edit Vehicle</button>
+            </div>
+            {editingV && (
+              <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,215,0,0.20)', borderRadius:'12px', padding:'16px', marginBottom:'16px' }}>
+                <div style={{ fontSize:'12px', fontWeight:700, color:'rgba(255,215,0,0.80)', marginBottom:'12px' }}>Edit Vehicle Details</div>
+                {(['reg','make','model','year','colour','seats','vehicle_class','owner_name','odometer','insurance_expiry','inspection_expiry'] as const).map((key) => (
+                  <div key={key} style={{ marginBottom:'8px' }}>
+                    <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.40)', marginBottom:'3px', textTransform:'uppercase', letterSpacing:'0.5px' }}>{key.replace(/_/g,' ')}</div>
+                    <input value={editForm[key]} onChange={e=>setEditForm((f:any)=>({...f,[key]:e.target.value}))}
+                      style={{ width:'100%', padding:'8px 10px', borderRadius:'8px', fontSize:'13px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.14)', color:'rgba(255,255,255,0.90)', outline:'none', fontFamily:'inherit' }} />
+                  </div>
+                ))}
+                <div style={{ display:'flex', gap:'8px', marginTop:'12px' }}>
+                  <button onClick={saveEditVehicle} disabled={editSaving} style={{ flex:1, padding:'9px', borderRadius:'9px', fontSize:'12px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,149,0,0.10))', border:'1.5px solid rgba(255,215,0,0.35)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit' }}>{editSaving?'Saving...':'Save Changes'}</button>
+                  <button onClick={()=>setEditingV(false)} style={{ padding:'9px 16px', borderRadius:'9px', fontSize:'12px', background:'transparent', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.40)', cursor:'pointer', fontFamily:'inherit' }}>Cancel</button>
+                </div>
+              </div>
+            )}
 
             <span style={{ fontSize:'10px', fontWeight:600, padding:'3px 10px', borderRadius:'20px', color:STATUS_CFG[selectedV.status]?.color, background:STATUS_CFG[selectedV.status]?.bg, border:`1px solid ${STATUS_CFG[selectedV.status]?.border}` }}>{STATUS_CFG[selectedV.status]?.label}</span>
             <div style={{ fontSize:'26px', fontWeight:800, color:'rgba(255,255,255,0.95)', margin:'12px 0 4px' }}>{selectedV.reg}</div>

@@ -289,8 +289,8 @@ export default function Bookings() {
                 { label:'Client',          value: clients.find(c=>c.id===selected.client_id)?.name || '—' },
                 { label:'Vehicle',         value: (() => { const v = vehicles.find(x=>x.id===selected.vehicle_id); return v ? `${v.reg} · ${v.make} ${v.model}` : '—' })() },
                 { label:'Driver',          value: drivers.find(d=>d.id===selected.driver_id)?.name || 'Not assigned' },
-                { label:'Pickup',          value: selected.pickup_location || '—' },
-                { label:'Dropoff',         value: selected.dropoff_location || '—' },
+                { label:'Start location',  value: selected.pickup_location || '—' },
+                { label:'Destination',     value: selected.dropoff_location || '—' },
                 { label:'Pickup date',     value: selected.pickup_date ? new Date(selected.pickup_date).toLocaleString('en-GB') : '—' },
                 { label:'Return date',     value: selected.return_date ? new Date(selected.return_date).toLocaleString('en-GB') : '—' },
               ].map((r,i,arr) => (
@@ -424,8 +424,8 @@ export default function Bookings() {
                 {fld('Return time', inp('return_time','time'))}
 
                 {/* Pickup location */}
-                {fld('Pickup location', inp('pickup_location','text','e.g. Eldoret Town, JKIA...'))}
-                {fld(form.trip_type === 'self-drive' ? 'Destination' : 'Dropoff location', inp('dropoff_location','text', form.trip_type === 'self-drive' ? 'e.g. Nakuru, Kisumu...' : 'e.g. JKIA, Mombasa...'))}
+                {fld('Start location', inp('pickup_location','text','e.g. Eldoret Town, PSK Office...'))}
+                {fld('Destination', inp('dropoff_location','text','e.g. Nakuru, Mombasa, JKIA...'))}
 
                 {/* Driver */}
                 {fld('Assign driver (optional)',
