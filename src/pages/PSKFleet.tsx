@@ -358,11 +358,24 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
 
             {/* Action buttons */}
             <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', marginBottom:'16px' }}>
-              <button onClick={()=>window.open(selectedSvc.receipt_url,'_blank')}
-                style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,149,0,0.10))', border:'1.5px solid rgba(255,215,0,0.35)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit' }}>
+              <button onClick={()=>{
+                const url = selectedSvc.receipt_url
+                if (url.startsWith('data:')) {
+                  // Convert base64 to blob URL so browser can open it
+                  const arr = url.split(','), mime = arr[0].match(/:(.*?);/)?.[1]||'image/jpeg'
+                  const bstr = atob(arr[1]), n = bstr.length, u8 = new Uint8Array(n)
+                  for(let i=0;i<n;i++) u8[i]=bstr.charCodeAt(i)
+                  const blob = new Blob([u8],{type:mime})
+                  window.open(URL.createObjectURL(blob),'_blank')
+                } else window.open(url,'_blank')
+              }} style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,149,0,0.10))', border:'1.5px solid rgba(255,215,0,0.35)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit' }}>
                 🔍 Open full size
               </button>
-              <button onClick={()=>{const a=document.createElement('a');a.href=selectedSvc.receipt_url;a.download=`receipt-${selectedSvc.service_type}-${selectedSvc.service_date}.jpg`;a.click()}}
+              <button onClick={()=>{
+                const url = selectedSvc.receipt_url
+                const ext = url.startsWith('data:application/pdf') ? 'pdf' : 'jpg'
+                const a=document.createElement('a');a.href=url;a.download=`receipt-${selectedSvc.service_type}-${selectedSvc.service_date}.${ext}`;a.click()
+              }}
                 style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(100,181,246,0.10)', border:'1px solid rgba(100,181,246,0.28)', color:'rgba(100,181,246,0.90)', cursor:'pointer', fontFamily:'inherit' }}>
                 ⬇ Download
               </button>
@@ -406,7 +419,10 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
             {selectedSvc.receipt_url && (
               selectedSvc.receipt_url.toLowerCase().includes('.pdf')
               ? <iframe src={selectedSvc.receipt_url} style={{ width:'100%', height:'500px', border:'none', borderRadius:'10px' }} />
-              : <img src={selectedSvc.receipt_url} alt="Receipt" style={{ width:'100%', borderRadius:'10px', border:'1px solid rgba(255,255,255,0.10)' }} onClick={()=>window.open(selectedSvc.receipt_url,'_blank')} />
+              : <img src={selectedSvc.receipt_url} alt="Receipt" style={{ width:'100%', borderRadius:'10px', border:'1px solid rgba(255,255,255,0.10)', cursor:'pointer' }} onClick={()=>{
+              const url=selectedSvc.receipt_url
+              if(url.startsWith('data:')){const arr=url.split(','),mime=arr[0].match(/:(.*?);/)?.[1]||'image/jpeg',bstr=atob(arr[1]),n=bstr.length,u8=new Uint8Array(n);for(let i=0;i<n;i++)u8[i]=bstr.charCodeAt(i);window.open(URL.createObjectURL(new Blob([u8],{type:mime})),'_blank')}else window.open(url,'_blank')
+            }} />
             )}
 
             {/* Service details */}

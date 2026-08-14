@@ -392,7 +392,14 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
                     ).filter(Boolean).map((url: string, idx: number) => (
                       <img key={idx} src={url} alt={`Photo ${idx+1}`}
                         style={{ width:'100%', aspectRatio:'1', objectFit:'cover', borderRadius:'8px', border:'1px solid rgba(255,255,255,0.10)', cursor:'pointer' }}
-                        onClick={() => window.open(url, '_blank')} />
+                        onClick={() => {
+                        if (url.startsWith('data:')) {
+                          const arr=url.split(','), mime=arr[0].match(/:(.*?);/)?.[1]||'image/jpeg'
+                          const bstr=atob(arr[1]), n=bstr.length, u8=new Uint8Array(n)
+                          for(let i=0;i<n;i++) u8[i]=bstr.charCodeAt(i)
+                          window.open(URL.createObjectURL(new Blob([u8],{type:mime})),'_blank')
+                        } else window.open(url,'_blank')
+                      }} />
                     ))}
                   </div>
                 </div>
