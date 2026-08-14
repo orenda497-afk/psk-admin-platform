@@ -140,8 +140,8 @@ export default function Bookings() {
       dropoff_location: form.dropoff_location || null,
       distance_band: form.distance_band,
       status: 'confirmed',
-      amount: calcRate(),
-      amount_paid: 0,
+      amount: Number(form.daily_charge) || null,
+      amount_paid: Number(form.hire_deposit) || 0,
       notes: form.notes || null,
     }])
     setSaving(false)
@@ -155,7 +155,7 @@ export default function Bookings() {
       await supabase.from('vehicles').update({ status: newStatus }).eq('id', form.vehicle_id)
 
       setShowAdd(false)
-      setForm({ branch:'eldoret', client_id:'', vehicle_id:'', driver_id:'', trip_type:'chauffeured', pickup_date:'', pickup_time:'08:00', return_date:'', return_time:'17:00', pickup_location:'', dropoff_location:'', distance_band:'driver_only', overnight:false, overnight_nights:1, notes:'' })
+      setForm({ branch:'eldoret', client_id:'', vehicle_id:'', driver_id:'', trip_type:'chauffeured', pickup_date:'', pickup_time:'08:00', return_date:'', return_time:'17:00', pickup_location:'', dropoff_location:'', distance_band:'driver_only', overnight:false, overnight_nights:1, notes:'', daily_charge:'', hire_deposit:'' })
       loadAll()
     } else alert('Error: ' + error.message)
   }
@@ -332,6 +332,30 @@ export default function Bookings() {
                   This booking is {selected.status}.
                 </div>
               )}
+              <button
+                onClick={() => {
+                  // Navigate to rental agreements with booking prefilled
+                  const params = new URLSearchParams({
+                    booking_id: selected.id,
+                    booking_ref: selected.booking_ref || '',
+                    client_name: clients.find((c:any)=>c.id===selected.client_id)?.name || '',
+                    client_phone: clients.find((c:any)=>c.id===selected.client_id)?.phone || '',
+                    vehicle_reg: vehicles.find((v:any)=>v.id===selected.vehicle_id)?.reg || '',
+                    vehicle_make: vehicles.find((v:any)=>v.id===selected.vehicle_id)?.make || '',
+                    vehicle_model: vehicles.find((v:any)=>v.id===selected.vehicle_id)?.model || '',
+                    pickup: selected.pickup_location || '',
+                    dropoff: selected.dropoff_location || '',
+                    pickup_date: selected.pickup_date || '',
+                    return_date: selected.return_date || '',
+                    amount: String(selected.amount || ''),
+                    trip_type: selected.trip_type || '',
+                    branch: selected.branch || '',
+                  })
+                  navigate(`/rental-agreements?new=1&${params.toString()}`)
+                }}
+                style={{ width:'100%', marginTop:'10px', padding:'11px', borderRadius:'10px', fontSize:'13px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(100,181,246,0.10)', border:'1px solid rgba(100,181,246,0.28)', color:'rgba(100,181,246,0.90)' }}>
+                📋 Generate Rental Agreement
+              </button>
             </div>
           </div>
         </div>
@@ -401,7 +425,7 @@ export default function Bookings() {
 
                 {/* Pickup location */}
                 {fld('Pickup location', inp('pickup_location','text','e.g. Eldoret Town, JKIA...'))}
-                {fld('Dropoff location', inp('dropoff_location','text','e.g. Kisumu, Nakuru...'))}
+                {fld(form.trip_type === 'self-drive' ? 'Destination' : 'Dropoff location', inp('dropoff_location','text', form.trip_type === 'self-drive' ? 'e.g. Nakuru, Kisumu...' : 'e.g. JKIA, Mombasa...'))}
 
                 {/* Driver */}
                 {fld('Assign driver (optional)',
@@ -430,14 +454,22 @@ export default function Bookings() {
                 <textarea value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))} placeholder="Special instructions, park fees, custom items..." style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', height:'72px', resize:'none' }} />
               </div>
 
-              {/* Rate estimate */}
-              {vehicleClass && rates && (
-                <div style={{ background:'rgba(255,215,0,0.06)', border:'1px solid rgba(255,215,0,0.18)', borderRadius:'10px', padding:'14px 16px', marginTop:'16px' }}>
-                  <div style={{ fontSize:'10px', fontWeight:600, color:'rgba(255,215,0,0.55)', letterSpacing:'0.8px', textTransform:'uppercase', marginBottom:'6px' }}>Rate estimate</div>
-                  <div style={{ fontSize:'20px', fontWeight:800, color:'rgba(255,215,0,0.90)' }}>KES {calcRate().toLocaleString()}</div>
-                  <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.30)', marginTop:'3px' }}>Based on {vehicleClass} · VAT not included</div>
+              {/* Manual payment details */}
+              <div style={{ background:'rgba(255,215,0,0.06)', border:'1px solid rgba(255,215,0,0.18)', borderRadius:'10px', padding:'14px 16px', marginTop:'16px' }}>
+                <div style={{ fontSize:'10px', fontWeight:600, color:'rgba(255,215,0,0.55)', letterSpacing:'0.8px', textTransform:'uppercase', marginBottom:'12px' }}>Payment Details</div>
+                <div style={{ marginBottom:'10px' }}>
+                  <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.55)', marginBottom:'5px', fontWeight:500 }}>Daily hire charge (KES)</div>
+                  <input type="number" value={form.daily_charge} onChange={e=>setForm(f=>({...f,daily_charge:e.target.value}))}
+                    placeholder="e.g. 8,000"
+                    style={{ width:'100%', padding:'9px 12px', borderRadius:'9px', fontSize:'15px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,215,0,0.25)', color:'rgba(255,255,255,0.92)', outline:'none', fontFamily:'inherit', fontWeight:600 }} />
                 </div>
-              )}
+                <div>
+                  <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.55)', marginBottom:'5px', fontWeight:500 }}>Hire deposit paid (KES)</div>
+                  <input type="number" value={form.hire_deposit} onChange={e=>setForm(f=>({...f,hire_deposit:e.target.value}))}
+                    placeholder="e.g. 5,000"
+                    style={{ width:'100%', padding:'9px 12px', borderRadius:'9px', fontSize:'15px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', color:'rgba(255,255,255,0.92)', outline:'none', fontFamily:'inherit' }} />
+                </div>
+              </div>
 
               <div style={{ display:'flex', gap:'12px', marginTop:'24px' }}>
                 <button onClick={() => setShowAdd(false)} style={{ flex:1, padding:'13px', borderRadius:'10px', fontSize:'12px', fontWeight:600, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.55)', cursor:'pointer', fontFamily:'inherit' }}>Cancel</button>

@@ -139,7 +139,7 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
 
   async function load() {
     setLoading(true)
-    const { data } = await supabase.from('clients').select('id,type,name,phone,secondary_phone,email,id_type,id_number,id_photo_url,address,city,county,branch,notes,kra_pin,credit_limit,payment_terms,created_at').order('name', { ascending: true })
+    const { data } = await supabase.from('clients').select('id,type,name,phone,secondary_phone,email,id_type,id_number,id_photo_url,photos,address,city,county,branch,notes,kra_pin,credit_limit,payment_terms,created_at').order('name', { ascending: true })
     if (data) setClients(data as Client[])
     setLoading(false)
   }
@@ -380,11 +380,20 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
                 ))}
               </div>
 
-              {/* ID photo if exists */}
-              {selected.id_photo_url && (
+              {/* All photos — show photos array or fall back to id_photo_url */}
+              {((selected as any).photos?.length > 0 || selected.id_photo_url) && (
                 <div style={{ marginBottom:'16px' }}>
-                  <div style={{ ...gl.label, marginBottom:'8px' }}>ID / Document Photo</div>
-                  <img src={selected.id_photo_url} alt="ID" style={{ width:'100%', borderRadius:'10px', border:'1px solid rgba(255,255,255,0.10)' }} />
+                  <div style={{ ...gl.label, marginBottom:'8px' }}>Photos</div>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'8px' }}>
+                    {((selected as any).photos?.length > 0
+                      ? (selected as any).photos
+                      : [selected.id_photo_url]
+                    ).filter(Boolean).map((url: string, idx: number) => (
+                      <img key={idx} src={url} alt={`Photo ${idx+1}`}
+                        style={{ width:'100%', aspectRatio:'1', objectFit:'cover', borderRadius:'8px', border:'1px solid rgba(255,255,255,0.10)', cursor:'pointer' }}
+                        onClick={() => window.open(url, '_blank')} />
+                    ))}
+                  </div>
                 </div>
               )}
 
