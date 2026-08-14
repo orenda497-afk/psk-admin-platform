@@ -305,8 +305,8 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
                     <tr key={s.id} style={{ borderBottom:'1px solid rgba(255,255,255,0.05)' }}
                       onMouseEnter={e=>(e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.03)'}
                       onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background='transparent'}>
-                      <td style={{ padding:'11px 12px' }}>
-                        <div style={{ fontSize:'13px', fontWeight:700, color:'rgba(255,255,255,0.88)' }}>{v?.reg || '—'}</div>
+                      <td style={{ padding:'11px 12px', cursor:'pointer' }} onClick={e=>{e.stopPropagation();if(v){setSelectedV(v);setTab('maintenance')}}}>
+                        <div style={{ fontSize:'13px', fontWeight:700, color:'rgba(255,215,0,0.85)', textDecoration:'underline dotted' }}>{v?.reg || '—'}</div>
                         <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.35)' }}>{v?.make} {v?.model}</div>
                       </td>
                       <td style={{ padding:'11px 12px' }}>
@@ -358,6 +358,17 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
 
             {/* Action buttons */}
             <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', marginBottom:'16px' }}>
+              {/* Edit the vehicle itself */}
+              {vehicles.find((x:any)=>x.id===selectedSvc.vehicle_id) && (
+                <button onClick={()=>{
+                  const v = vehicles.find((x:any)=>x.id===selectedSvc.vehicle_id)
+                  setSelectedSvc(null)
+                  setSelectedV(v)
+                  setTimeout(()=>startEditVehicle(v), 100)
+                }} style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(255,215,0,0.10)', border:'1.5px solid rgba(255,215,0,0.32)', color:'rgba(255,215,0,0.90)', cursor:'pointer', fontFamily:'inherit' }}>
+                  🚗 Edit Vehicle Details
+                </button>
+              )}
               <button onClick={()=>{
                 const url = selectedSvc.receipt_url
                 if (url.startsWith('data:')) {
