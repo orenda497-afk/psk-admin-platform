@@ -182,7 +182,7 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
   const I = (v:any,s:any,t='text',p='') => <input type={t} value={v} placeholder={p} onChange={e=>s(t==='number'?Number(e.target.value):e.target.value)} style={{width:'100%',padding:'10px 12px',borderRadius:'9px',fontSize:'12px',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.12)',color:'rgba(255,255,255,0.80)',outline:'none',fontFamily:'inherit'}} />
   const S = (v:any,s:any,opts:{value:string;label:string}[]) => <select value={v} onChange={e=>s(e.target.value)} style={{width:'100%',padding:'10px 12px',borderRadius:'9px',fontSize:'12px',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.12)',color:'rgba(255,255,255,0.80)',outline:'none',fontFamily:'inherit',cursor:'pointer'}}>{opts.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}</select>
 
-  const TABS = [{id:'dashboard',label:'Dashboard'},{id:'documents',label:'Documents',go:'/finance/documents'},{id:'mpesa',label:'M-Pesa Recon'},{id:'expenses',label:'Expenses'},{id:'pl',label:'P&L by Vehicle'},{id:'receivables',label:'Receivables'},...(userRole==='owner'?[{id:'payouts',label:'Owner Payouts'}]:[]  ),{id:'reports',label:'Reports'}]
+  const TABS = [{id:'dashboard',label:'Dashboard'},{id:'documents',label:'Documents',go:'/finance/documents'},{id:'mpesa',label:'M-Pesa Recon'},{id:'expenses',label:'Expenses'},{id:'pl',label:'P&L by Vehicle'},{id:'receivables',label:'Receivables'},...(userRole==='owner'?[{id:'payouts',label:'Owner Payouts'}]:[]  ),{id:'monthly',label:'Monthly Summary'},{id:'reports',label:'Reports'}]
 
   return (
     <div style={{padding:'24px 28px 28px'}}>
@@ -463,6 +463,99 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
       )}
 
       {/* REPORTS */}
+      {tab==='monthly' && (
+        <div>
+          <div style={{fontSize:'13px',fontWeight:700,color:'rgba(255,255,255,0.88)',marginBottom:'4px'}}>Monthly Income & Expenses</div>
+          <div style={{fontSize:'11px',color:'rgba(255,255,255,0.40)',marginBottom:'18px'}}>All income from paid invoices + M-Pesa receipts vs expenses logged. Both branches combined.</div>
+
+          {(() => {
+            // Build last 12 months
+            const months: string[] = []
+            for (let i = 11; i >= 0; i--) {
+              const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i)
+              months.push(d.toISOString().slice(0, 7))
+            }
+
+            const rows = months.map(mon => {
+              const label = new Date(mon + '-01').toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
+              const income = docs.filter((d:any) => d.status === 'paid' && d.issue_date?.startsWith(mon)).reduce((s:number,d:any) => s + (d.total||0), 0)
+              const mpesaIn = mpesa.filter((m:any) => m.date?.startsWith(mon)).reduce((s:number,m:any) => s + (m.amount||0), 0)
+              const totalIn = Math.max(income, mpesaIn) // use whichever is higher to avoid double-counting
+              const exp = expenses.filter((e:any) => e.date?.startsWith(mon)).reduce((s:number,e:any) => s + (e.amount||0), 0)
+              const net = totalIn - exp
+              return { mon, label, income: totalIn, expenses: exp, net }
+            }).filter(r => r.income > 0 || r.expenses > 0)
+
+            if (rows.length === 0) return (
+              <div style={{textAlign:'center',padding:'60px',color:'rgba(255,255,255,0.35)',fontSize:'13px'}}>
+                No data yet. Income appears when invoices are marked paid and expenses are logged.
+              </div>
+            )
+
+            const totIncome = rows.reduce((s,r)=>s+r.income,0)
+            const totExp = rows.reduce((s,r)=>s+r.expenses,0)
+            const totNet = totIncome - totExp
+
+            return (
+              <div>
+                {/* Summary cards */}
+                <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'12px',marginBottom:'20px'}}>
+                  {[
+                    {label:'Total Income',value:totIncome,color:'rgba(129,199,132,0.95)',bg:'rgba(129,199,132,0.08)',border:'rgba(129,199,132,0.22)'},
+                    {label:'Total Expenses',value:totExp,color:'rgba(239,154,154,0.90)',bg:'rgba(231,76,60,0.07)',border:'rgba(231,76,60,0.20)'},
+                    {label:'Net Profit',value:totNet,color:totNet>=0?'rgba(255,215,0,0.95)':'rgba(239,154,154,0.90)',bg:totNet>=0?'rgba(255,215,0,0.07)':'rgba(231,76,60,0.07)',border:totNet>=0?'rgba(255,215,0,0.22)':'rgba(231,76,60,0.20)'},
+                  ].map(c=>(
+                    <div key={c.label} style={{background:c.bg,border:`1px solid ${c.border}`,borderRadius:'12px',padding:'16px 18px'}}>
+                      <div style={{fontSize:'11px',color:'rgba(255,255,255,0.45)',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:'6px'}}>{c.label}</div>
+                      <div style={{fontSize:'20px',fontWeight:800,color:c.color}}>KES {c.value.toLocaleString()}</div>
+                      <div style={{fontSize:'10px',color:'rgba(255,255,255,0.28)',marginTop:'3px'}}>Last 12 months</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Monthly table */}
+                <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'12px',overflow:'hidden'}}>
+                  <table style={{width:'100%',borderCollapse:'collapse'}}>
+                    <thead>
+                      <tr style={{background:'rgba(255,255,255,0.05)'}}>
+                        {['Month','Income','Expenses','Net Profit','Margin'].map(h=>(
+                          <th key={h} style={{padding:'12px 16px',textAlign:h==='Month'?'left':'right',fontSize:'10px',fontWeight:700,color:'rgba(255,255,255,0.45)',textTransform:'uppercase',letterSpacing:'0.6px'}}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((r,i)=>{
+                        const margin = r.income > 0 ? Math.round((r.net/r.income)*100) : 0
+                        return (
+                          <tr key={r.mon} style={{borderTop:'1px solid rgba(255,255,255,0.05)',background:i%2===0?'transparent':'rgba(255,255,255,0.02)'}}>
+                            <td style={{padding:'12px 16px',fontSize:'13px',fontWeight:600,color:'rgba(255,255,255,0.85)'}}>{r.label}</td>
+                            <td style={{padding:'12px 16px',textAlign:'right',fontSize:'13px',color:'rgba(129,199,132,0.90)',fontWeight:600}}>KES {r.income.toLocaleString()}</td>
+                            <td style={{padding:'12px 16px',textAlign:'right',fontSize:'13px',color:'rgba(239,154,154,0.85)',fontWeight:600}}>KES {r.expenses.toLocaleString()}</td>
+                            <td style={{padding:'12px 16px',textAlign:'right',fontSize:'13px',fontWeight:700,color:r.net>=0?'rgba(255,215,0,0.95)':'rgba(239,154,154,0.90)'}}>KES {r.net.toLocaleString()}</td>
+                            <td style={{padding:'12px 16px',textAlign:'right',fontSize:'12px',color:margin>=50?'rgba(129,199,132,0.85)':margin>=0?'rgba(255,183,77,0.85)':'rgba(239,154,154,0.85)'}}>{margin}%</td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Export button */}
+                <button onClick={()=>{
+                  const header = ['Month','Income (KES)','Expenses (KES)','Net Profit (KES)','Margin %']
+                  const csvRows = rows.map(r=>[r.label,r.income,r.expenses,r.net,r.income>0?Math.round((r.net/r.income)*100)+'%':'0%'])
+                  const csv = [header,...csvRows].map(r=>r.join(',')).join('\n')
+                  const b = new Blob([csv],{type:'text/csv'})
+                  const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download='psk_monthly_summary.csv'; a.click()
+                }} style={{marginTop:'14px',padding:'10px 20px',borderRadius:'10px',fontSize:'12px',fontWeight:600,background:'linear-gradient(135deg,rgba(255,215,0,0.12),rgba(255,149,0,0.07))',border:'1px solid rgba(255,215,0,0.28)',color:'rgba(255,215,0,0.85)',cursor:'pointer',fontFamily:'inherit'}}>
+                  ⬇ Export to CSV
+                </button>
+              </div>
+            )
+          })()}
+        </div>
+      )}
+
       {tab==='reports' && (
         <div style={{...gl.panel,padding:'40px',textAlign:'center'}}>
           <div style={{fontSize:'36px',marginBottom:'16px'}}>📊</div>
