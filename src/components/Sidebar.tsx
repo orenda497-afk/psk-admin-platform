@@ -20,6 +20,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
 
   const [currentBranch, setCurrentBranch] = useState<'eldoret' | 'kisumu'>('eldoret')
   const [profileOpen, setProfileOpen] = useState(false)
+  const [branchOpen, setBranchOpen] = useState(false)
 
   const handleCategoryClick = (categoryId: string) => {
     if (categoryId === 'home') {
@@ -113,6 +114,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
             background: 'rgba(255,255,255,0.05)',
             border: '1px solid rgba(255,215,0,0.16)',
           }}
+        onClick={() => setBranchOpen(o => !o)}
         >
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <div
@@ -122,21 +124,23 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
                 boxShadow: '0 0 7px rgba(255,215,0,0.65)',
               }}
             />
-            <span className="text-[11.5px] truncate" style={{ color: 'rgba(255,255,255,0.55)' }}>
+            <span className="text-[11.5px] truncate" style={{ color: 'rgba(255,255,255,0.80)' }}>
               {branchNames[currentBranch]}
             </span>
           </div>
           <span className="text-[10px] flex-shrink-0 ml-1" style={{ color: 'rgba(255,255,255,0.35)' }}>
-            ⌄
+            {branchOpen ? '▲' : '▼'}
           </span>
 
           {/* Dropdown menu */}
+          {branchOpen && (
           <div
-            className="absolute top-full left-0 right-0 mt-1 rounded-lg overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50"
             style={{
+              position:'absolute', top:'100%', left:0, right:0, marginTop:'4px',
+              borderRadius:'9px', overflow:'hidden', zIndex:50,
               background: '#0F1E2E',
               border: '1px solid rgba(255,215,0,0.16)',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.50)',
             }}
           >
             {Object.entries(branchNames).map(([id, label]) => (
@@ -153,6 +157,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
               </button>
             ))}
           </div>
+          )}
         </div>
 
         {/* Navigation - scrollable */}
