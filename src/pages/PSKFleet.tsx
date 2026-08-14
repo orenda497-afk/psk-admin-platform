@@ -401,7 +401,7 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
         </div>
       )}
 
-      {/* ── TAB 3: FUEL LOG ── */}}
+      {/* ── TAB 3: FUEL LOG ── */}
       {tab === 'fuel' && (
         <>
           {/* Summary strip */}
