@@ -122,11 +122,11 @@ export default function Home() {
   return (
     <div style={{ padding: '26px 28px 22px' }}>
       <style>{`
-        @keyframes leopardFloat {
+        @keyframes monkeyBounce {
           0%,100% { transform: translateY(0px); }
-          50%      { transform: translateY(-5px); }
+          50%      { transform: translateY(-10px) rotate(2deg); }
         }
-        .leopard-img { animation: leopardFloat 3.2s ease-in-out infinite; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4)); }
+        .monkey-img { animation: monkeyBounce 1.4s ease-in-out infinite; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.35)); }
         .cat-card { transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease; cursor: pointer; }
         .cat-card:hover { transform: translateY(-5px); }
       `}</style>
@@ -148,8 +148,8 @@ export default function Home() {
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flexShrink: 0 }}>
-          <img src="/branding/leopard.png" alt="Leopard" className="leopard-img"
-            style={{ height: '88px', width: 'auto', objectFit: 'contain' }} />
+          <img src="/branding/its_friday.png" alt="It's Friday!" className="monkey-img"
+            style={{ height: '130px', width: 'auto', objectFit: 'contain' }} />
           <div style={{ display: 'flex', gap: '9px' }}>
             {[
               { label: 'Available',   value: 0, color: 'rgba(129,199,132,0.95)', bg: 'rgba(129,199,132,0.09)', border: 'rgba(129,199,132,0.25)' },
