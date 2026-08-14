@@ -259,8 +259,27 @@ export default function Drivers() {
               {selected.email && <button onClick={()=>window.open(`mailto:${selected.email}`,'_blank')} style={{ padding:'7px 13px', borderRadius:'9px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(100,181,246,0.10)', border:'1px solid rgba(100,181,246,0.25)', color:'rgba(100,181,246,0.88)' }}>✉️ Email</button>}
               <button onClick={()=>window.open(`tel:${selected.phone}`)} style={{ padding:'7px 13px', borderRadius:'9px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(129,199,132,0.10)', border:'1px solid rgba(129,199,132,0.25)', color:'rgba(129,199,132,0.88)' }}>📞 Call</button>
               <button onClick={()=>printDriver(selected)} style={{ padding:'7px 13px', borderRadius:'9px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.22)', color:'rgba(255,215,0,0.80)' }}>🖨 Print</button>
+              <button onClick={()=>startEditDriver(selected)} style={{ padding:'7px 13px', borderRadius:'9px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,215,0,0.10)', border:'1px solid rgba(255,215,0,0.30)', color:'rgba(255,215,0,0.90)' }}>✏️ Edit</button>
               <button onClick={()=>navigate('/bookings',{state:{openAdd:true,driverId:selected.id}})} style={{ padding:'7px 13px', borderRadius:'9px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'linear-gradient(135deg,rgba(255,215,0,0.14),rgba(255,149,0,0.08))', border:'1px solid rgba(255,215,0,0.28)', color:'rgba(255,215,0,0.90)' }}>+ Assign booking</button>
             </div>
+
+            {/* Inline Edit Form */}
+            {editingD && (
+              <div style={{ background:'rgba(255,215,0,0.05)', border:'1px solid rgba(255,215,0,0.20)', borderRadius:'12px', padding:'16px', marginBottom:'16px' }}>
+                <div style={{ fontSize:'12px', fontWeight:700, color:'rgba(255,215,0,0.80)', marginBottom:'12px' }}>Edit Driver Details</div>
+                {[['Name','name'],['Phone','phone'],['Email','email'],['National ID','national_id'],['Licence No.','licence_number'],['Licence Class','licence_class'],['Licence Expiry','licence_expiry'],['PSV Badge No.','psv_badge_number'],['PSV Expiry','psv_expiry'],['Good Conduct Expiry','good_conduct_expiry'],['Medical Expiry','medical_expiry'],['Emergency Contact','emergency_contact'],['Emergency Phone','emergency_phone']].map(([label,key])=>(
+                  <div key={key} style={{ marginBottom:'8px' }}>
+                    <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.40)', marginBottom:'3px', textTransform:'uppercase', letterSpacing:'0.5px' }}>{label}</div>
+                    <input value={editDForm[key]} onChange={e=>setEditDForm((f:any)=>({...f,[key]:e.target.value}))}
+                      style={{ width:'100%', padding:'8px 10px', borderRadius:'8px', fontSize:'13px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.14)', color:'rgba(255,255,255,0.90)', outline:'none', fontFamily:'inherit', boxSizing:'border-box' }} />
+                  </div>
+                ))}
+                <div style={{ display:'flex', gap:'8px', marginTop:'12px' }}>
+                  <button onClick={saveEditDriver} disabled={editDSaving} style={{ flex:1, padding:'9px', borderRadius:'9px', fontSize:'12px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,149,0,0.10))', border:'1.5px solid rgba(255,215,0,0.35)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit' }}>{editDSaving?'Saving...':'Save Changes'}</button>
+                  <button onClick={()=>setEditingD(false)} style={{ padding:'9px 16px', borderRadius:'9px', fontSize:'12px', background:'transparent', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.40)', cursor:'pointer', fontFamily:'inherit' }}>Cancel</button>
+                </div>
+              </div>
+            )}
 
             {/* Details */}
             <div style={{ ...gl.panel, padding:'16px', marginBottom:'16px' }}>

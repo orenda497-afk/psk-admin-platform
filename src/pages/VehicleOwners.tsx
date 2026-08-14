@@ -37,6 +37,20 @@ export default function VehicleOwners({ defaultTab = 'owners' }: { defaultTab?: 
   })
 
   useEffect(() => { loadAll() }, [])
+  function startEditOwner(o: any) {
+    setEditOForm({ name:o.name||'', phone:o.phone||'', email:o.email||'', national_id:o.national_id||'', mpesa_number:o.mpesa_number||'', bank_name:o.bank_name||'', bank_account:o.bank_account||'', address:o.address||'', city:o.city||'', notes:o.notes||'' })
+    setEditingO(true)
+  }
+
+  async function saveEditOwner() {
+    if (!selected) return
+    setEditOSaving(true)
+    const { error } = await supabase.from('vehicle_owners').update(editOForm).eq('id', selected.id)
+    setEditOSaving(false)
+    if (!error) { setEditingO(false); loadAll() }
+    else alert('Error: ' + error.message)
+  }
+
   async function loadAll() {
     setLoading(true)
     const [o, v] = await Promise.all([
@@ -202,7 +216,26 @@ export default function VehicleOwners({ defaultTab = 'owners' }: { defaultTab?: 
         <div style={{ position:'fixed', inset:0, zIndex:100, display:'flex', justifyContent:'flex-end' }}>
           <div onClick={()=>setSelected(null)} style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.45)' }} />
           <div style={{ position:'relative', width:'440px', height:'100vh', background:'rgba(6,16,28,0.97)', backdropFilter:'blur(32px)', borderLeft:'1px solid rgba(255,255,255,0.12)', overflowY:'auto', zIndex:1, padding:'24px' }}>
-            <button onClick={()=>setSelected(null)} style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'8px', padding:'6px 12px', color:'rgba(255,255,255,0.55)', cursor:'pointer', fontSize:'12px', fontFamily:'inherit', marginBottom:'20px' }}>✕ Close</button>
+            <div style={{ display:'flex', gap:'8px', marginBottom:'20px' }}>
+              <button onClick={()=>{setSelected(null);setEditingO(false)}} style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'8px', padding:'6px 12px', color:'rgba(255,255,255,0.55)', cursor:'pointer', fontSize:'12px', fontFamily:'inherit' }}>✕ Close</button>
+              <button onClick={()=>startEditOwner(selected)} style={{ background:'rgba(255,215,0,0.10)', border:'1px solid rgba(255,215,0,0.30)', borderRadius:'8px', padding:'6px 14px', color:'rgba(255,215,0,0.90)', cursor:'pointer', fontSize:'12px', fontFamily:'inherit', fontWeight:600 }}>✏️ Edit</button>
+            </div>
+            {editingO && (
+              <div style={{ background:'rgba(255,215,0,0.05)', border:'1px solid rgba(255,215,0,0.20)', borderRadius:'12px', padding:'16px', marginBottom:'16px' }}>
+                <div style={{ fontSize:'12px', fontWeight:700, color:'rgba(255,215,0,0.80)', marginBottom:'12px' }}>Edit Owner Details</div>
+                {[['Name','name'],['Phone','phone'],['Email','email'],['National ID','national_id'],['M-Pesa Number','mpesa_number'],['Bank Name','bank_name'],['Bank Account','bank_account'],['Address','address'],['City/Town','city']].map(([label,key])=>(
+                  <div key={key} style={{ marginBottom:'8px' }}>
+                    <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.40)', marginBottom:'3px', textTransform:'uppercase', letterSpacing:'0.5px' }}>{label}</div>
+                    <input value={editOForm[key]} onChange={e=>setEditOForm((f:any)=>({...f,[key]:e.target.value}))}
+                      style={{ width:'100%', padding:'8px 10px', borderRadius:'8px', fontSize:'13px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.14)', color:'rgba(255,255,255,0.90)', outline:'none', fontFamily:'inherit', boxSizing:'border-box' }} />
+                  </div>
+                ))}
+                <div style={{ display:'flex', gap:'8px', marginTop:'12px' }}>
+                  <button onClick={saveEditOwner} disabled={editOSaving} style={{ flex:1, padding:'9px', borderRadius:'9px', fontSize:'12px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,149,0,0.10))', border:'1.5px solid rgba(255,215,0,0.35)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit' }}>{editOSaving?'Saving...':'Save Changes'}</button>
+                  <button onClick={()=>setEditingO(false)} style={{ padding:'9px 16px', borderRadius:'9px', fontSize:'12px', background:'transparent', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.40)', cursor:'pointer', fontFamily:'inherit' }}>Cancel</button>
+                </div>
+              </div>
+            )}
 
             <div style={{ display:'flex', alignItems:'center', gap:'16px', marginBottom:'20px' }}>
               {selected.photo_url

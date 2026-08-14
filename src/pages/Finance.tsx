@@ -573,8 +573,8 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
         <div style={{position:'fixed',inset:0,zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(0,0,0,0.65)',backdropFilter:'blur(8px)'}}>
           <div style={{background:'rgba(8,18,30,0.97)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:'18px',width:'500px',maxHeight:'90vh',overflowY:'auto',boxShadow:'0 24px 80px rgba(0,0,0,0.65)'}}>
             <div style={{padding:'20px 26px',borderBottom:'1px solid rgba(255,255,255,0.08)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-              <div style={{fontSize:'15px',fontWeight:700,color:'rgba(255,255,255,0.92)'}}>💸 Log Expense</div>
-              <button onClick={()=>{setShowExp(false);setReceipt('')}} style={{width:'28px',height:'28px',borderRadius:'8px',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.10)',color:'rgba(255,255,255,0.45)',cursor:'pointer',fontFamily:'inherit'}}>✕</button>
+              <div style={{fontSize:'15px',fontWeight:700,color:'rgba(255,255,255,0.92)'}}>{editExpId ? '✏️ Edit Expense' : '💸 Log Expense'}</div>
+              <button onClick={()=>{setShowExp(false);setReceipt('');setEditExpId(null)}} style={{width:'28px',height:'28px',borderRadius:'8px',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.10)',color:'rgba(255,255,255,0.45)',cursor:'pointer',fontFamily:'inherit'}}>✕</button>
             </div>
             <div style={{padding:'22px 26px'}}>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
@@ -598,7 +598,7 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
               </div>
               {F('Notes',<textarea value={ef.notes} onChange={e=>setEf(f=>({...f,notes:e.target.value}))} style={{width:'100%',padding:'10px 12px',borderRadius:'9px',fontSize:'12px',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.12)',color:'rgba(255,255,255,0.80)',outline:'none',fontFamily:'inherit',height:'56px',resize:'none'}} />)}
               <div style={{display:'flex',gap:'10px',marginTop:'20px'}}>
-                <button onClick={()=>{setShowExp(false);setReceipt('')}} style={{flex:1,padding:'12px',borderRadius:'10px',fontSize:'12px',fontWeight:600,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.12)',color:'rgba(255,255,255,0.55)',cursor:'pointer',fontFamily:'inherit'}}>Cancel</button>
+                <button onClick={()=>{setShowExp(false);setReceipt('');setEditExpId(null)}} style={{flex:1,padding:'12px',borderRadius:'10px',fontSize:'12px',fontWeight:600,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.12)',color:'rgba(255,255,255,0.55)',cursor:'pointer',fontFamily:'inherit'}}>Cancel</button>
                 <button onClick={saveExp} disabled={saving} style={{flex:2,padding:'12px',borderRadius:'10px',fontSize:'13px',fontWeight:700,background:'linear-gradient(135deg,rgba(255,183,77,0.18),rgba(255,149,0,0.10))',border:'1.5px solid rgba(255,183,77,0.38)',color:'rgba(255,183,77,0.95)',cursor:saving?'not-allowed':'pointer',fontFamily:'inherit',opacity:saving?0.7:1}}>{saving?'Saving...':'Save Expense'}</button>
               </div>
             </div>

@@ -302,9 +302,11 @@ export default function Reminders() {
                 {r.entity_type && (
                   <button onClick={() => navigateTo(r)} style={{ padding:'6px 14px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.14)', color:'rgba(255,255,255,0.65)' }}>View →</button>
                 )}
-                {!showResolved && (
+                {!showResolved && (<>
                   <button onClick={() => resolve(r.id)} style={{ padding:'6px 14px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(129,199,132,0.10)', border:'1px solid rgba(129,199,132,0.28)', color:'rgba(129,199,132,0.90)' }}>✓ Resolve</button>
-                )}
+                  <button onClick={()=>{ setForm({branch:r.branch||'eldoret',priority:r.priority||'medium',title:r.title||'',detail:r.detail||'',due_date:r.due_date||'',entity:r.entity||'',entity_id:r.entity_id||''}); setEditRId(r.id); setShowAdd(true) }}
+                    style={{ padding:'6px 14px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.22)', color:'rgba(255,215,0,0.80)' }}>✏️ Edit</button>
+                </>)}
               </div>
             </div>
           ))

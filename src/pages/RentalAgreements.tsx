@@ -67,6 +67,9 @@ export default function RentalAgreements() {
   const [showAdd, setShowAdd]       = useState(false)
   const [selected, setSelected]     = useState<Agreement | null>(null)
   const [preview, setPreview]       = useState<Agreement | null>(null)
+  const [editingA, setEditingA]     = useState(false)
+  const [editAForm, setEditAForm]   = useState<any>({})
+  const [editASaving, setEditASaving] = useState(false)
 
   const [form, setForm] = useState({
     branch: 'eldoret',
@@ -79,6 +82,19 @@ export default function RentalAgreements() {
     trip_type: 'Chauffeured',
     special_conditions: '',
   })
+
+  function startEditAgreement(a: Agreement) {
+    setEditAForm({ client_name:a.client_name||'', client_phone:a.client_phone||'', client_id_number:a.client_id_number||'', vehicle_reg:a.vehicle_reg||'', vehicle_make:a.vehicle_make||'', vehicle_model:a.vehicle_model||'', pickup_date:a.pickup_date||'', return_date:a.return_date||'', pickup_location:a.pickup_location||'', dropoff_location:a.dropoff_location||'', trip_type:a.trip_type||'', daily_rate:a.daily_rate||0, total_amount:a.total_amount||0, deposit_amount:a.deposit_amount||0, special_conditions:a.special_conditions||'' })
+    setEditingA(true)
+  }
+
+  async function saveEditAgreement(id: string) {
+    setEditASaving(true)
+    const { error } = await supabase.from('rental_agreements').update(editAForm).eq('id', id)
+    setEditASaving(false)
+    if (!error) { setEditingA(false); loadAll() }
+    else alert('Error: ' + error.message)
+  }
 
   useEffect(() => {
     loadAll().then(() => {
@@ -337,6 +353,7 @@ export default function RentalAgreements() {
             <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
               {[
                 { label:'Preview agreement', primary:true, onClick:()=>{ setSelected(null); setPreview(selected) } },
+                { label:'✏️ Edit', primary:false, onClick: ()=>startEditAgreement(selected!) },
                 { label:'Mark as signed', primary:false, onClick: async()=>{ await supabase.from('rental_agreements').update({client_signed:true,status:'signed'}).eq('id',selected.id); loadAll(); setSelected(null) } },
                 { label:'Send WhatsApp', primary:false, onClick:()=>{ window.open(`https://wa.me/${selected.client_phone.replace(/\D/g,'')}?text=Dear ${selected.client_name}, please find your rental agreement ${selected.agreement_ref} from PSK Safaris.`,'_blank') } },
               ].map((btn,i) => (
