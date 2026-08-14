@@ -51,6 +51,7 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
   const [showFuel, setShowFuel]   = useState(false)
   const [saving, setSaving]       = useState(false)
   const receiptRef = useRef<HTMLInputElement>(null)
+  const [selectedSvc, setSelectedSvc] = useState<any>(null)
   const [receiptPhoto, setReceiptPhoto] = useState('')
 
   const [svcForm, setSvcForm] = useState({ vehicle_id:'', service_type:'Routine', service_date: new Date().toISOString().split('T')[0], odometer_at_service:0, vendor:'', next_service_km:0, notes:'' })
@@ -292,7 +293,7 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
             <table style={{ width:'100%', borderCollapse:'collapse' }}>
               <thead>
                 <tr style={{ borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
-                  {['Vehicle','Service Type','Date','Odometer','Vendor/Garage','Next Service','Notes'].map(h=>(
+                  {['Vehicle','Service Type','Date','Odometer','Vendor/Garage','Next Service','Notes','Receipt'].map(h=>(
                     <th key={h} style={{ ...gl.label, padding:'0 12px 10px', textAlign:'left' }}>{h}</th>
                   ))}
                 </tr>
@@ -316,6 +317,14 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
                       <td style={{ padding:'11px 12px' }}><div style={{ fontSize:'11px', color:'rgba(255,255,255,0.60)' }}>{s.vendor || '—'}</div></td>
                       <td style={{ padding:'11px 12px' }}><div style={{ fontSize:'11px', color:'rgba(255,215,0,0.65)' }}>{s.next_service_km ? s.next_service_km.toLocaleString()+' km' : '—'}</div></td>
                       <td style={{ padding:'11px 12px' }}><div style={{ fontSize:'11px', color:'rgba(255,255,255,0.40)', maxWidth:'150px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{s.notes || '—'}</div></td>
+                      <td style={{ padding:'11px 12px' }}>
+                        {s.receipt_url ? (
+                          <button onClick={e=>{e.stopPropagation();setSelectedSvc(s)}}
+                            style={{ padding:'4px 10px', borderRadius:'7px', fontSize:'11px', fontWeight:600, background:'rgba(100,181,246,0.10)', border:'1px solid rgba(100,181,246,0.28)', color:'rgba(100,181,246,0.90)', cursor:'pointer', fontFamily:'inherit' }}>
+                            📎 View
+                          </button>
+                        ) : <span style={{ fontSize:'11px', color:'rgba(255,255,255,0.20)' }}>—</span>}
+                      </td>
                     </tr>
                   )
                 })}
@@ -325,7 +334,74 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
         </div>
       )}
 
-      {/* ── TAB 3: FUEL LOG ── */}
+      {/* ── RECEIPT VIEWER MODAL ── */}
+      {selectedSvc && (
+        <div style={{ position:'fixed', inset:0, zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(0,0,0,0.80)', backdropFilter:'blur(12px)' }}>
+          <div style={{ background:'rgba(8,18,30,0.98)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'18px', width:'600px', maxHeight:'90vh', overflowY:'auto', boxShadow:'0 24px 80px rgba(0,0,0,0.70)', padding:'24px' }}>
+            {/* Header */}
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'16px' }}>
+              <div>
+                <div style={{ fontSize:'15px', fontWeight:700, color:'rgba(255,255,255,0.92)' }}>
+                  🔧 {selectedSvc.service_type} — {vehicles.find((x:any)=>x.id===selectedSvc.vehicle_id)?.reg || ''}
+                </div>
+                <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.40)', marginTop:'3px' }}>
+                  {selectedSvc.service_date ? new Date(selectedSvc.service_date).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : ''} · {selectedSvc.vendor || ''}
+                </div>
+              </div>
+              <button onClick={()=>setSelectedSvc(null)} style={{ width:'30px', height:'30px', borderRadius:'8px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.10)', color:'rgba(255,255,255,0.50)', cursor:'pointer', fontSize:'16px', fontFamily:'inherit' }}>✕</button>
+            </div>
+
+            {/* Action buttons */}
+            <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', marginBottom:'16px' }}>
+              <button onClick={()=>window.open(selectedSvc.receipt_url,'_blank')}
+                style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,149,0,0.10))', border:'1.5px solid rgba(255,215,0,0.35)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit' }}>
+                🔍 Open full size
+              </button>
+              <button onClick={()=>{const a=document.createElement('a');a.href=selectedSvc.receipt_url;a.download=`receipt-${selectedSvc.service_type}-${selectedSvc.service_date}.jpg`;a.click()}}
+                style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(100,181,246,0.10)', border:'1px solid rgba(100,181,246,0.28)', color:'rgba(100,181,246,0.90)', cursor:'pointer', fontFamily:'inherit' }}>
+                ⬇ Download
+              </button>
+              <button onClick={()=>window.print()}
+                style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.60)', cursor:'pointer', fontFamily:'inherit' }}>
+                🖨 Print
+              </button>
+              <button onClick={()=>{
+                const v=vehicles.find((x:any)=>x.id===selectedSvc.vehicle_id)
+                const msg=`PSK Safaris — Service Receipt%0AVehicle: ${v?.reg||''}%0AService: ${selectedSvc.service_type}%0ADate: ${selectedSvc.service_date}%0AVendor: ${selectedSvc.vendor||''}%0APlease find the receipt attached.`
+                window.open(`https://wa.me/?text=${msg}`,'_blank')
+              }} style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(37,211,102,0.10)', border:'1px solid rgba(37,211,102,0.28)', color:'rgba(37,211,102,0.90)', cursor:'pointer', fontFamily:'inherit' }}>
+                📱 WhatsApp
+              </button>
+            </div>
+
+            {/* Receipt image or PDF */}
+            {selectedSvc.receipt_url && (
+              selectedSvc.receipt_url.toLowerCase().includes('.pdf')
+              ? <iframe src={selectedSvc.receipt_url} style={{ width:'100%', height:'500px', border:'none', borderRadius:'10px' }} />
+              : <img src={selectedSvc.receipt_url} alt="Receipt" style={{ width:'100%', borderRadius:'10px', border:'1px solid rgba(255,255,255,0.10)' }} onClick={()=>window.open(selectedSvc.receipt_url,'_blank')} />
+            )}
+
+            {/* Service details */}
+            <div style={{ marginTop:'16px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px' }}>
+              {[
+                ['Service type', selectedSvc.service_type],
+                ['Date', selectedSvc.service_date ? new Date(selectedSvc.service_date).toLocaleDateString('en-GB') : '—'],
+                ['Vendor/Garage', selectedSvc.vendor || '—'],
+                ['Odometer', selectedSvc.odometer_at_service ? selectedSvc.odometer_at_service.toLocaleString()+' km' : '—'],
+                ['Next service', selectedSvc.next_service_km ? selectedSvc.next_service_km.toLocaleString()+' km' : '—'],
+                ['Notes', selectedSvc.notes || '—'],
+              ].map(([label, value]) => (
+                <div key={label} style={{ padding:'10px 12px', background:'rgba(255,255,255,0.04)', borderRadius:'8px' }}>
+                  <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.35)', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'4px' }}>{label}</div>
+                  <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.80)' }}>{value}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB 3: FUEL LOG ── */}}
       {tab === 'fuel' && (
         <>
           {/* Summary strip */}
