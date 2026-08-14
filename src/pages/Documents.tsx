@@ -224,6 +224,10 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
     const sc   = STATUS_CFG[doc.status] || STATUS_CFG.draft
     const items: LineItem[] = Array.isArray(doc.line_items) ? doc.line_items : []
 
+    const [pdfBusy, setPdfBusy] = useState(false)
+    const [pdfReady, setPdfReady] = useState(false)
+    const [pdfUrl, setPdfUrl] = useState<string>('')
+
     const generatePDF = async (): Promise<Blob | null> => {
       const el = document.querySelector('.psk-document') as HTMLElement
       if (!el) return null
@@ -235,33 +239,45 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
       return pdf.output('blob')
     }
 
-    const downloadPDF = async () => {
+    const preparePDF = async () => {
+      if (pdfUrl) return pdfUrl // already generated
+      setPdfBusy(true)
       const blob = await generatePDF()
+      setPdfBusy(false)
+      if (!blob) return ''
+      const url = URL.createObjectURL(blob)
+      setPdfUrl(url)
+      setPdfReady(true)
+      return url
+    }
+
+    const downloadPDF = async () => {
+      setPdfBusy(true)
+      const blob = await generatePDF()
+      setPdfBusy(false)
       if (!blob) return
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
       a.download = `${doc.doc_ref}.pdf`
       a.click()
-      URL.revokeObjectURL(url)
+      setTimeout(() => URL.revokeObjectURL(url), 2000)
+      setPdfReady(true)
     }
 
     const sendWhatsApp = async () => {
-      // Step 1: Download the PDF so Miriam can attach it
+      // Download PDF first so staff have it ready to attach
       await downloadPDF()
-      // Step 2: Open WhatsApp with a text message
       const phone = (doc.client_phone || '').replace(/\D/g, '')
-      const msg = `Dear ${doc.client_name},%0A%0APlease find attached your ${cfg.label} from PSK Safaris.%0A%0ARef: ${doc.doc_ref}%0ADate: ${doc.issue_date}%0ATotal: KES ${doc.total?.toLocaleString()}%0A%0APlease attach the PDF that was just downloaded to this message.%0A%0AThank you for choosing PSK Safaris %26 Car Rentals.%0ATel: ${br.tel}`
-      setTimeout(() => window.open(`https://wa.me/${phone}?text=${msg}`, '_blank'), 800)
+      const msg = `Dear ${doc.client_name},%0A%0APlease find your ${cfg.label} from PSK Safaris %26 Car Rentals.%0A%0ARef: ${doc.doc_ref}%0ADate: ${doc.issue_date}%0ATotal: KES ${doc.total?.toLocaleString()}%0A%0APaybill: 4563877%0ATel: ${br.tel}`
+      setTimeout(() => window.open(`https://wa.me/${phone}?text=${msg}`, '_blank'), 1200)
     }
 
     const sendEmail = async () => {
-      // Step 1: Download the PDF
       await downloadPDF()
-      // Step 2: Open mail client
       const subject = encodeURIComponent(`PSK Safaris — ${cfg.label} ${doc.doc_ref}`)
-      const body = encodeURIComponent(`Dear ${doc.client_name},\n\nPlease find attached your ${cfg.label} from PSK Safaris.\n\nRef: ${doc.doc_ref}\nDate: ${doc.issue_date}\nTotal: KES ${doc.total?.toLocaleString()}\n\nThank you for choosing PSK Safaris & Car Rentals.\n${br.name}\n${br.tel}`)
-      setTimeout(() => window.open(`mailto:${doc.client_email || ''}?subject=${subject}&body=${body}`, '_blank'), 800)
+      const body = encodeURIComponent(`Dear ${doc.client_name},\n\nPlease find your ${cfg.label} from PSK Safaris & Car Rentals.\n\nRef: ${doc.doc_ref}\nDate: ${doc.issue_date}\nTotal: KES ${doc.total?.toLocaleString()}\n\nThank you for choosing PSK Safaris & Car Rentals.\n${br.name}\nTel: ${br.tel}\nPaybill: 4563877`)
+      setTimeout(() => window.open(`mailto:${doc.client_email || ''}?subject=${subject}&body=${body}`, '_blank'), 1200)
     }
 
     return (
@@ -270,9 +286,19 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
           {/* Action bar */}
           <div className="psk-no-print" style={{ display:'flex', justifyContent:'space-between', marginBottom:'16px', flexWrap:'wrap', gap:'8px' }}>
             <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
-              <button onClick={downloadPDF} style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,149,0,0.10))', border:'1.5px solid rgba(255,215,0,0.35)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit' }}>⬇ Download PDF</button>
-              <button onClick={sendWhatsApp} style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(37,211,102,0.10)', border:'1px solid rgba(37,211,102,0.28)', color:'rgba(37,211,102,0.90)', cursor:'pointer', fontFamily:'inherit' }}>📱 WhatsApp</button>
-              <button onClick={sendEmail} style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(100,181,246,0.10)', border:'1px solid rgba(100,181,246,0.25)', color:'rgba(100,181,246,0.88)', cursor:'pointer', fontFamily:'inherit' }}>✉️ Email</button>
+              <button onClick={downloadPDF} disabled={pdfBusy}
+                style={{ padding:'8px 18px', borderRadius:'9px', fontSize:'12px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.22),rgba(255,149,0,0.14))', border:'1.5px solid rgba(255,215,0,0.45)', color:'rgba(255,215,0,0.98)', cursor:pdfBusy?'wait':'pointer', fontFamily:'inherit', opacity:pdfBusy?0.7:1 }}>
+                {pdfBusy ? '⏳ Generating...' : '⬇ Download PDF'}
+              </button>
+              {pdfReady && <span style={{ fontSize:'11px', color:'rgba(129,199,132,0.85)', alignSelf:'center' }}>✓ PDF saved to Downloads</span>}
+              <button onClick={sendWhatsApp} disabled={pdfBusy}
+                style={{ padding:'8px 18px', borderRadius:'9px', fontSize:'12px', fontWeight:700, background:'rgba(37,211,102,0.12)', border:'1.5px solid rgba(37,211,102,0.35)', color:'rgba(37,211,102,0.95)', cursor:pdfBusy?'wait':'pointer', fontFamily:'inherit', opacity:pdfBusy?0.7:1 }}>
+                📱 WhatsApp
+              </button>
+              <button onClick={sendEmail} disabled={pdfBusy}
+                style={{ padding:'8px 18px', borderRadius:'9px', fontSize:'12px', fontWeight:700, background:'rgba(100,181,246,0.10)', border:'1.5px solid rgba(100,181,246,0.30)', color:'rgba(100,181,246,0.92)', cursor:pdfBusy?'wait':'pointer', fontFamily:'inherit', opacity:pdfBusy?0.7:1 }}>
+                ✉️ Email
+              </button>
               {doc.status === 'draft' && <button onClick={async()=>{ await updateStatus(doc.id,'sent'); setPreviewDoc({...doc,status:'sent'}) }} style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(100,181,246,0.10)', border:'1px solid rgba(100,181,246,0.25)', color:'rgba(100,181,246,0.88)', cursor:'pointer', fontFamily:'inherit' }}>📤 Mark as Sent</button>}
               {doc.doc_type === 'invoice' && doc.status !== 'paid' && <button onClick={async()=>{ await updateStatus(doc.id,'paid'); setPreviewDoc({...doc,status:'paid'}) }} style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(129,199,132,0.12)', border:'1px solid rgba(129,199,132,0.30)', color:'rgba(129,199,132,0.95)', cursor:'pointer', fontFamily:'inherit' }}>✓ Mark Paid</button>}
             </div>
