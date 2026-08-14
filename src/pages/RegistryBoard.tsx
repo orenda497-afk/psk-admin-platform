@@ -38,7 +38,7 @@ const gl = {
   label: { fontSize: '9px', fontWeight: 600, letterSpacing: '1.2px', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,0.32)' },
 }
 
-const CLASSES = ['Saloon Car','Rav 4','Noah','Prado','Land Cruiser','Van 11-seater','Van 14-seater','Coaster 22-seater']
+const CLASSES = ['Saloon Car','SUV','Rav 4','Noah','Prado','Land Cruiser','Land Cruiser V8','Pickup Truck','Station Wagon','Van 11-seater','Van 14-seater','Minibus 25-seater','Coaster 32-seater','Bus']
 
 export default function RegistryBoard() {
   const navigate = useNavigate()
@@ -49,6 +49,7 @@ export default function RegistryBoard() {
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<Vehicle | null>(null)
   const [showAdd, setShowAdd] = useState(false)
+  const [editingId, setEditingId] = useState<string|null>(null)
   const [form, setForm] = useState({
     reg: '', make: '', model: '', year: new Date().getFullYear(), colour: '',
     seats: 4, vehicle_class: 'Prado', branch: 'eldoret' as 'eldoret'|'kisumu',
@@ -83,11 +84,52 @@ export default function RegistryBoard() {
     setSaving(false)
     if (!error) {
       setShowAdd(false)
+      setEditingId(null)
       setForm({ reg:'',make:'',model:'',year:new Date().getFullYear(),colour:'',seats:4,vehicle_class:'Prado',branch:'eldoret',owner_name:'',date_joined:'',insurance_expiry:'',inspection_expiry:'',road_licence_expiry:'',odometer:0,condition_notes:'' })
       loadVehicles()
     } else {
       alert('Error: ' + error.message)
     }
+  }
+
+  function startEdit(v: Vehicle) {
+    setForm({
+      reg: v.reg || '', make: v.make || '', model: v.model || '',
+      year: v.year || new Date().getFullYear(), colour: v.colour || '',
+      seats: v.seats || 4, vehicle_class: v.vehicle_class || 'Prado',
+      branch: (v.branch as 'eldoret'|'kisumu') || 'eldoret',
+      owner_name: v.owner_name || '', date_joined: '',
+      insurance_expiry: v.insurance_expiry || '',
+      inspection_expiry: v.inspection_expiry || '',
+      road_licence_expiry: v.road_licence_expiry || '',
+      odometer: v.odometer || 0,
+      condition_notes: v.condition_notes || ''
+    })
+    setEditingId(v.id)
+    setShowAdd(true)
+    setSelected(null)
+  }
+
+  async function saveVehicleEdit() {
+    if (!editingId || !form.reg || !form.make || !form.model) return
+    setSaving(true)
+    const { error } = await supabase.from('vehicles').update({
+      reg: form.reg.toUpperCase().trim(),
+      make: form.make, model: form.model, year: form.year,
+      colour: form.colour, seats: form.seats,
+      vehicle_class: form.vehicle_class, branch: form.branch,
+      owner_name: form.owner_name || null,
+      odometer: form.odometer || null,
+      insurance_expiry: form.insurance_expiry || null,
+      inspection_expiry: form.inspection_expiry || null,
+      condition_notes: form.condition_notes || null,
+    }).eq('id', editingId)
+    setSaving(false)
+    if (!error) {
+      setShowAdd(false); setEditingId(null)
+      setForm({ reg:'',make:'',model:'',year:new Date().getFullYear(),colour:'',seats:4,vehicle_class:'Prado',branch:'eldoret',owner_name:'',date_joined:'',insurance_expiry:'',inspection_expiry:'',road_licence_expiry:'',odometer:0,condition_notes:'' })
+      loadVehicles()
+    } else alert('Error: ' + error.message)
   }
 
   const filtered = vehicles.filter(v => {
@@ -258,7 +300,10 @@ export default function RegistryBoard() {
           <div onClick={() => setSelected(null)} style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.45)' }} />
           <div style={{ position:'relative', width:'420px', height:'100vh', background:'rgba(6,16,28,0.97)', backdropFilter:'blur(32px)', borderLeft:'1px solid rgba(255,255,255,0.12)', boxShadow:'-12px 0 60px rgba(0,0,0,0.5)', overflowY:'auto', zIndex:1 }}>
             <div style={{ padding:'24px' }}>
-              <button onClick={() => setSelected(null)} style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'8px', padding:'6px 12px', color:'rgba(255,255,255,0.55)', cursor:'pointer', fontSize:'12px', fontFamily:'inherit', marginBottom:'20px' }}>✕ Close</button>
+              <div style={{ display:'flex', gap:'8px', marginBottom:'20px' }}>
+                <button onClick={() => setSelected(null)} style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'8px', padding:'6px 12px', color:'rgba(255,255,255,0.55)', cursor:'pointer', fontSize:'12px', fontFamily:'inherit' }}>✕ Close</button>
+                <button onClick={() => startEdit(selected!)} style={{ background:'rgba(255,215,0,0.10)', border:'1px solid rgba(255,215,0,0.30)', borderRadius:'8px', padding:'6px 14px', color:'rgba(255,215,0,0.90)', cursor:'pointer', fontSize:'12px', fontFamily:'inherit', fontWeight:600 }}>✏️ Edit Vehicle</button>
+              </div>
               <span style={{ fontSize:'10px', fontWeight:600, padding:'3px 10px', borderRadius:'20px', color:STATUS[selected.status].color, background:STATUS[selected.status].bg, border:`1px solid ${STATUS[selected.status].border}` }}>{STATUS[selected.status].label}</span>
               <div style={{ fontSize:'26px', fontWeight:800, color:'rgba(255,255,255,0.95)', margin:'12px 0 4px', letterSpacing:'-0.5px' }}>{selected.reg}</div>
               <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.40)', marginBottom:'24px' }}>{selected.year} {selected.make} {selected.model} · {selected.branch === 'eldoret' ? 'Eldoret HQ' : 'Kisumu'}</div>
@@ -323,7 +368,7 @@ export default function RegistryBoard() {
               </div>
               <div style={{ display:'flex', gap:'10px', marginTop:'24px' }}>
                 <button onClick={() => setShowAdd(false)} style={{ flex:1, padding:'12px', borderRadius:'10px', fontSize:'12px', fontWeight:600, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.55)', cursor:'pointer', fontFamily:'inherit' }}>Cancel</button>
-                <button onClick={saveVehicle} disabled={saving} style={{ flex:2, padding:'12px', borderRadius:'10px', fontSize:'12px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,149,0,0.10))', border:'1.5px solid rgba(255,215,0,0.35)', color:'rgba(255,215,0,0.95)', cursor: saving ? 'not-allowed' : 'pointer', fontFamily:'inherit', opacity: saving ? 0.7 : 1 }}>
+                <button onClick={editingId ? saveVehicleEdit : saveVehicle} disabled={saving} style={{ flex:2, padding:'12px', borderRadius:'10px', fontSize:'12px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,149,0,0.10))', border:'1.5px solid rgba(255,215,0,0.35)', color:'rgba(255,215,0,0.95)', cursor: saving ? 'not-allowed' : 'pointer', fontFamily:'inherit', opacity: saving ? 0.7 : 1 }}>
                   {saving ? 'Saving...' : 'Register Vehicle'}
                 </button>
               </div>

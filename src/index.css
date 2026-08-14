@@ -175,9 +175,25 @@ button {
 }
 
 /* ── Print ── */
+/* Force browser to print background colors */
+.psk-document {
+  print-color-adjust: exact !important;
+  -webkit-print-color-adjust: exact !important;
+  color-adjust: exact !important;
+}
+
 @media print {
   .psk-no-print { display: none !important; }
-  .psk-document { box-shadow: none !important; border-radius: 0 !important; }
+  .psk-document { box-shadow: none !important; border-radius: 0 !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  .psk-document * {
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
   body > * { visibility: hidden; }
   .psk-document, .psk-document * { visibility: visible; }
   .psk-document { position: absolute; top: 0; left: 0; width: 100%; }
