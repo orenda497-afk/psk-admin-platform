@@ -323,7 +323,12 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
                             style={{ padding:'4px 10px', borderRadius:'7px', fontSize:'11px', fontWeight:600, background:'rgba(100,181,246,0.10)', border:'1px solid rgba(100,181,246,0.28)', color:'rgba(100,181,246,0.90)', cursor:'pointer', fontFamily:'inherit' }}>
                             📎 View
                           </button>
-                        ) : <span style={{ fontSize:'11px', color:'rgba(255,255,255,0.20)' }}>—</span>}
+                        ) : (
+                          <button onClick={e=>{e.stopPropagation();setSelectedSvc(s)}}
+                            style={{ padding:'4px 10px', borderRadius:'7px', fontSize:'11px', fontWeight:600, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.35)', cursor:'pointer', fontFamily:'inherit' }}>
+                            + Add receipt
+                          </button>
+                        )}
                       </td>
                     </tr>
                   )
@@ -373,6 +378,29 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
                 📱 WhatsApp
               </button>
             </div>
+
+            {/* Upload receipt if none exists */}
+            {!selectedSvc.receipt_url && (
+              <div style={{ textAlign:'center', padding:'24px', background:'rgba(255,255,255,0.03)', borderRadius:'10px', border:'1px dashed rgba(255,255,255,0.15)', marginBottom:'12px' }}>
+                <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.40)', marginBottom:'12px' }}>No receipt attached to this entry</div>
+                <input type="file" accept="image/*,application/pdf" id="svc-receipt-upload" style={{ display:'none' }}
+                  onChange={async e => {
+                    if (!e.target.files?.[0]) return
+                    const r = new FileReader()
+                    r.onload = async ev => {
+                      const url = ev.target?.result as string
+                      await supabase.from('maintenance_logs').update({ receipt_url: url }).eq('id', selectedSvc.id)
+                      setSelectedSvc({...selectedSvc, receipt_url: url})
+                      loadAll()
+                    }
+                    r.readAsDataURL(e.target.files[0])
+                  }} />
+                <button onClick={()=>document.getElementById('svc-receipt-upload')?.click()}
+                  style={{ padding:'9px 18px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(100,181,246,0.10)', border:'1px solid rgba(100,181,246,0.28)', color:'rgba(100,181,246,0.90)', cursor:'pointer', fontFamily:'inherit' }}>
+                  📁 Upload receipt now
+                </button>
+              </div>
+            )}
 
             {/* Receipt image or PDF */}
             {selectedSvc.receipt_url && (
