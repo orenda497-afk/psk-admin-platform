@@ -225,7 +225,12 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
 
   return (
     <div style={{padding:'24px 28px 28px'}}>
-      <div onClick={()=>navigate('/')} style={{display:'flex',alignItems:'center',gap:'6px',color:'rgba(255,215,0,0.70)',fontSize:'12px',fontWeight:500,cursor:'pointer',marginBottom:'18px'}}>← Home</div>
+      <div onClick={()=>window.history.back()} style={{ display:'inline-flex', alignItems:'center', gap:'8px', marginBottom:'20px', cursor:'pointer', padding:'8px 16px', borderRadius:'20px', background:'rgba(255,215,0,0.06)', border:'1px solid rgba(255,215,0,0.18)', transition:'all 0.2s ease', userSelect:'none' as any }}
+        onMouseEnter={e=>{ const el=e.currentTarget; el.style.background='rgba(255,215,0,0.12)'; el.style.borderColor='rgba(255,215,0,0.35)'; el.style.transform='translateX(-2px)' }}
+        onMouseLeave={e=>{ const el=e.currentTarget; el.style.background='rgba(255,215,0,0.06)'; el.style.borderColor='rgba(255,215,0,0.18)'; el.style.transform='translateX(0)' }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,215,0,0.85)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        <span style={{ fontSize:'13px', fontWeight:600, color:'rgba(255,215,0,0.85)', letterSpacing:'0.1px' }}>Back</span>
+      </div>
       <div style={{display:'flex',gap:'6px',marginBottom:'20px',flexWrap:'wrap'}}>
         {TABS.map(t=><button key={t.id} onClick={()=>(t as any).go?navigate((t as any).go):setTab(t.id)} style={{padding:'7px 15px',borderRadius:'20px',fontSize:'11px',fontWeight:600,cursor:'pointer',fontFamily:'inherit',background:tab===t.id?'rgba(255,215,0,0.12)':'rgba(255,255,255,0.05)',border:`1px solid ${tab===t.id?'rgba(255,215,0,0.35)':'rgba(255,255,255,0.10)'}`,color:tab===t.id?'rgba(255,215,0,0.90)':'rgba(255,255,255,0.40)'}}>{t.label}</button>)}
       </div>
@@ -580,6 +585,29 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
                 </div>
 
                 {/* Export button */}
+                {/* Expenses by category breakdown */}
+                {expenses.length > 0 && (() => {
+                  const catTotals: Record<string,number> = {}
+                  expenses.forEach((e:any) => { catTotals[e.category||'Uncategorised'] = (catTotals[e.category||'Uncategorised']||0) + (e.amount||0) })
+                  const sorted = Object.entries(catTotals).sort((a,b)=>b[1]-a[1])
+                  const total = sorted.reduce((s,[,v])=>s+v,0)
+                  return (
+                    <div style={{marginTop:'20px',background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'12px',padding:'16px',marginBottom:'14px'}}>
+                      <div style={{fontSize:'12px',fontWeight:700,color:'rgba(255,255,255,0.70)',marginBottom:'14px',textTransform:'uppercase',letterSpacing:'0.5px'}}>Expenses by Category</div>
+                      {sorted.map(([cat,amt])=>(
+                        <div key={cat} style={{display:'flex',alignItems:'center',gap:'10px',marginBottom:'10px'}}>
+                          <div style={{fontSize:'12px',color:'rgba(255,255,255,0.70)',width:'200px',flexShrink:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{cat}</div>
+                          <div style={{flex:1,height:'6px',borderRadius:'3px',background:'rgba(255,255,255,0.08)',overflow:'hidden'}}>
+                            <div style={{height:'100%',borderRadius:'3px',background:'linear-gradient(90deg,rgba(239,154,154,0.70),rgba(231,76,60,0.50))',width:`${Math.round((amt/total)*100)}%`}}/>
+                          </div>
+                          <div style={{fontSize:'12px',fontWeight:600,color:'rgba(239,154,154,0.90)',width:'90px',textAlign:'right'}}>KES {amt.toLocaleString()}</div>
+                          <div style={{fontSize:'10px',color:'rgba(255,255,255,0.30)',width:'36px',textAlign:'right'}}>{Math.round((amt/total)*100)}%</div>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })()}
+
                 <button onClick={()=>{
                   const header = ['Month','Income (KES)','Expenses (KES)','Net Profit (KES)','Margin %']
                   const csvRows = rows.map(r=>[r.label,r.income,r.expenses,r.net,r.income>0?Math.round((r.net/r.income)*100)+'%':'0%'])
