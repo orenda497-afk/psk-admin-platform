@@ -276,30 +276,14 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
 
 
 
-        {/* Sign out button — elevated, crisp */}
-        <div style={{ padding:'10px 14px 4px' }}>
-          <button
+        {/* Sign out — plain text link */}
+        <div style={{ padding:'8px 18px 4px', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
+          <span
             onClick={() => { if(window.confirm('Sign out of PSK Admin?')) onLogout() }}
-            style={{
-              width:'100%', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
-              padding:'11px 16px', borderRadius:'12px', cursor:'pointer', fontFamily:'inherit',
-              fontSize:'13px', fontWeight:700, letterSpacing:'0.2px',
-              background:'linear-gradient(135deg, rgba(231,76,60,0.18), rgba(192,57,43,0.12))',
-              border:'1.5px solid rgba(231,76,60,0.40)',
-              color:'rgba(239,154,154,0.95)',
-              boxShadow:'0 4px 14px rgba(231,76,60,0.20), inset 0 1px 0 rgba(255,255,255,0.06)',
-              transition:'all 0.18s ease',
-            }}
-            onMouseEnter={e=>{ const el=e.currentTarget; el.style.background='linear-gradient(135deg, rgba(231,76,60,0.30), rgba(192,57,43,0.22))'; el.style.borderColor='rgba(231,76,60,0.65)'; el.style.color='rgba(255,180,180,1)'; el.style.boxShadow='0 6px 20px rgba(231,76,60,0.35), inset 0 1px 0 rgba(255,255,255,0.08)'; el.style.transform='translateY(-1px)' }}
-            onMouseLeave={e=>{ const el=e.currentTarget; el.style.background='linear-gradient(135deg, rgba(231,76,60,0.18), rgba(192,57,43,0.12))'; el.style.borderColor='rgba(231,76,60,0.40)'; el.style.color='rgba(239,154,154,0.95)'; el.style.boxShadow='0 4px 14px rgba(231,76,60,0.20), inset 0 1px 0 rgba(255,255,255,0.06)'; el.style.transform='translateY(0)' }}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-              <polyline points="16 17 21 12 16 7"/>
-              <line x1="21" y1="12" x2="9" y2="12"/>
-            </svg>
-            Sign out
-          </button>
+            style={{ fontSize:'12px', color:'rgba(239,154,154,0.55)', cursor:'pointer', userSelect:'none' }}
+            onMouseEnter={e=>{ (e.currentTarget as HTMLElement).style.color='rgba(239,154,154,0.90)' }}
+            onMouseLeave={e=>{ (e.currentTarget as HTMLElement).style.color='rgba(239,154,154,0.55)' }}
+          >Sign out</span>
         </div>
 
         {/* User avatar — opens profile panel */}
