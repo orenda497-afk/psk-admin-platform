@@ -20,6 +20,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
 
   const [currentBranch, setCurrentBranch] = useState<'eldoret' | 'kisumu'>('eldoret')
   const [profileOpen, setProfileOpen] = useState(false)
+  const [popoverOpen, setPopoverOpen] = useState(false)
   const [branchOpen, setBranchOpen] = useState(false)
 
   const handleCategoryClick = (categoryId: string) => {
@@ -276,32 +277,49 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
 
 
 
-        {/* Sign out — plain text link */}
-        <div style={{ padding:'8px 18px 4px', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
-          <span
-            onClick={() => { if(window.confirm('Sign out of PSK Admin?')) onLogout() }}
-            style={{ fontSize:'12px', color:'rgba(239,154,154,0.55)', cursor:'pointer', userSelect:'none' }}
-            onMouseEnter={e=>{ (e.currentTarget as HTMLElement).style.color='rgba(239,154,154,0.90)' }}
-            onMouseLeave={e=>{ (e.currentTarget as HTMLElement).style.color='rgba(239,154,154,0.55)' }}
-          >Sign out</span>
-        </div>
+        {/* Bottom user zone — single clean row, popover on click */}
+        <div style={{ padding:'10px 12px 12px', borderTop:'1px solid rgba(255,255,255,0.07)', position:'relative' }}>
 
-        {/* User avatar — opens profile panel */}
-        <div style={{ padding:'8px 14px 12px', borderTop:'none' }}>
+          {/* Popover menu */}
+          {popoverOpen && (
+            <>
+              {/* Backdrop */}
+              <div onClick={()=>setPopoverOpen(false)} style={{ position:'fixed', inset:0, zIndex:49 }} />
+              {/* Menu */}
+              <div style={{ position:'absolute', bottom:'calc(100% + 6px)', left:'12px', right:'12px', zIndex:50, background:'#0F1E2E', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'12px', boxShadow:'0 8px 32px rgba(0,0,0,0.50)', overflow:'hidden' }}>
+                <button onClick={()=>{ setPopoverOpen(false); setProfileOpen(true) }}
+                  style={{ width:'100%', display:'flex', alignItems:'center', gap:'10px', padding:'11px 14px', background:'transparent', border:'none', cursor:'pointer', fontFamily:'inherit', color:'rgba(255,255,255,0.80)', fontSize:'13px', fontWeight:500, textAlign:'left', borderBottom:'1px solid rgba(255,255,255,0.07)' }}
+                  onMouseEnter={e=>(e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.05)'}
+                  onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background='transparent'}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{opacity:0.6}}><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                  Profile & settings
+                </button>
+                <button onClick={()=>{ setPopoverOpen(false); if(window.confirm('Sign out of PSK Admin?')) onLogout() }}
+                  style={{ width:'100%', display:'flex', alignItems:'center', gap:'10px', padding:'11px 14px', background:'transparent', border:'none', cursor:'pointer', fontFamily:'inherit', color:'rgba(239,154,154,0.80)', fontSize:'13px', fontWeight:500, textAlign:'left' }}
+                  onMouseEnter={e=>(e.currentTarget as HTMLElement).style.background='rgba(231,76,60,0.08)'}
+                  onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background='transparent'}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{opacity:0.7}}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                  Sign out
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* Avatar row */}
           <button
-            onClick={() => setProfileOpen(true)}
-            style={{ width:'100%', display:'flex', alignItems:'center', gap:'10px', padding:'8px 10px', borderRadius:'10px', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', cursor:'pointer', fontFamily:'inherit', transition:'all 0.15s' }}
-            onMouseEnter={e=>{ const el=e.currentTarget; el.style.background='rgba(255,215,0,0.07)'; el.style.borderColor='rgba(255,215,0,0.20)' }}
-            onMouseLeave={e=>{ const el=e.currentTarget; el.style.background='rgba(255,255,255,0.04)'; el.style.borderColor='rgba(255,255,255,0.08)' }}
+            onClick={() => setPopoverOpen(o => !o)}
+            style={{ width:'100%', display:'flex', alignItems:'center', gap:'10px', padding:'8px 10px', borderRadius:'10px', background: popoverOpen ? 'rgba(255,215,0,0.08)' : 'rgba(255,255,255,0.04)', border:`1px solid ${popoverOpen ? 'rgba(255,215,0,0.25)' : 'rgba(255,255,255,0.08)'}`, cursor:'pointer', fontFamily:'inherit', transition:'all 0.15s' }}
+            onMouseEnter={e=>{ if(!popoverOpen){ const el=e.currentTarget; el.style.background='rgba(255,255,255,0.07)'; el.style.borderColor='rgba(255,255,255,0.14)' }}}
+            onMouseLeave={e=>{ if(!popoverOpen){ const el=e.currentTarget; el.style.background='rgba(255,255,255,0.04)'; el.style.borderColor='rgba(255,255,255,0.08)' }}}
           >
             <div style={{ width:'30px', height:'30px', borderRadius:'50%', flexShrink:0, background:'rgba(255,215,0,0.15)', border:'1.5px solid rgba(255,215,0,0.40)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', fontWeight:800, color:'rgba(255,215,0,0.90)' }}>
               {(userName || 'U').split(' ').map((w:string) => w[0]).join('').toUpperCase().slice(0,2)}
             </div>
             <div style={{ flex:1, textAlign:'left', overflow:'hidden' }}>
-              <div style={{ fontSize:'12px', fontWeight:600, color:'rgba(255,255,255,0.80)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{userName || 'Staff'}</div>
-              <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.30)', textTransform:'capitalize' }}>{userRole}</div>
+              <div style={{ fontSize:'12px', fontWeight:600, color:'rgba(255,255,255,0.85)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{userName || 'Staff'}</div>
+              <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.35)', textTransform:'capitalize' }}>{userRole}</div>
             </div>
-            <span style={{ fontSize:'12px', color:'rgba(255,255,255,0.25)' }}>⚙️</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color:'rgba(255,255,255,0.25)', flexShrink:0, transform: popoverOpen ? 'rotate(180deg)' : 'none', transition:'transform 0.2s' }}><polyline points="6 9 12 15 18 9"/></svg>
           </button>
         </div>
 
