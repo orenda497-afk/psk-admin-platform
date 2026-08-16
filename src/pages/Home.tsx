@@ -148,8 +148,8 @@ export default function Home() {
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flexShrink: 0 }}>
-          <img src="/branding/its_friday.png" alt="It's Friday!" className="monkey-img"
-            style={{ height: '130px', width: 'auto', objectFit: 'contain' }} />
+          <img src="/branding/happy_week.png" alt="Happy Week!" className="monkey-img"
+            style={{ height: '150px', width: 'auto', objectFit: 'contain' }} />
           <div style={{ display: 'flex', gap: '9px' }}>
             {[
               { label: 'Available',   value: 0, color: 'rgba(129,199,132,0.95)', bg: 'rgba(129,199,132,0.09)', border: 'rgba(129,199,132,0.25)' },
