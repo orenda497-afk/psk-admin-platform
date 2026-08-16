@@ -27,6 +27,8 @@ interface PSKUser { name:string; role:string; title:string; email:string }
 function App() {
   const [user, setUser] = useState<PSKUser|null>(null)
   const [checking, setChecking] = useState(true)
+  const [showSplash, setShowSplash] = useState(false)
+  const [splashFading, setSplashFading] = useState(false)
   const [currentBranch, setCurrentBranch] = useState<'eldoret' | 'kisumu'>('eldoret')
   const isAuthenticated = !!user
 
@@ -92,9 +94,6 @@ function App() {
         localStorage.removeItem('psk_user')
       }
       if (event === 'SIGNED_IN') {
-        // Only redirect to home if user was not already logged in (real fresh login).
-        // TOKEN_REFRESHED and tab-focus session restores must NOT redirect —
-        // that breaks navigation when returning from a popup or new tab.
         const wasLoggedOut = !localStorage.getItem('psk_user')
         if (wasLoggedOut && window.location.pathname !== '/' &&
             !window.location.pathname.startsWith('/kevin-admin') &&
@@ -102,6 +101,12 @@ function App() {
           window.location.replace('/')
         } else {
           loadProfile()
+        }
+        // Show splash screen on real fresh login
+        if (wasLoggedOut) {
+          setShowSplash(true)
+          setTimeout(() => setSplashFading(true), 2800)
+          setTimeout(() => setShowSplash(false), 3500)
         }
       }
       if (event === 'TOKEN_REFRESHED') loadProfile()
@@ -302,6 +307,51 @@ function App() {
   }
 
   return (
+    <>
+    {/* ── SPLASH SCREEN ── */}
+    {showSplash && (
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        background: 'linear-gradient(135deg, #0D1B2A 0%, #1B4D5C 50%, #2D5F3F 100%)',
+        transition: 'opacity 0.7s ease',
+        opacity: splashFading ? 0 : 1,
+        pointerEvents: splashFading ? 'none' : 'all',
+      }}>
+        <img
+          src="/branding/happy_week.png"
+          alt="Happy Week!"
+          style={{
+            width: 'min(520px, 85vw)',
+            objectFit: 'contain',
+            animation: 'splashBounce 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards',
+            filter: 'drop-shadow(0 20px 60px rgba(0,0,0,0.50))',
+          }}
+        />
+        <div style={{
+          marginTop: '32px',
+          fontSize: '22px',
+          fontWeight: 700,
+          color: 'rgba(255,215,0,0.90)',
+          letterSpacing: '1px',
+          animation: 'splashFadeUp 0.8s 0.3s ease both',
+          fontFamily: 'Inter, sans-serif',
+        }}>
+          Welcome back to PSK Admin 🌟
+        </div>
+        <style>{`
+          @keyframes splashBounce {
+            from { transform: scale(0.3) rotate(-8deg); opacity: 0; }
+            to   { transform: scale(1) rotate(0deg); opacity: 1; }
+          }
+          @keyframes splashFadeUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to   { transform: translateY(0); opacity: 1; }
+          }
+        `}</style>
+      </div>
+    )}
     <Router>
       <Layout onLogout={async () => { await supabase.rpc('log_action', { p_action:'Signed out', p_detail:null, p_entity:'auth', p_entity_id:null, p_icon:'\u{1F6AA}' }); await supabase.auth.signOut(); sessionStorage.clear(); setUser(null); localStorage.removeItem('psk_user') }} currentBranch={currentBranch} userRole={user?.role||'manager'} userName={user?.name||''} currentUser={user?.email||''}>
         <Routes>
@@ -380,6 +430,8 @@ function App() {
         </Routes>
       </Layout>
     </Router>
+  )
+  </>
   )
 }
 
