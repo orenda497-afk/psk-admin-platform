@@ -53,7 +53,9 @@ export default function Reminders() {
   const [showResolved, setShowResolved] = useState(false)
   const [form, setForm] = useState({
     branch: 'eldoret', priority: 'amber', category: 'manual',
-    title: '', detail: '', due_date: ''
+    title: '', detail: '', due_date: '',
+    car_plate: '', company_name: '', pickup_time: '',
+    car_type: '', start_location: '', drop_location: ''
   })
 
   const load = useCallback(async () => {
@@ -190,6 +192,9 @@ export default function Reminders() {
       branch: form.branch, type: 'manual', category: 'manual',
       priority: form.priority, title: form.title,
       detail: form.detail || null, due_date: form.due_date || null, resolved: false,
+      car_plate: form.car_plate || null, company_name: form.company_name || null,
+      pickup_time: form.pickup_time || null, car_type: form.car_type || null,
+      start_location: form.start_location || null, drop_location: form.drop_location || null,
     }])
     setShowAdd(false)
     setForm({ branch:'eldoret', priority:'amber', category:'manual', title:'', detail:'', due_date:'' })
@@ -302,6 +307,15 @@ export default function Reminders() {
                   {r.title}
                 </div>
                 {r.detail && <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.40)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{r.detail}</div>}
+                {((r as any).car_plate || (r as any).company_name || (r as any).car_type) && (
+                  <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', marginTop:'5px' }}>
+                    {(r as any).car_plate && <span style={{ fontSize:'10px', fontWeight:700, padding:'2px 8px', borderRadius:'6px', background:'rgba(255,215,0,0.10)', border:'1px solid rgba(255,215,0,0.22)', color:'rgba(255,215,0,0.80)' }}>{(r as any).car_plate}</span>}
+                    {(r as any).car_type && <span style={{ fontSize:'10px', padding:'2px 8px', borderRadius:'6px', background:'rgba(255,255,255,0.06)', color:'rgba(255,255,255,0.50)' }}>{(r as any).car_type}</span>}
+                    {(r as any).company_name && <span style={{ fontSize:'10px', padding:'2px 8px', borderRadius:'6px', background:'rgba(100,181,246,0.08)', color:'rgba(100,181,246,0.70)' }}>{(r as any).company_name}</span>}
+                    {(r as any).pickup_time && <span style={{ fontSize:'10px', padding:'2px 8px', borderRadius:'6px', background:'rgba(129,199,132,0.08)', color:'rgba(129,199,132,0.70)' }}>🕐 {(r as any).pickup_time}</span>}
+                    {(r as any).start_location && (r as any).drop_location && <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.35)' }}>{(r as any).start_location} → {(r as any).drop_location}</span>}
+                  </div>
+                )}
               </div>
               <div style={{ display:'flex', gap:'8px', flexShrink:0 }}>
                 {r.entity_type && (
@@ -353,14 +367,65 @@ export default function Reminders() {
               <textarea value={form.detail} onChange={e=>setForm(f=>({...f,detail:e.target.value}))} placeholder="Additional notes..." style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', height:'64px', resize:'none' }} />
             </div>
 
+            {/* Trip/Booking details */}
+            <div style={{ marginBottom:'8px', fontSize:'10px', fontWeight:700, color:'rgba(255,215,0,0.55)', letterSpacing:'1px', textTransform:'uppercase' }}>Trip Details (optional)</div>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'12px' }}>
+              {[
+                ['Car Plate', 'car_plate', 'text', 'e.g. KDD 740M'],
+                ['Company / Client Name', 'company_name', 'text', 'e.g. Minet Kenya'],
+                ['Pickup Time', 'pickup_time', 'time', ''],
+                ['Date', 'due_date', 'date', ''],
+              ].map(([label, key, type, ph]) => (
+                <div key={key}>
+                  <div style={{ ...gl.label, marginBottom:'5px' }}>{label}</div>
+                  <input type={type} value={(form as any)[key]} onChange={e=>setForm((f:any)=>({...f,[key]:e.target.value}))} placeholder={ph}
+                    style={{ width:'100%', padding:'9px 11px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', boxSizing:'border-box' as any }} />
+                </div>
+              ))}
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'10px', marginBottom:'12px' }}>
+              <div>
+                <div style={{ ...gl.label, marginBottom:'5px' }}>Car Type</div>
+                <select value={form.car_type} onChange={e=>setForm(f=>({...f,car_type:e.target.value}))}
+                  style={{ width:'100%', padding:'9px 11px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', cursor:'pointer' }}>
+                  <option value="">Select...</option>
+                  <option>Saloon</option>
+                  <option>SUV</option>
+                  <option>Prado</option>
+                  <option>Land Cruiser</option>
+                  <option>Noah/Van</option>
+                  <option>Pickup</option>
+                  <option>Sub Driver</option>
+                  <option>Chauffeured</option>
+                  <option>Self Drive</option>
+                </select>
+              </div>
+              <div>
+                <div style={{ ...gl.label, marginBottom:'5px' }}>Start Location</div>
+                <input value={form.start_location} onChange={e=>setForm(f=>({...f,start_location:e.target.value}))} placeholder="e.g. PSK Office"
+                  style={{ width:'100%', padding:'9px 11px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', boxSizing:'border-box' as any }} />
+              </div>
+              <div>
+                <div style={{ ...gl.label, marginBottom:'5px' }}>Drop Location</div>
+                <input value={form.drop_location} onChange={e=>setForm(f=>({...f,drop_location:e.target.value}))} placeholder="e.g. Nakuru"
+                  style={{ width:'100%', padding:'9px 11px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', boxSizing:'border-box' as any }} />
+              </div>
+            </div>
+
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', marginBottom:'20px' }}>
               <div>
-                <div style={{ ...gl.label, marginBottom:'6px' }}>Due date (optional)</div>
-                <input type="date" value={form.due_date} onChange={e=>setForm(f=>({...f,due_date:e.target.value}))} style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit' }} />
+                <div style={{ ...gl.label, marginBottom:'6px' }}>Priority</div>
+                <select value={form.branch} onChange={e=>setForm(f=>({...f,branch:e.target.value}))}
+                  style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', cursor:'pointer' }}>
+                  <option value="eldoret">Eldoret HQ</option>
+                  <option value="kisumu">Kisumu Branch</option>
+                  <option value="">Both branches</option>
+                </select>
               </div>
               <div>
                 <div style={{ ...gl.label, marginBottom:'6px' }}>Branch</div>
-                <select value={form.branch} onChange={e=>setForm(f=>({...f,branch:e.target.value}))} style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', cursor:'pointer' }}>
+                <select value={form.branch} onChange={e=>setForm(f=>({...f,branch:e.target.value}))}
+                  style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', cursor:'pointer' }}>
                   <option value="eldoret">Eldoret HQ</option>
                   <option value="kisumu">Kisumu Branch</option>
                   <option value="">Both branches</option>
