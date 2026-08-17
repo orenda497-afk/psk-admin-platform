@@ -54,7 +54,7 @@ export default function Reminders() {
   const [form, setForm] = useState({
     branch: 'eldoret', priority: 'amber', category: 'manual',
     title: '', detail: '', due_date: '',
-    car_plate: '', company_name: '', pickup_time: '',
+    car_plate: '', company_name: '', pickup_time: '', drop_off_time: '',
     car_type: '', start_location: '', drop_location: ''
   })
 
@@ -193,7 +193,7 @@ export default function Reminders() {
       priority: form.priority, title: form.title,
       detail: form.detail || null, due_date: form.due_date || null, resolved: false,
       car_plate: form.car_plate || null, company_name: form.company_name || null,
-      pickup_time: form.pickup_time || null, car_type: form.car_type || null,
+      pickup_time: form.pickup_time || null, drop_off_time: (form as any).drop_off_time || null, car_type: form.car_type || null,
       start_location: form.start_location || null, drop_location: form.drop_location || null,
     }])
     setShowAdd(false)
@@ -312,7 +312,8 @@ export default function Reminders() {
                     {(r as any).car_plate && <span style={{ fontSize:'10px', fontWeight:700, padding:'2px 8px', borderRadius:'6px', background:'rgba(255,215,0,0.10)', border:'1px solid rgba(255,215,0,0.22)', color:'rgba(255,215,0,0.80)' }}>{(r as any).car_plate}</span>}
                     {(r as any).car_type && <span style={{ fontSize:'10px', padding:'2px 8px', borderRadius:'6px', background:'rgba(255,255,255,0.06)', color:'rgba(255,255,255,0.50)' }}>{(r as any).car_type}</span>}
                     {(r as any).company_name && <span style={{ fontSize:'10px', padding:'2px 8px', borderRadius:'6px', background:'rgba(100,181,246,0.08)', color:'rgba(100,181,246,0.70)' }}>{(r as any).company_name}</span>}
-                    {(r as any).pickup_time && <span style={{ fontSize:'10px', padding:'2px 8px', borderRadius:'6px', background:'rgba(129,199,132,0.08)', color:'rgba(129,199,132,0.70)' }}>🕐 {(r as any).pickup_time}</span>}
+                    {(r as any).pickup_time && <span style={{ fontSize:'10px', padding:'2px 8px', borderRadius:'6px', background:'rgba(129,199,132,0.08)', color:'rgba(129,199,132,0.70)' }}>🕐 Pick: {(r as any).pickup_time}</span>}
+                    {(r as any).drop_off_time && <span style={{ fontSize:'10px', padding:'2px 8px', borderRadius:'6px', background:'rgba(255,149,0,0.08)', color:'rgba(255,149,0,0.70)' }}>🕐 Drop: {(r as any).drop_off_time}</span>}
                     {(r as any).start_location && (r as any).drop_location && <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.35)' }}>{(r as any).start_location} → {(r as any).drop_location}</span>}
                   </div>
                 )}
@@ -374,7 +375,9 @@ export default function Reminders() {
                 ['Car Plate', 'car_plate', 'text', 'e.g. KDD 740M'],
                 ['Company / Client Name', 'company_name', 'text', 'e.g. Minet Kenya'],
                 ['Pickup Time', 'pickup_time', 'time', ''],
+                ['Drop-off Time', 'drop_off_time', 'time', ''],
                 ['Date', 'due_date', 'date', ''],
+                ['Branch', 'branch', 'select', ''],
               ].map(([label, key, type, ph]) => (
                 <div key={key}>
                   <div style={{ ...gl.label, marginBottom:'5px' }}>{label}</div>
