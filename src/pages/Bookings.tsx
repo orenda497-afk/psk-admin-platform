@@ -340,11 +340,14 @@ export default function Bookings() {
               <button
                 onClick={() => {
                   // Navigate to rental agreements with booking prefilled
-                  const params = new URLSearchParams({
+                  navigate('/rental-agreements', { state: {
+                    openAdd: true,
+                    fromBooking: true,
                     booking_id: selected.id,
                     booking_ref: selected.booking_ref || '',
                     client_name: clients.find((c:any)=>c.id===selected.client_id)?.name || '',
                     client_phone: clients.find((c:any)=>c.id===selected.client_id)?.phone || '',
+                    client_id_number: clients.find((c:any)=>c.id===selected.client_id)?.id_number || '',
                     vehicle_reg: vehicles.find((v:any)=>v.id===selected.vehicle_id)?.reg || '',
                     vehicle_make: vehicles.find((v:any)=>v.id===selected.vehicle_id)?.make || '',
                     vehicle_model: vehicles.find((v:any)=>v.id===selected.vehicle_id)?.model || '',
@@ -355,8 +358,7 @@ export default function Bookings() {
                     amount: String(selected.amount || ''),
                     trip_type: selected.trip_type || '',
                     branch: selected.branch || '',
-                  })
-                  navigate(`/rental-agreements?new=1&${params.toString()}`)
+                  }})
                 }}
                 style={{ width:'100%', marginTop:'10px', padding:'11px', borderRadius:'10px', fontSize:'13px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(100,181,246,0.10)', border:'1px solid rgba(100,181,246,0.28)', color:'rgba(100,181,246,0.90)' }}>
                 📋 Generate Rental Agreement

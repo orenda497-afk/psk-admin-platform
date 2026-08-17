@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
@@ -103,9 +105,21 @@ export default function RentalAgreements() {
       const navState = (location.state || {}) as any
       if (navState.openAdd) {
         setForm(f => ({ ...f,
-          client_name: navState.clientName || '',
-          client_phone: navState.clientPhone || '',
-          client_id_number: navState.clientIdNumber || '',
+          client_name: navState.client_name || navState.clientName || '',
+          client_phone: navState.client_phone || navState.clientPhone || '',
+          client_id_number: navState.client_id_number || navState.clientIdNumber || '',
+          vehicle_reg: navState.vehicle_reg || '',
+          vehicle_make: navState.vehicle_make || '',
+          vehicle_model: navState.vehicle_model || '',
+          pickup_location: navState.pickup || '',
+          dropoff_location: navState.dropoff || '',
+          pickup_date: navState.pickup_date || '',
+          return_date: navState.return_date || '',
+          daily_rate: Number(navState.amount) || 0,
+          total_amount: Number(navState.amount) || 0,
+          trip_type: navState.trip_type || 'Chauffeured',
+          branch: (navState.branch as any) || 'eldoret',
+          booking_id: navState.booking_id || '',
         }))
         setShowAdd(true)
         navigate('/rental-agreements', { replace: true, state: null })
@@ -136,6 +150,53 @@ export default function RentalAgreements() {
       }
     })
   }, [])
+
+  const [pdfBusy, setPdfBusy] = useState(false)
+
+  async function generatePDF(): Promise<Blob | null> {
+    const el = document.getElementById('agreement-doc')
+    if (!el) return null
+    const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' })
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+    const w = pdf.internal.pageSize.getWidth()
+    const h = (canvas.height * w) / canvas.width
+    pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, w, h)
+    return pdf.output('blob')
+  }
+
+  async function downloadPDF() {
+    if (!selected) return
+    setPdfBusy(true)
+    const blob = await generatePDF()
+    setPdfBusy(false)
+    if (!blob) return
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${selected.agreement_ref || 'PSK-Contract'}.pdf`
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(url), 2000)
+  }
+
+  async function shareWhatsApp() {
+    if (!selected) return
+    setPdfBusy(true)
+    await downloadPDF()
+    setPdfBusy(false)
+    const phone = (selected.client_phone || '').replace(/\D/g, '')
+    const msg = encodeURIComponent(`Dear ${selected.client_name},\n\nPlease find your Trip Contract from PSK Safaris & Car Rentals.\n\nRef: ${selected.agreement_ref}\nVehicle: ${selected.vehicle_reg}\nDate: ${selected.pickup_date ? new Date(selected.pickup_date).toLocaleDateString('en-GB') : ''}\n\nThe PDF has been downloaded — please check your downloads folder.\n\nThank you for choosing PSK Safaris.\nTel: +254 751 855 180`)
+    setTimeout(() => window.open(`https://wa.me/${phone}?text=${msg}`, '_blank'), 1200)
+  }
+
+  async function shareEmail() {
+    if (!selected) return
+    setPdfBusy(true)
+    await downloadPDF()
+    setPdfBusy(false)
+    const subject = encodeURIComponent(`PSK Safaris — Trip Contract ${selected.agreement_ref}`)
+    const body = encodeURIComponent(`Dear ${selected.client_name},\n\nPlease find attached your Trip Contract from PSK Safaris & Car Rentals.\n\nRef: ${selected.agreement_ref}\nVehicle: ${selected.vehicle_reg}\n\nThank you for choosing PSK Safaris.\nTel: +254 751 855 180`)
+    setTimeout(() => window.open(`mailto:${selected.client_phone || ''}?subject=${subject}&body=${body}`, '_blank'), 1200)
+  }
 
   async function loadAll() {
     setLoading(true)
@@ -374,7 +435,22 @@ export default function RentalAgreements() {
         <div style={{ position:'fixed', inset:0, zIndex:200, display:'flex', alignItems:'flex-start', justifyContent:'center', background:'rgba(0,0,0,0.80)', backdropFilter:'blur(12px)', overflowY:'auto', padding:'40px 20px' }}>
           <div style={{ width:'780px', maxWidth:'100%' }}>
             <div style={{ display:'flex', justifyContent:'flex-end', marginBottom:'16px', gap:'10px' }}>
-              <button onClick={() => window.print()} style={{ padding:'8px 18px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,149,0,0.10))', border:'1.5px solid rgba(255,215,0,0.35)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit' }}>🖨 Print / Save PDF</button>
+              <button onClick={downloadPDF} disabled={pdfBusy}
+                style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.22),rgba(255,149,0,0.14))', border:'1.5px solid rgba(255,215,0,0.45)', color:'rgba(255,215,0,0.98)', cursor:pdfBusy?'wait':'pointer', fontFamily:'inherit', opacity:pdfBusy?0.7:1 }}>
+                {pdfBusy ? '⏳ Generating...' : '⬇ Download PDF'}
+              </button>
+              <button onClick={()=>window.print()} disabled={pdfBusy}
+                style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.14)', color:'rgba(255,255,255,0.70)', cursor:'pointer', fontFamily:'inherit' }}>
+                🖨 Print
+              </button>
+              <button onClick={shareWhatsApp} disabled={pdfBusy}
+                style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:700, background:'rgba(37,211,102,0.12)', border:'1.5px solid rgba(37,211,102,0.35)', color:'rgba(37,211,102,0.95)', cursor:pdfBusy?'wait':'pointer', fontFamily:'inherit', opacity:pdfBusy?0.7:1 }}>
+                📱 WhatsApp
+              </button>
+              <button onClick={shareEmail} disabled={pdfBusy}
+                style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:700, background:'rgba(100,181,246,0.10)', border:'1.5px solid rgba(100,181,246,0.30)', color:'rgba(100,181,246,0.92)', cursor:pdfBusy?'wait':'pointer', fontFamily:'inherit', opacity:pdfBusy?0.7:1 }}>
+                ✉️ Email
+              </button>
               <button onClick={() => setPreview(null)} style={{ padding:'8px 18px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.60)', cursor:'pointer', fontFamily:'inherit' }}>✕ Close</button>
             </div>
 
