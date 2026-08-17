@@ -439,7 +439,18 @@ export default function RentalAgreements() {
                 style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.22),rgba(255,149,0,0.14))', border:'1.5px solid rgba(255,215,0,0.45)', color:'rgba(255,215,0,0.98)', cursor:pdfBusy?'wait':'pointer', fontFamily:'inherit', opacity:pdfBusy?0.7:1 }}>
                 {pdfBusy ? '⏳ Generating...' : '⬇ Download PDF'}
               </button>
-              <button onClick={()=>window.print()} disabled={pdfBusy}
+              <button onClick={()=>{
+                // Temporarily show the agreement fullscreen for printing
+                const el = document.getElementById('agreement-doc')
+                if (el) {
+                  const style = document.createElement('style')
+                  style.id = 'print-override'
+                  style.textContent = '@media print { body > * { display: none !important; } #agreement-doc { display: block !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; z-index: 99999 !important; } }'
+                  document.head.appendChild(style)
+                  window.print()
+                  setTimeout(() => document.getElementById('print-override')?.remove(), 1000)
+                } else window.print()
+              }} disabled={pdfBusy}
                 style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.14)', color:'rgba(255,255,255,0.70)', cursor:'pointer', fontFamily:'inherit' }}>
                 🖨 Print
               </button>
@@ -455,13 +466,13 @@ export default function RentalAgreements() {
             </div>
 
             {/* THE DOCUMENT — PSK Trip Contract format */}
-            <div id="agreement-doc" style={{ background:'#fff', borderRadius:'8px', overflow:'hidden', fontFamily:'Arial, sans-serif', color:'#1a1a1a', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>
+            <div id="agreement-doc" style={{ background:'#fff', borderRadius:'8px', overflow:'hidden', fontFamily:'Arial, sans-serif', color:'#1a1a1a', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact', maxWidth:'100%', fontSize:'12px' }}>
 
               {/* Orange top stripe */}
               <div style={{ background:'#FF9500', height:'8px', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }} />
 
               {/* Header */}
-              <div style={{ padding:'16px 24px', display:'flex', justifyContent:'space-between', alignItems:'flex-start', borderBottom:'1px solid #ddd' }}>
+              <div style={{ padding:'14px 18px', display:'flex', justifyContent:'space-between', alignItems:'flex-start', borderBottom:'1px solid #ddd' }}>
                 <div style={{ display:'flex', alignItems:'center', gap:'14px' }}>
                   <img src="/branding/psk-logo.png" alt="PSK" style={{ width:'60px', height:'60px', objectFit:'cover', borderRadius:'50%' }} />
                   <div>
@@ -486,10 +497,10 @@ export default function RentalAgreements() {
               <div style={{ display:'flex' }}>
 
                 {/* Left — form fields */}
-                <div style={{ flex:1, padding:'14px 18px', borderRight:'1px solid #ddd' }}>
+                <div style={{ flex:1, padding:'12px 14px', borderRight:'1px solid #ddd', minWidth:0 }}>
 
                   {/* CLIENT INFORMATION */}
-                  <div style={{ background:'#1a1a1a', color:'#fff', padding:'4px 8px', fontSize:'11px', fontWeight:700, letterSpacing:'1.5px', textAlign:'center', marginBottom:'8px', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>CLIENT INFORMATION</div>
+                  <div style={{ borderTop:'2px solid #1B4D5C', borderBottom:'1px solid #1B4D5C', padding:'5px 8px', fontSize:'10px', fontWeight:800, letterSpacing:'2px', textAlign:'center', marginBottom:'8px', color:'#1B4D5C', background:'#f0f4f6' }}>CLIENT INFORMATION</div>
                   {[
                     ['FULL NAME', preview.client_name || ''],
                     ['ID/PP. NO.', preview.client_id_number || ''],
@@ -508,7 +519,7 @@ export default function RentalAgreements() {
                   </div>
 
                   {/* VEHICLE INFORMATION */}
-                  <div style={{ background:'#1a1a1a', color:'#fff', padding:'4px 8px', fontSize:'11px', fontWeight:700, letterSpacing:'1.5px', textAlign:'center', marginBottom:'8px', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>VEHICLE INFORMATION</div>
+                  <div style={{ borderTop:'2px solid #1B4D5C', borderBottom:'1px solid #1B4D5C', padding:'5px 8px', fontSize:'10px', fontWeight:800, letterSpacing:'2px', textAlign:'center', marginBottom:'8px', color:'#1B4D5C', background:'#f0f4f6' }}>VEHICLE INFORMATION</div>
                   {[
                     ['REG NO.', preview.vehicle_reg || ''],
                     ['CAR MAKE', `${preview.vehicle_make||''} ${preview.vehicle_model||''}`],
@@ -521,7 +532,7 @@ export default function RentalAgreements() {
                   ))}
 
                   {/* TRIP INFORMATION */}
-                  <div style={{ background:'#1a1a1a', color:'#fff', padding:'4px 8px', fontSize:'11px', fontWeight:700, letterSpacing:'1.5px', textAlign:'center', margin:'10px 0 8px', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>TRIP INFORMATION</div>
+                  <div style={{ borderTop:'2px solid #1B4D5C', borderBottom:'1px solid #1B4D5C', padding:'5px 8px', fontSize:'10px', fontWeight:800, letterSpacing:'2px', textAlign:'center', margin:'10px 0 8px', color:'#1B4D5C', background:'#f0f4f6' }}>TRIP INFORMATION</div>
                   {[
                     ['PURPOSE OF HIRE', preview.trip_type || ''],
                     ['FROM', preview.pickup_location || ''],
@@ -541,7 +552,7 @@ export default function RentalAgreements() {
                   ))}
 
                   {/* TERMS OF SERVICE */}
-                  <div style={{ background:'#1a1a1a', color:'#fff', padding:'4px 8px', fontSize:'11px', fontWeight:700, letterSpacing:'1.5px', textAlign:'center', margin:'10px 0 8px', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>TERMS OF SERVICE</div>
+                  <div style={{ borderTop:'2px solid #1B4D5C', borderBottom:'1px solid #1B4D5C', padding:'5px 8px', fontSize:'10px', fontWeight:800, letterSpacing:'2px', textAlign:'center', margin:'10px 0 8px', color:'#1B4D5C', background:'#f0f4f6' }}>TERMS OF SERVICE</div>
                   <div style={{ fontSize:'10px', color:'#555', marginBottom:'4px' }}>ANY OTHER OBSERVATION ON THE CAR:</div>
                   <div style={{ borderBottom:'1px solid #ccc', height:'24px', marginBottom:'14px' }}></div>
                   <div style={{ fontSize:'10px', color:'#555', marginBottom:'14px' }}>See full Terms & Conditions on page 2 of this contract.</div>
@@ -576,13 +587,13 @@ export default function RentalAgreements() {
                 </div>
 
                 {/* Right — accessories checklist */}
-                <div style={{ width:'160px', flexShrink:0, padding:'14px 10px' }}>
+                <div style={{ width:'140px', flexShrink:0, padding:'10px 8px' }}>
                   <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'9.5px' }}>
                     <thead>
-                      <tr style={{ background:'#1a1a1a', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>
-                        <th style={{ padding:'4px 5px', color:'#fff', textAlign:'left', fontWeight:700, fontSize:'9px' }}>Accessories</th>
-                        <th style={{ padding:'4px 3px', color:'#fff', textAlign:'center', fontWeight:700, fontSize:'9px' }}>DEP</th>
-                        <th style={{ padding:'4px 3px', color:'#fff', textAlign:'center', fontWeight:700, fontSize:'9px' }}>ARR</th>
+                      <tr style={{ borderBottom:'2px solid #1B4D5C' }}>
+                        <th style={{ padding:'4px 5px', color:'#1B4D5C', textAlign:'left', fontWeight:800, fontSize:'9px', borderBottom:'2px solid #1B4D5C' }}>Accessories</th>
+                        <th style={{ padding:'4px 3px', color:'#1B4D5C', textAlign:'center', fontWeight:800, fontSize:'9px', borderBottom:'2px solid #1B4D5C' }}>DEP</th>
+                        <th style={{ padding:'4px 3px', color:'#1B4D5C', textAlign:'center', fontWeight:800, fontSize:'9px', borderBottom:'2px solid #1B4D5C' }}>ARR</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -604,7 +615,7 @@ export default function RentalAgreements() {
               </div>
 
               {/* ═══ PAGE 2: T&Cs ═══ */}
-              <div style={{ pageBreakBefore:'always', breakBefore:'page', padding:'24px 32px' }}>
+              <div style={{ pageBreakBefore:'always', breakBefore:'page', padding:'18px 22px' }}>
                 <div style={{ background:'#FF9500', height:'8px', margin:'-24px -32px 20px', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }} />
                 <div style={{ textAlign:'center', marginBottom:'20px' }}>
                   <div style={{ fontSize:'20px', fontWeight:800, letterSpacing:'2px' }}>TERMS AND CONDITIONS</div>
@@ -635,7 +646,7 @@ export default function RentalAgreements() {
                     </div>
                   </div>
                 </div>
-                <div style={{ background:'#FF9500', padding:'8px 0', textAlign:'center', margin:'20px -32px -24px', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>
+                <div style={{ background:'#FF9500', padding:'8px 0', textAlign:'center', margin:'20px -22px -18px', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>
                   <div style={{ fontSize:'11px', color:'#fff', fontWeight:600 }}>
                     PSK Safaris & Car Rentals | {preview.branch === 'eldoret' ? 'Tel: +254 751 855 180' : 'Tel: +254 741 186 538'} | PIN: P051664556P
                   </div>
