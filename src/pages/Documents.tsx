@@ -89,6 +89,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
     linked_doc_ref: '',
     trip_purpose: '', trip_vehicle_type: '', trip_pickup_location: '', trip_dropoff_location: '',
     trip_pickup_datetime: '', trip_return_datetime: '', trip_days: '', trip_passengers: '', trip_instructions: '',
+    rec_received_from: '', rec_amount_words: '', rec_payment_for: '', rec_payment_method: 'M-Pesa', rec_mpesa_ref: '', rec_vehicle_plate: '', rec_vehicle_model: '',
     line_items: [emptyItem()] as LineItem[],
   })
 
@@ -160,6 +161,13 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
       trip_pickup_datetime: form.trip_pickup_datetime || null, trip_return_datetime: form.trip_return_datetime || null,
       trip_days: form.trip_days || null, trip_passengers: form.trip_passengers || null,
       trip_instructions: form.trip_instructions || null,
+      rec_received_from: (form as any).rec_received_from || null,
+      rec_amount_words: (form as any).rec_amount_words || null,
+      rec_payment_for: (form as any).rec_payment_for || null,
+      rec_payment_method: (form as any).rec_payment_method || null,
+      rec_mpesa_ref: (form as any).rec_mpesa_ref || null,
+      rec_vehicle_plate: (form as any).rec_vehicle_plate || null,
+      rec_vehicle_model: (form as any).rec_vehicle_model || null,
       status: 'draft',
     }])
     setSaving(false)
@@ -359,8 +367,51 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
                 </div>
               )}
 
-              {/* PARTIES — quotation has client strip only, others have two columns */}
-              {doc.doc_type === 'quotation' ? (
+              {/* RECEIPT — completely different body layout */}
+              {doc.doc_type === 'receipt' ? (
+                <>
+                  {/* Receipt body rows */}
+                  <div style={{ marginBottom:'32px' }}>
+                    {[
+                      ['Received From', (doc as any).rec_received_from || doc.client_name],
+                      ['Sum of Kenya Shillings', (doc as any).rec_amount_words || ''],
+                      ['Payment For', (doc as any).rec_payment_for || (doc.notes || '')],
+                      ['Payment Method', [(doc as any).rec_payment_method, (doc as any).rec_mpesa_ref].filter(Boolean).join(' · Ref: ')],
+                    ].map(([label, value], i) => (
+                      <div key={label as string} style={{ display:'flex', alignItems:'baseline', borderBottom:'1px solid #ddd', padding:'14px 0', borderTop: i===0 ? '1px solid #ddd' : 'none' }}>
+                        <div style={{ fontSize:'11px', fontWeight:900, color:'#1B4D5C', textTransform:'uppercase', letterSpacing:'1px', minWidth:'220px', flexShrink:0 }}>{label as string}</div>
+                        <div style={{ fontSize:'14px', fontWeight:900, color:'#111', flex:1 }}>{value as string}</div>
+                      </div>
+                    ))}
+                    {((doc as any).rec_vehicle_model || (doc as any).rec_vehicle_plate) && (
+                      <div style={{ display:'flex', alignItems:'baseline', borderBottom:'1px solid #ddd', padding:'14px 0' }}>
+                        <div style={{ fontSize:'11px', fontWeight:900, color:'#1B4D5C', textTransform:'uppercase', letterSpacing:'1px', minWidth:'220px', flexShrink:0 }}>Vehicle</div>
+                        <div style={{ fontSize:'14px', fontWeight:900, color:'#111', flex:1 }}>{[(doc as any).rec_vehicle_model, (doc as any).rec_vehicle_plate].filter(Boolean).join(' · ')}</div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Amount box */}
+                  <div style={{ border:'2px solid #1B4D5C', padding:'16px 20px', display:'flex', justifyContent:'space-between', alignItems:'center', margin:'0 0 32px' }}>
+                    <div style={{ fontSize:'11px', fontWeight:900, letterSpacing:'2px', textTransform:'uppercase', color:'#1B4D5C' }}>Amount Received</div>
+                    <div style={{ fontSize:'28px', fontWeight:900, color:'#111', letterSpacing:'1px' }}>
+                      <span style={{ fontSize:'14px', fontWeight:700, color:'#555', marginRight:'6px' }}>Kshs.</span>
+                      {doc.total?.toLocaleString()}
+                    </div>
+                  </div>
+
+                  {/* With Thanks + stamp */}
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom:'40px' }}>
+                    <div>
+                      <div style={{ fontSize:'16px', fontWeight:900, color:'#1B4D5C', marginBottom:'8px', letterSpacing:'0.5px' }}>With Thanks</div>
+                      <div style={{ fontSize:'11px', fontWeight:800, color:'#444' }}>For PSK Safaris & Car Rentals</div>
+                    </div>
+                    <div style={{ width:'110px', height:'110px', borderRadius:'50%', border:'3px solid #1B4D5C', display:'flex', alignItems:'center', justifyContent:'center', opacity:0.25 }}>
+                      <div style={{ fontSize:'8px', fontWeight:900, color:'#1B4D5C', textAlign:'center', textTransform:'uppercase', letterSpacing:'1px', lineHeight:1.6 }}>PSK Safaris<br/>&amp; Car<br/>Rentals Ltd<br/>★ Eldoret ★</div>
+                    </div>
+                  </div>
+                </>
+              ) : doc.doc_type === 'quotation' ? (
                 <div style={{ marginBottom:'22px', paddingBottom:'18px', borderBottom:'1px solid #ddd' }}>
                   <div style={{ fontSize:'16px', fontWeight:900, textTransform:'uppercase', color:'#1B4D5C', marginBottom:'10px' }}>Quotation For</div>
                   <div style={{ fontSize:'13px', fontWeight:900, color:'#111', marginBottom:'5px' }}>{doc.client_name}</div>
@@ -641,6 +692,41 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
 
               {fld('Booking reference (optional)', inp('booking_ref','text','e.g. BK-2026-1234'))}
               {(form.doc_type === 'credit_note' || form.doc_type === 'debit_note') && fld('Linked invoice/document ref', inp('linked_doc_ref','text','e.g. PSK-INV-2026-1234'))}
+
+              {/* RECEIPT DETAILS — only for receipts */}
+              {form.doc_type === 'receipt' && (
+                <>
+                  <div style={{ ...gl.label, margin:'16px 0 12px', paddingBottom:'8px', borderBottom:'1px solid rgba(255,255,255,0.07)', color:'rgba(255,215,0,0.70)', fontSize:'11px' }}>Receipt Details</div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px' }}>
+                    {fld('Received From *', inp('rec_received_from','text','Full name of payer'), true)}
+                    {fld('Amount in Words *', inp('rec_amount_words','text','e.g. Four thousand shillings only'), true)}
+                    {fld('Vehicle Model', <select value={(form as any).rec_vehicle_model} onChange={e=>setForm(f=>({...f,rec_vehicle_model:e.target.value}))} style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', cursor:'pointer' }}>
+                      <option value="">Select model...</option>
+                      <option>Toyota Fielder</option>
+                      <option>Toyota Prado</option>
+                      <option>Toyota Land Cruiser V8</option>
+                      <option>Toyota Hiace Noah</option>
+                      <option>Toyota Corolla</option>
+                      <option>Nissan X-Trail</option>
+                      <option>Subaru Forester</option>
+                      <option>Subaru Outback</option>
+                      <option>Mercedes E-Class</option>
+                      <option>Toyota Minibus 25-Seater</option>
+                      <option>Other</option>
+                    </select>)}
+                    {fld('Plate Number', inp('rec_vehicle_plate','text','e.g. KCX 493X'))}
+                    {fld('Payment Method', <select value={(form as any).rec_payment_method} onChange={e=>setForm(f=>({...f,rec_payment_method:e.target.value}))} style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', cursor:'pointer' }}>
+                      <option>M-Pesa</option>
+                      <option>Cash</option>
+                      <option>Bank Transfer</option>
+                      <option>Card</option>
+                      <option>Cheque</option>
+                    </select>)}
+                    {fld('M-Pesa Ref (if applicable)', inp('rec_mpesa_ref','text','e.g. QGH7823KL'))}
+                  </div>
+                  {fld('Payment For *', inp('rec_payment_for','text','e.g. Saloon hire on 11/07/2026'), true)}
+                </>
+              )}
 
               {/* TRIP DETAILS — only for quotations */}
               {form.doc_type === 'quotation' && (
