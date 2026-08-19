@@ -306,127 +306,140 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
           </div>
 
           {/* ── THE DOCUMENT ── */}
-          <div className="psk-document" style={{ background:'#FFFDF7', borderRadius:'10px', overflow:'hidden', fontFamily:'Arial, sans-serif', color:'#1a1a1a', boxShadow:'0 20px 60px rgba(0,0,0,0.50)', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>
+          <div className="psk-document" id="psk-document-print" style={{ background:'#F8F6F1', fontFamily:'"Helvetica Neue", Arial, sans-serif', color:'#111', display:'flex', boxShadow:'0 20px 60px rgba(0,0,0,0.50)', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>
 
-            {/* GOLD HEADER */}
-            <div style={{ background:'#FFD700', padding:'24px 32px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:'20px', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>
-              {/* Logo + company */}
-              <div style={{ display:'flex', alignItems:'center', gap:'16px' }}>
-                <img src="/branding/psk-logo.png" alt="PSK Safaris" style={{ width:'72px', height:'72px', borderRadius:'50%', border:'3px solid rgba(0,0,0,0.15)', objectFit:'cover', flexShrink:0 }} />
-                <div>
-                  <div style={{ fontSize:'20px', fontWeight:800, color:'#1a1a1a', letterSpacing:'-0.3px' }}>{br.name}</div>
-                  <div style={{ fontSize:'11px', color:'rgba(0,0,0,0.65)', marginTop:'3px' }}>{br.address}{br.poBox ? ` | ${br.poBox}` : ''}</div>
-                  <div style={{ fontSize:'11px', color:'rgba(0,0,0,0.65)', marginTop:'1px' }}>Tel: {br.tel}</div>
-                  <div style={{ fontSize:'11px', color:'rgba(0,0,0,0.65)', marginTop:'1px' }}>PIN: {br.pin}</div>
+            {/* LEFT TEAL BAR */}
+            <div style={{ width:'12px', background:'#1B4D5C', flexShrink:0, printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }} />
+
+            {/* MAIN CONTENT */}
+            <div style={{ flex:1, padding:'40px 44px' }}>
+
+              {/* HEADER — logo + company left, doc type + ref right */}
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:0 }}>
+                <div style={{ display:'flex', alignItems:'center', gap:'16px', flexShrink:0 }}>
+                  <img src="/branding/psk-logo.png" alt="PSK" style={{ width:'72px', height:'72px', borderRadius:'50%', border:'2.5px solid #1B4D5C', objectFit:'cover', flexShrink:0 }} />
+                  <div>
+                    <div style={{ fontSize:'18px', fontWeight:900, color:'#111', whiteSpace:'nowrap' }}>{br.name}</div>
+                    <div style={{ fontSize:'9px', fontWeight:700, color:'#555', marginTop:'5px', lineHeight:1.85, whiteSpace:'nowrap' }}>
+                      {br.address}{br.poBox ? ` | ${br.poBox}` : ''}<br/>
+                      Tel: {br.tel}<br/>
+                      PIN: {br.pin}
+                    </div>
+                  </div>
                 </div>
-              </div>
-              {/* Doc ref */}
-              <div style={{ textAlign:'right', flexShrink:0 }}>
-                <div style={{ fontSize:'11px', color:'rgba(0,0,0,0.50)', marginBottom:'2px' }}>Document Reference</div>
-                <div style={{ fontSize:'18px', fontWeight:800, color:'#000000', letterSpacing:'-0.3px' }}>{doc.doc_ref}</div>
-                <div style={{ fontSize:'11px', color:'rgba(0,0,0,0.55)', marginTop:'4px' }}>Date: {doc.issue_date}</div>
-                {doc.due_date && <div style={{ fontSize:'11px', color:'rgba(0,0,0,0.55)', marginTop:'1px' }}>Due: {doc.due_date}</div>}
-                {doc.valid_until && <div style={{ fontSize:'11px', color:'rgba(0,0,0,0.55)', marginTop:'1px' }}>Valid until: {doc.valid_until}</div>}
-              </div>
-            </div>
-
-            {/* RAINBOW STRIPE */}
-            <div style={{ height:'5px', background:'linear-gradient(90deg, #FF9500, #FFD700, #2D5F3F, #1B4D5C)' }} />
-
-            {/* GREEN BANNER */}
-            <div style={{ background:'#2D5F3F', padding:'12px 32px', display:'flex', alignItems:'center', justifyContent:'space-between', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>
-              <div style={{ fontSize:'20px', fontWeight:800, color:'#FFFFFF', letterSpacing:'2px', textShadow:'0 1px 3px rgba(0,0,0,0.30)' }}>{cfg.label.toUpperCase()}</div>
-              <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
-                {doc.booking_ref && <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.65)' }}>Booking: {doc.booking_ref}</div>}
-                <span style={{ fontSize:'10px', fontWeight:700, padding:'3px 10px', borderRadius:'20px', color: sc.color, background:'rgba(255,255,255,0.12)', border:`1px solid rgba(255,255,255,0.20)` }}>{sc.label}</span>
-              </div>
-            </div>
-
-            {/* CREAM BODY */}
-            <div style={{ padding:'28px 32px', background:'#FFFDF7' }}>
-
-              {/* Bill To */}
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px', marginBottom:'24px' }}>
-                <div style={{ background:'#F5F0E8', border:'1px solid #E0D5C0', borderRadius:'8px', padding:'16px' }}>
-                  <div style={{ fontSize:'9px', fontWeight:800, letterSpacing:'1.2px', textTransform:'uppercase', color:'#1B4D5C', marginBottom:'10px' }}>Bill To</div>
-                  <div style={{ fontSize:'15px', fontWeight:700, color:'#1a1a1a', marginBottom:'5px' }}>{doc.client_name}</div>
-                  {doc.client_address && <div style={{ fontSize:'12px', color:'#333', marginBottom:'3px' }}>{doc.client_address}</div>}
-                  {doc.client_phone && <div style={{ fontSize:'12px', color:'#333', marginBottom:'2px' }}>Tel: {doc.client_phone}</div>}
-                  {doc.client_email && <div style={{ fontSize:'12px', color:'#333' }}>Email: {doc.client_email}</div>}
-                </div>
-                <div style={{ background:'#F5F0E8', border:'1px solid #E0D5C0', borderRadius:'8px', padding:'16px' }}>
-                  <div style={{ fontSize:'9px', fontWeight:800, letterSpacing:'1.2px', textTransform:'uppercase', color:'#1B4D5C', marginBottom:'10px' }}>From</div>
-                  <div style={{ fontSize:'15px', fontWeight:700, color:'#1a1a1a', marginBottom:'5px' }}>{br.name}</div>
-                  <div style={{ fontSize:'12px', color:'#333', marginBottom:'2px' }}>{br.branch}</div>
-                  <div style={{ fontSize:'12px', color:'#333', marginBottom:'2px' }}>{br.address}</div>
-                  <div style={{ fontSize:'12px', color:'#333' }}>Tel: {br.tel}</div>
+                <div style={{ textAlign:'right', flexShrink:0, paddingLeft:'40px' }}>
+                  <div style={{ fontSize:'38px', fontWeight:900, color:'#1B4D5C', letterSpacing:'6px', textTransform:'uppercase', marginBottom:'10px' }}>{cfg.label}</div>
+                  <div style={{ fontSize:'9px', fontWeight:900, letterSpacing:'2px', textTransform:'uppercase', color:'#111' }}>
+                    {doc.doc_type === 'invoice' ? 'Invoice Number' :
+                     doc.doc_type === 'quotation' ? 'Quotation Number' :
+                     doc.doc_type === 'receipt' ? 'Receipt Number' :
+                     doc.doc_type === 'credit_note' ? 'Credit Note Number' : 'Debit Note Number'}
+                  </div>
+                  <div style={{ fontSize:'22px', fontWeight:900, color:'#111', letterSpacing:'1px' }}>{doc.doc_ref}</div>
+                  <div style={{ fontSize:'11px', fontWeight:800, color:'#333', marginTop:'4px' }}>{doc.issue_date}</div>
+                  {doc.valid_until && <div style={{ fontSize:'10px', fontWeight:700, color:'#555', marginTop:'2px' }}>Valid until: {doc.valid_until}</div>}
                 </div>
               </div>
 
-              {/* Line items table */}
-              <table style={{ width:'100%', borderCollapse:'collapse', marginBottom:'20px' }}>
+              {/* TEAL RULE */}
+              <div style={{ height:'2.5px', background:'#1B4D5C', margin:'22px 0', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }} />
+
+              {/* LINKED DOC (credit/debit note) */}
+              {doc.linked_doc_ref && (
+                <div style={{ fontSize:'11px', fontWeight:800, color:'#555', paddingBottom:'12px', borderBottom:'1px solid #ddd', marginBottom:'18px' }}>
+                  Linked to: <strong style={{ color:'#111' }}>{doc.linked_doc_ref}</strong>
+                  {doc.notes && <span style={{ marginLeft:'16px', color:'#666' }}>{doc.notes}</span>}
+                </div>
+              )}
+
+              {/* PARTIES */}
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', marginBottom:'28px' }}>
+                <div style={{ paddingRight:'28px' }}>
+                  <div style={{ fontSize:'16px', fontWeight:900, textTransform:'uppercase', color:'#1B4D5C', marginBottom:'10px' }}>
+                    {doc.doc_type === 'receipt' ? 'Received From' :
+                     doc.doc_type === 'credit_note' ? 'Credit Issued To' :
+                     doc.doc_type === 'debit_note' ? 'Charged To' :
+                     doc.doc_type === 'quotation' ? 'Prepared For' : 'Billed To'}
+                  </div>
+                  <div style={{ fontSize:'13px', fontWeight:900, color:'#111', marginBottom:'5px' }}>{doc.client_name}</div>
+                  <div style={{ fontSize:'11.5px', fontWeight:900, color:'#222', lineHeight:1.85 }}>
+                    {doc.client_address && <div>{doc.client_address}</div>}
+                    {doc.client_phone && <div>Tel: {doc.client_phone}</div>}
+                    {doc.client_email && <div>{doc.client_email}</div>}
+                  </div>
+                </div>
+                <div style={{ paddingLeft:'28px', borderLeft:'2px solid #1B4D5C' }}>
+                  <div style={{ fontSize:'16px', fontWeight:900, textTransform:'uppercase', color:'#1B4D5C', marginBottom:'10px' }}>
+                    {doc.doc_type === 'receipt' ? 'Received By' :
+                     doc.doc_type === 'quotation' ? 'From' : 'Payment Details'}
+                  </div>
+                  <div style={{ fontSize:'13px', fontWeight:900, color:'#111', marginBottom:'5px' }}>{br.name}</div>
+                  <div style={{ fontSize:'11.5px', fontWeight:900, color:'#222', lineHeight:1.85 }}>
+                    <div>M-Pesa Paybill: 4563877</div>
+                    <div>Account No: {doc.doc_ref}</div>
+                    <div>PIN: {br.pin}</div>
+                    {doc.booking_ref && <div>Booking Ref: {doc.booking_ref}</div>}
+                  </div>
+                </div>
+              </div>
+
+              {/* LINE ITEMS TABLE */}
+              <table style={{ width:'100%', borderCollapse:'collapse', marginBottom:0 }}>
                 <thead>
-                  <tr style={{ background:'#2D5F3F', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>
-                    {['#','Description','Qty','Unit Price (KES)','Amount (KES)'].map(h => (
-                      <th key={h} style={{ padding:'10px 12px', textAlign: h === '#' || h === 'Qty' ? 'center' : h.includes('KES') ? 'right' : 'left', fontSize:'10px', fontWeight:700, letterSpacing:'0.8px', textTransform:'uppercase', color:'#FFFFFF', whiteSpace:'nowrap' }}>{h}</th>
+                  <tr style={{ borderTop:'2.5px solid #1B4D5C', borderBottom:'2.5px solid #1B4D5C' }}>
+                    {['#','Description','Price (KES)','Qty','Amount (KES)'].map(h => (
+                      <th key={h} style={{ padding:'11px 12px', fontSize:'9px', fontWeight:900, letterSpacing:'1px', textTransform:'uppercase', color:'#1B4D5C', textAlign: h==='#' ? 'left' : h==='Description' ? 'left' : 'right', paddingLeft: h==='#' ? 0 : '12px' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {items.map((item, i) => (
-                    <tr key={i} style={{ background: i % 2 === 0 ? '#FFFDF7' : '#FFFDF0', borderBottom:'1px solid #E8E0D0' }}>
-                      <td style={{ padding:'11px 12px', textAlign:'center', fontSize:'12px', color:'#333' }}>{i+1}</td>
-                      <td style={{ padding:'11px 12px', fontSize:'13px', color:'#1a1a1a' }}>{item.description}</td>
-                      <td style={{ padding:'11px 12px', textAlign:'center', fontSize:'12px', color:'#444' }}>{item.qty}</td>
-                      <td style={{ padding:'11px 12px', textAlign:'right', fontSize:'12px', color:'#444' }}>{item.unitPrice.toLocaleString()}</td>
-                      <td style={{ padding:'11px 12px', textAlign:'right', fontSize:'13px', fontWeight:600, color:'#1a1a1a' }}>{(item.qty * item.unitPrice).toLocaleString()}</td>
+                    <tr key={i} style={{ borderBottom:'1px solid #e0ddd6' }}>
+                      <td style={{ padding:'12px 12px 12px 0', fontSize:'12px', fontWeight:900, color:'#1B4D5C' }}>{String(i+1).padStart(2,'0')}</td>
+                      <td style={{ padding:'12px', fontSize:'12px', fontWeight:800, color:'#111' }}>{item.description}</td>
+                      <td style={{ padding:'12px', fontSize:'12px', fontWeight:700, color:'#333', textAlign:'right' }}>{item.unitPrice.toLocaleString()}</td>
+                      <td style={{ padding:'12px', fontSize:'12px', fontWeight:700, color:'#333', textAlign:'right' }}>{item.qty}</td>
+                      <td style={{ padding:'12px', fontSize:'12px', fontWeight:800, color:'#111', textAlign:'right' }}>{(item.qty * item.unitPrice).toLocaleString()}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
 
-              {/* Totals */}
-              <div style={{ display:'flex', justifyContent:'flex-end', marginBottom:'24px' }}>
-                <div style={{ minWidth:'280px' }}>
+              {/* TOTALS */}
+              <div style={{ display:'flex', justifyContent:'flex-end', borderTop:'2.5px solid #1B4D5C', marginBottom:'40px' }}>
+                <div style={{ minWidth:'250px', borderLeft:'2px solid #1B4D5C' }}>
                   {[
-                    { label:'Subtotal', value:`KES ${doc.subtotal?.toLocaleString()}`, strong:false },
-                    ...(doc.vat_rate > 0 ? [{ label:`VAT (${doc.vat_rate}%)`, value:`KES ${doc.vat_amount?.toLocaleString()}`, strong:false }] : []),
-                    ...(doc.amount_paid && doc.amount_paid > 0 ? [{ label:'Amount Paid', value:`KES ${doc.amount_paid?.toLocaleString()}`, strong:false }] : []),
-                    { label:'TOTAL', value:`KES ${doc.total?.toLocaleString()}`, strong:true },
-                    ...(doc.doc_type === 'invoice' && doc.balance && doc.balance > 0 ? [{ label:'Balance Due', value:`KES ${doc.balance?.toLocaleString()}`, strong:true }] : []),
-                  ].map((row, i) => (
-                    <div key={i} style={{ display:'flex', justifyContent:'space-between', padding:'8px 16px', background: row.strong ? '#2D5F3F' : i % 2 === 0 ? '#F5F0E8' : '#FFFDF7', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact', borderBottom:'1px solid #E0D5C0' }}>
-                      <span style={{ fontSize: row.strong ? '13px' : '12px', fontWeight: row.strong ? 700 : 400, color: row.strong ? '#FFFFFF' : '#333' }}>{row.label}</span>
-                      <span style={{ fontSize: row.strong ? '14px' : '12px', fontWeight: row.strong ? 800 : 600, color: row.strong ? '#FFFFFF' : '#1a1a1a' }}>{row.value}</span>
+                    { label:'Subtotal', value:`KES ${doc.subtotal?.toLocaleString()}`, grand:false },
+                    ...(doc.vat_rate > 0 ? [{ label:`VAT (${doc.vat_rate}%)`, value:`KES ${doc.vat_amount?.toLocaleString()}`, grand:false }] : []),
+                    ...(doc.amount_paid && doc.amount_paid > 0 ? [{ label:'Amount Paid', value:`KES ${doc.amount_paid?.toLocaleString()}`, grand:false }] : []),
+                    { label: doc.doc_type === 'receipt' ? 'Total Received' : doc.doc_type === 'credit_note' ? 'Total Credit' : doc.doc_type === 'debit_note' ? 'Additional Amount Due' : 'Total Amount', value:`KES ${doc.total?.toLocaleString()}`, grand:true },
+                    ...(doc.doc_type === 'invoice' && doc.balance && doc.balance > 0 ? [{ label:'Balance Due', value:`KES ${doc.balance?.toLocaleString()}`, grand:true, red:true }] : []),
+                  ].map((row:any, i) => (
+                    <div key={i} style={{ display:'flex', justifyContent:'space-between', padding:'9px 14px', borderBottom: row.grand ? 'none' : '1px solid #e0ddd6', borderTop: row.grand ? '2.5px solid #1B4D5C' : 'none' }}>
+                      <span style={{ fontSize: row.grand ? '13px' : '12px', fontWeight:900, color: row.red ? '#c00' : row.grand ? '#1B4D5C' : '#555' }}>{row.label}</span>
+                      <span style={{ fontSize: row.grand ? '16px' : '12px', fontWeight:900, color: row.red ? '#c00' : row.grand ? '#1B4D5C' : '#111' }}>{row.value}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Notes */}
-              {doc.notes && (
-                <div style={{ background:'#F5F0E8', border:'1px solid #E0D5C0', borderRadius:'8px', padding:'14px 16px', marginBottom:'24px' }}>
-                  <div style={{ fontSize:'9px', fontWeight:700, letterSpacing:'1px', textTransform:'uppercase', color:'#2D5F3F', marginBottom:'6px' }}>Notes / Payment Instructions</div>
-                  <div style={{ fontSize:'12px', color:'#444', lineHeight:'1.7' }}>{doc.notes}</div>
+              {/* NOTES (only if not linked doc — already shown above) */}
+              {doc.notes && !doc.linked_doc_ref && (
+                <div style={{ borderLeft:'3px solid #1B4D5C', paddingLeft:'14px', marginBottom:'28px' }}>
+                  <div style={{ fontSize:'9px', fontWeight:900, letterSpacing:'1.5px', textTransform:'uppercase', color:'#1B4D5C', marginBottom:'5px' }}>Notes</div>
+                  <div style={{ fontSize:'11px', fontWeight:700, color:'#444', lineHeight:1.75 }}>{doc.notes}</div>
                 </div>
               )}
 
-              {/* Linked doc */}
-              {doc.linked_doc_ref && (
-                <div style={{ fontSize:'11px', color:'#333', marginBottom:'16px' }}>Linked to: {doc.linked_doc_ref}</div>
-              )}
-
-              {/* Signature */}
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'32px', paddingTop:'20px', borderTop:'1px solid #E0D5C0' }}>
+              {/* SIGNATURES — Date left, Signature right only */}
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', borderTop:'1.5px solid #333', paddingTop:'30px' }}>
                 <div>
-                  <div style={{ fontSize:'9px', fontWeight:700, letterSpacing:'0.8px', textTransform:'uppercase', color:'#2D5F3F', marginBottom:'40px' }}>Authorised by</div>
-                  <div style={{ borderBottom:'1px solid #1a1a1a', marginBottom:'6px', height:'36px' }} />
-                  <div style={{ fontSize:'11px', color:'#777' }}>PSK Safaris & Car Rentals | Date: ___________</div>
+                  <div style={{ borderBottom:'1.5px solid #333', width:'220px', marginBottom:'8px', height:'44px' }} />
+                  <div style={{ fontSize:'10px', fontWeight:900, color:'#333', letterSpacing:'0.5px' }}>Date</div>
                 </div>
                 <div>
-                  <div style={{ fontSize:'9px', fontWeight:700, letterSpacing:'0.8px', textTransform:'uppercase', color:'#2D5F3F', marginBottom:'40px' }}>Received by</div>
-                  <div style={{ borderBottom:'1px solid #1a1a1a', marginBottom:'6px', height:'36px' }} />
-                  <div style={{ fontSize:'11px', color:'#777' }}>Client signature | Date: ___________</div>
+                  <div style={{ borderBottom:'1.5px solid #333', width:'220px', marginBottom:'8px', height:'44px' }} />
+                  <div style={{ fontSize:'10px', fontWeight:900, color:'#333', letterSpacing:'0.5px' }}>Signature</div>
                 </div>
               </div>
             </div>
