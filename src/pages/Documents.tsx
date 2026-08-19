@@ -50,7 +50,7 @@ const DOC_CONFIG: Record<DocType,{label:string;prefix:string;color:string;bg:str
 }
 
 const STATUS_CFG: Record<string,{label:string;color:string;bg:string;border:string}> = {
-  draft:     { label:'Draft',     color:'#FFFFFF', bg:'rgba(255,255,255,0.20)', border:'rgba(255,255,255,0.40)' },
+  draft:     { label:'',     color:'transparent', bg:'transparent', border:'transparent' },
   sent:      { label:'Sent',      color:'rgba(100,181,246,0.95)', bg:'rgba(100,181,246,0.08)', border:'rgba(100,181,246,0.25)' },
   paid:      { label:'Paid',      color:'rgba(129,199,132,0.95)', bg:'rgba(129,199,132,0.09)', border:'rgba(129,199,132,0.25)' },
   accepted:  { label:'Accepted',  color:'rgba(129,199,132,0.95)', bg:'rgba(129,199,132,0.09)', border:'rgba(129,199,132,0.25)' },
