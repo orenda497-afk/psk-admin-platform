@@ -87,6 +87,8 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
     vat_rate: 0,
     notes: '',
     linked_doc_ref: '',
+    trip_purpose: '', trip_vehicle_type: '', trip_pickup_location: '', trip_dropoff_location: '',
+    trip_pickup_datetime: '', trip_return_datetime: '', trip_days: '', trip_passengers: '', trip_instructions: '',
     line_items: [emptyItem()] as LineItem[],
   })
 
@@ -153,6 +155,11 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
       amount_paid: 0, balance: total,
       notes: form.notes || null,
       linked_doc_ref: form.linked_doc_ref || null,
+      trip_purpose: form.trip_purpose || null, trip_vehicle_type: form.trip_vehicle_type || null,
+      trip_pickup_location: form.trip_pickup_location || null, trip_dropoff_location: form.trip_dropoff_location || null,
+      trip_pickup_datetime: form.trip_pickup_datetime || null, trip_return_datetime: form.trip_return_datetime || null,
+      trip_days: form.trip_days || null, trip_passengers: form.trip_passengers || null,
+      trip_instructions: form.trip_instructions || null,
       status: 'draft',
     }])
     setSaving(false)
@@ -352,15 +359,10 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
                 </div>
               )}
 
-              {/* PARTIES */}
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', marginBottom:'28px' }}>
-                <div style={{ paddingRight:'28px' }}>
-                  <div style={{ fontSize:'16px', fontWeight:900, textTransform:'uppercase', color:'#1B4D5C', marginBottom:'10px' }}>
-                    {doc.doc_type === 'receipt' ? 'Received From' :
-                     doc.doc_type === 'credit_note' ? 'Credit Issued To' :
-                     doc.doc_type === 'debit_note' ? 'Charged To' :
-                     doc.doc_type === 'quotation' ? 'Prepared For' : 'Billed To'}
-                  </div>
+              {/* PARTIES — quotation has client strip only, others have two columns */}
+              {doc.doc_type === 'quotation' ? (
+                <div style={{ marginBottom:'22px', paddingBottom:'18px', borderBottom:'1px solid #ddd' }}>
+                  <div style={{ fontSize:'16px', fontWeight:900, textTransform:'uppercase', color:'#1B4D5C', marginBottom:'10px' }}>Quotation For</div>
                   <div style={{ fontSize:'13px', fontWeight:900, color:'#111', marginBottom:'5px' }}>{doc.client_name}</div>
                   <div style={{ fontSize:'11.5px', fontWeight:900, color:'#222', lineHeight:1.85 }}>
                     {doc.client_address && <div>{doc.client_address}</div>}
@@ -368,20 +370,65 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
                     {doc.client_email && <div>{doc.client_email}</div>}
                   </div>
                 </div>
-                <div style={{ paddingLeft:'28px', borderLeft:'2px solid #1B4D5C' }}>
-                  <div style={{ fontSize:'16px', fontWeight:900, textTransform:'uppercase', color:'#1B4D5C', marginBottom:'10px' }}>
-                    {doc.doc_type === 'receipt' ? 'Received By' :
-                     doc.doc_type === 'quotation' ? 'From' : 'Payment Details'}
+              ) : (
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', marginBottom:'28px' }}>
+                  <div style={{ paddingRight:'28px' }}>
+                    <div style={{ fontSize:'16px', fontWeight:900, textTransform:'uppercase', color:'#1B4D5C', marginBottom:'10px' }}>
+                      {doc.doc_type === 'receipt' ? 'Received From' :
+                       doc.doc_type === 'credit_note' ? 'Credit Issued To' :
+                       doc.doc_type === 'debit_note' ? 'Charged To' : 'Billed To'}
+                    </div>
+                    <div style={{ fontSize:'13px', fontWeight:900, color:'#111', marginBottom:'5px' }}>{doc.client_name}</div>
+                    <div style={{ fontSize:'11.5px', fontWeight:900, color:'#222', lineHeight:1.85 }}>
+                      {doc.client_address && <div>{doc.client_address}</div>}
+                      {doc.client_phone && <div>Tel: {doc.client_phone}</div>}
+                      {doc.client_email && <div>{doc.client_email}</div>}
+                    </div>
                   </div>
-                  <div style={{ fontSize:'13px', fontWeight:900, color:'#111', marginBottom:'5px' }}>{br.name}</div>
-                  <div style={{ fontSize:'11.5px', fontWeight:900, color:'#222', lineHeight:1.85 }}>
-                    <div>M-Pesa Paybill: 4563877</div>
-                    <div>Account No: {doc.doc_ref}</div>
-                    <div>PIN: {br.pin}</div>
-                    {doc.booking_ref && <div>Booking Ref: {doc.booking_ref}</div>}
+                  <div style={{ paddingLeft:'28px', borderLeft:'2px solid #1B4D5C' }}>
+                    <div style={{ fontSize:'16px', fontWeight:900, textTransform:'uppercase', color:'#1B4D5C', marginBottom:'10px' }}>
+                      {doc.doc_type === 'receipt' ? 'Received By' : 'Payment Details'}
+                    </div>
+                    <div style={{ fontSize:'13px', fontWeight:900, color:'#111', marginBottom:'5px' }}>{br.name}</div>
+                    <div style={{ fontSize:'11.5px', fontWeight:900, color:'#222', lineHeight:1.85 }}>
+                      <div>M-Pesa Paybill: 4563877</div>
+                      <div>Account No: {doc.doc_ref}</div>
+                      <div>PIN: {br.pin}</div>
+                      {doc.booking_ref && <div>Booking Ref: {doc.booking_ref}</div>}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
+
+              {/* TRIP DETAILS BLOCK — quotation only */}
+              {doc.doc_type === 'quotation' && ((doc as any).trip_purpose || (doc as any).trip_vehicle_type) && (
+                <div style={{ border:'1.5px solid #1B4D5C', marginBottom:'26px' }}>
+                  <div style={{ fontSize:'14px', fontWeight:900, letterSpacing:'2px', textTransform:'uppercase', color:'#1B4D5C', background:'rgba(27,77,92,0.12)', padding:'8px 14px' }}>TRIP DETAILS</div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr' }}>
+                    {[
+                      ['Purpose of Trip', (doc as any).trip_purpose],
+                      ['Vehicle Type', (doc as any).trip_vehicle_type],
+                      ['Pickup Location', (doc as any).trip_pickup_location],
+                      ['Drop-off Location', (doc as any).trip_dropoff_location],
+                      ['Pickup Date & Time', (doc as any).trip_pickup_datetime],
+                      ['Return Date & Time', (doc as any).trip_return_datetime],
+                      ['Number of Days', (doc as any).trip_days],
+                      ['Number of Passengers', (doc as any).trip_passengers],
+                    ].filter(([,v]) => v).map(([label, value], i, arr) => (
+                      <div key={label as string} style={{ padding:'12px 14px', borderBottom: i < arr.length - 2 ? '1px solid #ddd' : 'none', borderRight: i % 2 === 0 ? '1px solid #ddd' : 'none' }}>
+                        <div style={{ fontSize:'8px', fontWeight:900, letterSpacing:'1.5px', textTransform:'uppercase', color:'#1B4D5C', marginBottom:'4px' }}>{label as string}</div>
+                        <div style={{ fontSize:'13px', fontWeight:900, color:'#111' }}>{value as string}</div>
+                      </div>
+                    ))}
+                    {(doc as any).trip_instructions && (
+                      <div style={{ gridColumn:'1/-1', padding:'12px 14px', borderTop:'1px solid #ddd' }}>
+                        <div style={{ fontSize:'8px', fontWeight:900, letterSpacing:'1.5px', textTransform:'uppercase', color:'#1B4D5C', marginBottom:'4px' }}>Special Instructions</div>
+                        <div style={{ fontSize:'13px', fontWeight:900, color:'#111' }}>{(doc as any).trip_instructions}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* LINE ITEMS TABLE */}
               <table style={{ width:'100%', borderCollapse:'collapse', marginBottom:0 }}>
@@ -594,6 +641,38 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
 
               {fld('Booking reference (optional)', inp('booking_ref','text','e.g. BK-2026-1234'))}
               {(form.doc_type === 'credit_note' || form.doc_type === 'debit_note') && fld('Linked invoice/document ref', inp('linked_doc_ref','text','e.g. PSK-INV-2026-1234'))}
+
+              {/* TRIP DETAILS — only for quotations */}
+              {form.doc_type === 'quotation' && (
+                <>
+                  <div style={{ ...gl.label, margin:'16px 0 12px', paddingBottom:'8px', borderBottom:'1px solid rgba(255,255,255,0.07)', color:'rgba(255,215,0,0.70)', fontSize:'11px' }}>Trip Details</div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px' }}>
+                    {fld('Purpose of Trip', inp('trip_purpose','text','e.g. Corporate staff transfers'))}
+                    {fld('Vehicle Type', <select value={(form as any).trip_vehicle_type} onChange={e=>setForm(f=>({...f,trip_vehicle_type:e.target.value}))} style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', cursor:'pointer' }}>
+                      <option value="">Select vehicle type...</option>
+                      <option>Saloon — Chauffeured</option>
+                      <option>Saloon — Self Drive</option>
+                      <option>SUV — Chauffeured</option>
+                      <option>SUV — Self Drive</option>
+                      <option>Toyota Prado — Chauffeured</option>
+                      <option>Toyota Prado — Self Drive</option>
+                      <option>Land Cruiser V8 — Chauffeured</option>
+                      <option>Station Wagon — Chauffeured</option>
+                      <option>Pickup Truck — Chauffeured</option>
+                      <option>Minibus 25-Seater — Chauffeured</option>
+                      <option>Noah/Van — Chauffeured</option>
+                      <option>Sub Driver</option>
+                    </select>)}
+                    {fld('Pickup Location', inp('trip_pickup_location','text','e.g. PSK Office, Eldoret'))}
+                    {fld('Drop-off Location', inp('trip_dropoff_location','text','e.g. Kisumu CBD'))}
+                    {fld('Pickup Date & Time', inp('trip_pickup_datetime','text','e.g. 14 Aug 2026 · 07:00 AM'))}
+                    {fld('Return Date & Time', inp('trip_return_datetime','text','e.g. 16 Aug 2026 · 06:00 PM'))}
+                    {fld('Number of Days', inp('trip_days','text','e.g. 3 Days'))}
+                    {fld('Number of Passengers', inp('trip_passengers','text','e.g. 4 Passengers'))}
+                  </div>
+                  {fld('Special Instructions (optional)', <textarea value={(form as any).trip_instructions} onChange={e=>setForm(f=>({...f,trip_instructions:e.target.value}))} placeholder="e.g. Driver to pick up at hotel. Fuel and accommodation for driver included." style={{ width:'100%', padding:'10px 12px', borderRadius:'9px', fontSize:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.80)', outline:'none', fontFamily:'inherit', height:'64px', resize:'none' }} />)}
+                </>
+              )}
 
               {/* Line items */}
               <div style={{ ...gl.label, margin:'16px 0 12px', paddingBottom:'8px', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>Line Items</div>
