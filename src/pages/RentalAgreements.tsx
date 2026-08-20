@@ -524,13 +524,13 @@ export default function RentalAgreements() {
             </div>
 
             {/* THE DOCUMENT — PSK Trip Contract format */}
-            <div id="agreement-doc" style={{ background:'#fff', borderRadius:'8px', overflow:'hidden', fontFamily:'Arial, sans-serif', color:'#1a1a1a', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact', maxWidth:'100%', fontSize:'12px' }}>
+            <div id="agreement-doc" style={{ background:'#fff', borderRadius:'8px', fontFamily:'Arial, sans-serif', color:'#1a1a1a', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact', width:'100%', fontSize:'12px' }}>
 
               {/* Orange top stripe */}
               <div style={{ background:'#FF9500', height:'8px', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }} />
 
               {/* Header */}
-              <div style={{ padding:'14px 18px', display:'flex', justifyContent:'space-between', alignItems:'flex-start', borderBottom:'1px solid #ddd' }}>
+              <div style={{ padding:'12px 14px', display:'flex', justifyContent:'space-between', alignItems:'flex-start', borderBottom:'1px solid #ddd', gap:'12px' }}>
                 <div style={{ display:'flex', alignItems:'center', gap:'14px' }}>
                   <img src="/branding/psk-logo.png" alt="PSK" style={{ width:'60px', height:'60px', objectFit:'cover', borderRadius:'50%' }} />
                   <div>
@@ -545,17 +545,17 @@ export default function RentalAgreements() {
                   </div>
                 </div>
                 <div style={{ textAlign:'center', marginTop:'8px' }}>
-                  <div style={{ fontSize:'17px', fontWeight:800, letterSpacing:'2px', color:'#1a1a1a', borderBottom:'2px solid #FF9500', paddingBottom:'4px', marginBottom:'8px' }}>TRIP CONTRACT</div>
+                  <div style={{ fontSize:'16px', fontWeight:800, letterSpacing:'1px', color:'#1a1a1a', borderBottom:'2px solid #FF9500', paddingBottom:'4px', marginBottom:'8px', whiteSpace:'nowrap' }}>TRIP CONTRACT</div>
                   <div style={{ fontSize:'11px', color:'#777' }}>Ref: <strong>{preview.agreement_ref}</strong></div>
                   <div style={{ fontSize:'11px', color:'#777' }}>Date: <strong>{new Date().toLocaleDateString('en-GB')}</strong></div>
                 </div>
               </div>
 
               {/* Two-column body */}
-              <div style={{ display:'flex' }}>
+              <div style={{ display:'flex', minWidth:0 }}>
 
                 {/* Left — form fields */}
-                <div style={{ flex:1, padding:'12px 14px', borderRight:'1px solid #ddd', minWidth:0 }}>
+                <div style={{ flex:1, padding:'12px 14px', minWidth:0 }}>
 
                   {/* CLIENT INFORMATION */}
                   <div style={{ borderTop:'2px solid #1B4D5C', borderBottom:'1px solid #1B4D5C', padding:'5px 8px', fontSize:'10px', fontWeight:800, letterSpacing:'2px', textAlign:'center', marginBottom:'8px', color:'#1B4D5C', background:'#f0f4f6' }}>CLIENT INFORMATION</div>
