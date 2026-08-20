@@ -57,6 +57,7 @@ export default function Sidebar({ userRole = 'owner', onLogout, userName = '', u
       
       {/* Sidebar — 232px fixed width */}
       <aside
+        data-sidebar="true"
         className="h-screen flex flex-col flex-shrink-0 overflow-hidden"
         style={{
           width: '232px',
