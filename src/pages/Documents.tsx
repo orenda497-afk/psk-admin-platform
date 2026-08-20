@@ -234,6 +234,16 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
 
   // ── PSK DOCUMENT PREVIEW (Concept B Warm Safari) ──────────────────────────
   const DocPreview = ({ doc }: { doc: PSKDocument }) => {
+    // Hide sidebar and overflow while document is open
+    useEffect(() => {
+      document.body.style.overflow = 'hidden'
+      const sidebar = document.querySelector('[data-sidebar]') as HTMLElement
+      if (sidebar) sidebar.style.display = 'none'
+      return () => {
+        document.body.style.overflow = ''
+        if (sidebar) sidebar.style.display = ''
+      }
+    }, [])
     const br   = BRANCHES[doc.branch as 'eldoret'|'kisumu']
     const cfg  = DOC_CONFIG[doc.doc_type]
     const sc   = STATUS_CFG[doc.status] || STATUS_CFG.draft
@@ -323,7 +333,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
     }
 
     return (
-      <div style={{ position:'fixed', inset:0, zIndex:99999, display:'flex', alignItems:'flex-start', justifyContent:'center', background:'rgba(0,0,0,0.95)', overflowY:'auto', padding:'32px 20px' }}>
+      <div style={{ position:'fixed', top:0, left:0, right:0, bottom:0, zIndex:99999, display:'flex', alignItems:'flex-start', justifyContent:'center', background:'#0D1B2A', overflowY:'auto', padding:'32px 20px' }}>
         <div style={{ width:'760px', maxWidth:'100%' }}>
           {/* Action bar */}
           <div className="psk-no-print" style={{ display:'flex', justifyContent:'space-between', marginBottom:'16px', flexWrap:'wrap', gap:'8px' }}>
