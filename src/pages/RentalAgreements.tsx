@@ -70,7 +70,7 @@ const SEC: any = {
   printColorAdjust:'exact', WebkitPrintColorAdjust:'exact',
 }
 const LBL: any = { fontSize:'9px', fontWeight:800, color:'#333', letterSpacing:'0.4px', width:'104px', flexShrink:0 }
-const BOX: any = { width:'15px', height:'15px', border:'1.2px solid #555', margin:'0 auto', borderRadius:'2px' }
+const BOX: any = { width:'16px', height:'16px', border:'1.6px solid #333', margin:'0 auto', borderRadius:'2px' }
 
 function Field({ label, value }: { label: string; value?: string }) {
   return (
@@ -576,7 +576,7 @@ export default function RentalAgreements() {
                 <div style={{ display:'flex', alignItems:'stretch' }}>
 
                   {/* ── LEFT: client / vehicle / trip ── */}
-                  <div style={{ width:'452px', flexShrink:0, padding:'12px 16px 12px 24px', borderRight:'1.5px solid #1B4D5C' }}>
+                  <div style={{ width:'400px', flexShrink:0, padding:'12px 14px 12px 24px', borderRight:'1.5px solid #1B4D5C' }}>
 
                     <div style={SEC}>CLIENT INFORMATION</div>
                     <Field label="FULL NAME"        value={preview.client_name} />
@@ -615,17 +615,17 @@ export default function RentalAgreements() {
                     <table style={{ width:'100%', borderCollapse:'collapse', tableLayout:'fixed' }}>
                       <thead>
                         <tr>
-                          <th style={{ padding:'5px 3px', textAlign:'left', fontSize:'9.5px', fontWeight:800, color:'#1B4D5C', letterSpacing:'0.5px', borderBottom:'2px solid #1B4D5C' }}>ACCESSORY</th>
-                          <th style={{ padding:'5px 3px', textAlign:'center', fontSize:'9px', fontWeight:800, color:'#1B4D5C', letterSpacing:'0.3px', borderBottom:'2px solid #1B4D5C', width:'68px' }}>DEPARTURE</th>
-                          <th style={{ padding:'5px 3px', textAlign:'center', fontSize:'9px', fontWeight:800, color:'#1B4D5C', letterSpacing:'0.3px', borderBottom:'2px solid #1B4D5C', width:'68px' }}>ARRIVAL</th>
+                          <th style={{ padding:'6px 4px', textAlign:'left', fontSize:'10px', fontWeight:800, color:'#1B4D5C', letterSpacing:'0.4px', borderBottom:'2px solid #1B4D5C' }}>ACCESSORY</th>
+                          <th style={{ padding:'6px 2px', textAlign:'center', fontSize:'8.5px', fontWeight:800, color:'#1B4D5C', letterSpacing:'0px', borderBottom:'2px solid #1B4D5C', width:'54px' }}>DEPART</th>
+                          <th style={{ padding:'6px 2px', textAlign:'center', fontSize:'8.5px', fontWeight:800, color:'#1B4D5C', letterSpacing:'0px', borderBottom:'2px solid #1B4D5C', width:'54px' }}>ARRIVE</th>
                         </tr>
                       </thead>
                       <tbody>
                         {ACCESSORIES.map(item => (
                           <tr key={item}>
-                            <td style={{ padding:'5px 3px', fontSize:'10.5px', fontWeight:700, color:'#111', borderBottom:'1px solid #999', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{item}</td>
-                            <td style={{ padding:'5px 3px', borderBottom:'1px solid #999', textAlign:'center' }}><div style={BOX} /></td>
-                            <td style={{ padding:'5px 3px', borderBottom:'1px solid #999', textAlign:'center' }}><div style={BOX} /></td>
+                            <td style={{ padding:'7px 4px', fontSize:'13px', fontWeight:800, color:'#000', borderBottom:'1px solid #999' }}>{item}</td>
+                            <td style={{ padding:'7px 2px', borderBottom:'1px solid #999', textAlign:'center' }}><div style={BOX} /></td>
+                            <td style={{ padding:'7px 2px', borderBottom:'1px solid #999', textAlign:'center' }}><div style={BOX} /></td>
                           </tr>
                         ))}
                       </tbody>
