@@ -184,19 +184,22 @@ button {
 
 @media print {
   .psk-no-print { display: none !important; }
-  .psk-document { box-shadow: none !important; border-radius: 0 !important;
+  /* Hide everything except the document */
+  body * { visibility: hidden !important; }
+  .psk-document, .psk-document * { 
+    visibility: visible !important;
     print-color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
-  .psk-document * {
-    print-color-adjust: exact !important;
-    -webkit-print-color-adjust: exact !important;
-    color-adjust: exact !important;
+  .psk-document {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    z-index: 999999 !important;
   }
-  body > * { visibility: hidden; }
-  .psk-document, .psk-document * { visibility: visible; }
-  .psk-document { position: absolute; top: 0; left: 0; width: 100%; }
 }
 /* cache-bust Thu Aug 13 21:30:28 UTC 2026 */
 /* v1786881950 */
