@@ -417,6 +417,25 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
                 </div>
               )}
 
+              {/* Saved Contracts */}
+              {clientAgreements.length > 0 && (
+                <div style={{ marginBottom:'16px' }}>
+                  <div style={{ ...gl.label, marginBottom:'8px' }}>Saved Contracts ({clientAgreements.length})</div>
+                  {clientAgreements.map((a:any) => (
+                    <div key={a.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 12px', marginBottom:'6px', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'8px' }}>
+                      <div>
+                        <div style={{ fontSize:'12px', fontWeight:600, color:'rgba(255,255,255,0.80)' }}>{a.agreement_ref || 'Contract'}</div>
+                        <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.35)', marginTop:'2px' }}>{a.vehicle_reg} · {a.pickup_date ? new Date(a.pickup_date).toLocaleDateString('en-GB') : ''}</div>
+                      </div>
+                      <button onClick={()=>{ setSelected(null); setTimeout(()=>{ window.location.href='/rental-agreements?view='+a.id }, 100) }}
+                        style={{ padding:'5px 12px', borderRadius:'7px', fontSize:'11px', fontWeight:600, background:'rgba(255,149,0,0.10)', border:'1px solid rgba(255,149,0,0.28)', color:'rgba(255,149,0,0.90)', cursor:'pointer', fontFamily:'inherit' }}>
+                        📋 Open
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {/* Delete */}
               <button onClick={()=>deleteClient(selected.id)} style={{ width:'100%', padding:'10px', borderRadius:'9px', fontSize:'12px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(231,76,60,0.08)', border:'1px solid rgba(231,76,60,0.20)', color:'rgba(239,154,154,0.70)', marginTop:'8px' }}>🗑 Delete client</button>
             </div>

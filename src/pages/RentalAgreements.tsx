@@ -99,6 +99,17 @@ export default function RentalAgreements() {
   }
 
   useEffect(() => {
+    // Handle ?view=id from client screen
+    const params = new URLSearchParams(window.location.search)
+    const viewId = params.get('view')
+    if (viewId) {
+      supabase.from('rental_agreements').select('*').eq('id', viewId).single().then(({ data }) => {
+        if (data) { setSelected(data); window.history.replaceState({}, '', '/rental-agreements') }
+      })
+    }
+  }, [])
+
+  useEffect(() => {
     loadAll().then(() => {
       // Check if navigated from booking with prefill params
       // Also handle state passed from Clients page
