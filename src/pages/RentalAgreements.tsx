@@ -482,7 +482,7 @@ export default function RentalAgreements() {
                 style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.22),rgba(255,149,0,0.14))', border:'1.5px solid rgba(255,215,0,0.45)', color:'rgba(255,215,0,0.98)', cursor:pdfBusy?'wait':'pointer', fontFamily:'inherit', opacity:pdfBusy?0.7:1 }}>
                 {pdfBusy ? '⏳ Generating...' : '⬇ Download PDF'}
               </button>
-              <button onClick=async () => {
+              <button onClick={async () => {
                 const el = document.querySelector('#agreement-doc') as HTMLElement
                 if (!el) { alert('Document not ready'); return }
                 // Clone and inline all computed styles
@@ -508,7 +508,7 @@ export default function RentalAgreements() {
                 win.focus()
                 win.print()
                 setTimeout(() => win.close(), 2000)
-              } disabled={pdfBusy}
+              }} disabled={pdfBusy}
                 style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.14)', color:'rgba(255,255,255,0.70)', cursor:'pointer', fontFamily:'inherit' }}>
                 🖨 Print
               </button>
