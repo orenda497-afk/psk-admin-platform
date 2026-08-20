@@ -482,17 +482,33 @@ export default function RentalAgreements() {
                 style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.22),rgba(255,149,0,0.14))', border:'1.5px solid rgba(255,215,0,0.45)', color:'rgba(255,215,0,0.98)', cursor:pdfBusy?'wait':'pointer', fontFamily:'inherit', opacity:pdfBusy?0.7:1 }}>
                 {pdfBusy ? '⏳ Generating...' : '⬇ Download PDF'}
               </button>
-              <button onClick={async ()=>{
-                const el = document.getElementById('agreement-doc')
-                if (!el) return
-                const win = window.open('', '_blank', 'width=900,height=700')
-                if (!win) return
-                win.document.write('<html><head><title>PSK Contract</title><style>@page{margin:10mm} body{margin:0;padding:0;background:#fff;font-family:"Helvetica Neue",Arial,sans-serif} *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}</style></head><body>' + el.outerHTML + '</body></html>')
+              <button onClick=async () => {
+                const el = document.querySelector('#agreement-doc') as HTMLElement
+                if (!el) { alert('Document not ready'); return }
+                // Clone and inline all computed styles
+                const clone = el.cloneNode(true) as HTMLElement
+                const allEls = [clone, ...Array.from(clone.querySelectorAll('*'))]
+                const srcEls = [el, ...Array.from(el.querySelectorAll('*'))]
+                srcEls.forEach((src, i) => {
+                  const computed = window.getComputedStyle(src as Element)
+                  const target = allEls[i] as HTMLElement
+                  let styles = ''
+                  for (let j = 0; j < computed.length; j++) {
+                    const prop = computed[j]
+                    styles += prop + ':' + computed.getPropertyValue(prop) + ';'
+                  }
+                  target.style.cssText = styles
+                })
+                const win = window.open('', '_blank')
+                if (!win) { alert('Allow popups to print'); return }
+                win.document.write('<html><head><title>PSK Document</title><style>@page{size:A4;margin:8mm} body{margin:0;padding:16px;background:#fff}</style></head><body></body></html>')
                 win.document.close()
-                await new Promise(r => setTimeout(r, 800))
+                win.document.body.appendChild(clone)
+                await new Promise(r => setTimeout(r, 600))
+                win.focus()
                 win.print()
-                win.close()
-              }} disabled={pdfBusy}
+                setTimeout(() => win.close(), 2000)
+              } disabled={pdfBusy}
                 style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.14)', color:'rgba(255,255,255,0.70)', cursor:'pointer', fontFamily:'inherit' }}>
                 🖨 Print
               </button>
