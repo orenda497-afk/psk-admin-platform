@@ -482,17 +482,16 @@ export default function RentalAgreements() {
                 style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.22),rgba(255,149,0,0.14))', border:'1.5px solid rgba(255,215,0,0.45)', color:'rgba(255,215,0,0.98)', cursor:pdfBusy?'wait':'pointer', fontFamily:'inherit', opacity:pdfBusy?0.7:1 }}>
                 {pdfBusy ? '⏳ Generating...' : '⬇ Download PDF'}
               </button>
-              <button onClick={()=>{
-                // Temporarily show the agreement fullscreen for printing
+              <button onClick={async ()=>{
                 const el = document.getElementById('agreement-doc')
-                if (el) {
-                  const style = document.createElement('style')
-                  style.id = 'print-override'
-                  style.textContent = '@media print { body > * { display: none !important; } #agreement-doc { display: block !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; z-index: 99999 !important; } }'
-                  document.head.appendChild(style)
-                  window.print()
-                  setTimeout(() => document.getElementById('print-override')?.remove(), 1000)
-                } else window.print()
+                if (!el) return
+                const win = window.open('', '_blank', 'width=900,height=700')
+                if (!win) return
+                win.document.write('<html><head><title>PSK Contract</title><style>@page{margin:10mm} body{margin:0;padding:0;background:#fff;font-family:"Helvetica Neue",Arial,sans-serif} *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}</style></head><body>' + el.outerHTML + '</body></html>')
+                win.document.close()
+                await new Promise(r => setTimeout(r, 800))
+                win.print()
+                win.close()
               }} disabled={pdfBusy}
                 style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.14)', color:'rgba(255,255,255,0.70)', cursor:'pointer', fontFamily:'inherit' }}>
                 🖨 Print
