@@ -612,24 +612,20 @@ export default function RentalAgreements() {
 
                     <div style={SEC}>VEHICLE ACCESSORIES CHECKLIST</div>
 
-                    <table style={{ width:'100%', borderCollapse:'collapse', tableLayout:'fixed' }}>
-                      <thead>
-                        <tr>
-                          <th style={{ padding:'6px 4px', textAlign:'left', fontSize:'10px', fontWeight:800, color:'#1B4D5C', letterSpacing:'0.4px', borderBottom:'2px solid #1B4D5C' }}>ACCESSORY</th>
-                          <th style={{ padding:'6px 2px', textAlign:'center', fontSize:'8.5px', fontWeight:800, color:'#1B4D5C', letterSpacing:'0px', borderBottom:'2px solid #1B4D5C', width:'54px' }}>DEPART</th>
-                          <th style={{ padding:'6px 2px', textAlign:'center', fontSize:'8.5px', fontWeight:800, color:'#1B4D5C', letterSpacing:'0px', borderBottom:'2px solid #1B4D5C', width:'54px' }}>ARRIVE</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {ACCESSORIES.map(item => (
-                          <tr key={item}>
-                            <td style={{ padding:'7px 4px', fontSize:'13px', fontWeight:800, color:'#000', borderBottom:'1px solid #999' }}>{item}</td>
-                            <td style={{ padding:'7px 2px', borderBottom:'1px solid #999', textAlign:'center' }}><div style={BOX} /></td>
-                            <td style={{ padding:'7px 2px', borderBottom:'1px solid #999', textAlign:'center' }}><div style={BOX} /></td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                    {/* Header row */}
+                    <div style={{ display:'flex', alignItems:'center', borderBottom:'2px solid #1B4D5C', paddingBottom:'6px' }}>
+                      <div style={{ flex:1, fontSize:'10px', fontWeight:800, color:'#1B4D5C', letterSpacing:'0.4px' }}>ACCESSORY</div>
+                      <div style={{ width:'54px', textAlign:'center', fontSize:'8.5px', fontWeight:800, color:'#1B4D5C' }}>DEPART</div>
+                      <div style={{ width:'54px', textAlign:'center', fontSize:'8.5px', fontWeight:800, color:'#1B4D5C' }}>ARRIVE</div>
+                    </div>
+
+                    {ACCESSORIES.map(item => (
+                      <div key={item} style={{ display:'flex', alignItems:'center', borderBottom:'1px solid #999', padding:'7px 0' }}>
+                        <div style={{ flex:1, fontSize:'13px', fontWeight:800, color:'#000' }}>{item}</div>
+                        <div style={{ width:'54px', display:'flex', justifyContent:'center' }}><div style={BOX} /></div>
+                        <div style={{ width:'54px', display:'flex', justifyContent:'center' }}><div style={BOX} /></div>
+                      </div>
+                    ))}
 
                     <div style={{ ...LBL, width:'auto', marginTop:'16px', marginBottom:'6px' }}>ANY OTHER OBSERVATION ON THE CAR:</div>
                     <div style={{ borderBottom:'1px solid #999', height:'22px' }} />
