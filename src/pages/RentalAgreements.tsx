@@ -167,32 +167,64 @@ export default function RentalAgreements() {
   async function generatePDF(): Promise<Blob | null> {
     const el = document.getElementById('agreement-doc')
     if (!el) return null
-    const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' })
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
-    const w = pdf.internal.pageSize.getWidth()
-    const h = (canvas.height * w) / canvas.width
-    pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, w, h)
-    return pdf.output('blob')
+    try {
+      // Force width to A4 before capture
+      const prev = el.style.width
+      el.style.width = '794px'
+      await new Promise(r => setTimeout(r, 150))
+      const canvas = await html2canvas(el, {
+        scale: 2, useCORS: true, allowTaint: true,
+        backgroundColor: '#ffffff', logging: false,
+        windowWidth: 794, scrollX: 0, scrollY: 0
+      })
+      el.style.width = prev
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+      const pageW = pdf.internal.pageSize.getWidth()
+      const pageH = pdf.internal.pageSize.getHeight()
+      const imgH = (canvas.height * pageW) / canvas.width
+      if (imgH <= pageH) {
+        pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pageW, imgH)
+      } else {
+        // Multi-page
+        let yPos = 0, page = 0
+        while (yPos < imgH) {
+          if (page > 0) pdf.addPage()
+          pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, -yPos, pageW, imgH)
+          yPos += pageH; page++
+        }
+      }
+      return pdf.output('blob')
+    } catch (err) {
+      console.error('PDF error:', err)
+      return null
+    }
   }
 
   async function downloadPDF() {
     if (!selected) return
     setPdfBusy(true)
-    const blob = await generatePDF()
-    setPdfBusy(false)
-    if (!blob) return
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${selected.agreement_ref || 'PSK-Contract'}.pdf`
-    a.click()
-    setTimeout(() => URL.revokeObjectURL(url), 2000)
+    try {
+      const blob = await generatePDF()
+      if (!blob) { alert('Could not generate PDF. Please try again.'); return }
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${selected.agreement_ref || 'PSK-Contract'}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      setTimeout(() => URL.revokeObjectURL(url), 3000)
+    } finally {
+      setPdfBusy(false)
+    }
   }
 
   async function shareWhatsApp() {
     if (!selected) return
     setPdfBusy(true)
-    await downloadPDF()
+    try { await downloadPDF() } finally { setPdfBusy(false) }
+    // downloadPDF already resets busy, add small delay
+    await new Promise(r => setTimeout(r, 500))
     setPdfBusy(false)
     const phone = (selected.client_phone || '').replace(/\D/g, '')
     const msg = encodeURIComponent(`Dear ${selected.client_name},\n\nPlease find your Trip Contract from PSK Safaris & Car Rentals.\n\nRef: ${selected.agreement_ref}\nVehicle: ${selected.vehicle_reg}\nDate: ${selected.pickup_date ? new Date(selected.pickup_date).toLocaleDateString('en-GB') : ''}\n\nThe PDF has been downloaded — please check your downloads folder.\n\nThank you for choosing PSK Safaris.\nTel: +254 751 855 180`)
