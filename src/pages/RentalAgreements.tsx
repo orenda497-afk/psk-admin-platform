@@ -57,6 +57,32 @@ const TERMS = [
   "By signing this contract the hirer agrees to all terms and conditions. Should there be any breaches, PSK Safaris & Car Rentals reserves the right to repossess the vehicle without any refund.",
 ]
 
+/* ── Print/PDF document primitives — fixed A4 at 96dpi (794 × 1123 px) ── */
+const PAGE: any = {
+  width:'794px', height:'1123px', background:'#fff', position:'relative',
+  overflow:'hidden', marginBottom:'26px', boxShadow:'0 6px 28px rgba(0,0,0,0.35)',
+  printColorAdjust:'exact', WebkitPrintColorAdjust:'exact',
+}
+const SEC: any = {
+  borderTop:'2px solid #1B4D5C', borderBottom:'1px solid #1B4D5C', padding:'4px 8px',
+  fontSize:'10px', fontWeight:800, letterSpacing:'1.6px', textAlign:'center',
+  color:'#1B4D5C', background:'#eef3f5', marginBottom:'8px',
+  printColorAdjust:'exact', WebkitPrintColorAdjust:'exact',
+}
+const LBL: any = { fontSize:'9px', fontWeight:800, color:'#333', letterSpacing:'0.4px', width:'104px', flexShrink:0 }
+const BOX: any = { width:'15px', height:'15px', border:'1.2px solid #555', margin:'0 auto', borderRadius:'2px' }
+
+function Field({ label, value }: { label: string; value?: string }) {
+  return (
+    <div style={{ display:'flex', alignItems:'flex-end', gap:'8px', marginBottom:'5px', paddingBottom:'3px', borderBottom:'1px solid #999' }}>
+      <div style={LBL}>{label}:</div>
+      <div style={{ fontSize:'11.5px', fontWeight:700, color:'#111', flex:1, minHeight:'14px', lineHeight:'14px' }}>{value || ''}</div>
+    </div>
+  )
+}
+
+const ACCESSORIES = ['Floor Mats','Power Window','Jack & Jack Handles','Wheel Caps','Alloy Rims','Rearview Mirror','Safety Belts','Infotainment System','Speakers','Tool Kit (W. Spanner)','Door Handles','Head Lights','Rear Lights','Spare Wheel','Oil Level','ATF','P/Steering Fluid']
+
 export default function RentalAgreements() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -165,33 +191,23 @@ export default function RentalAgreements() {
   const [pdfBusy, setPdfBusy] = useState(false)
 
   async function generatePDF(): Promise<Blob | null> {
-    const el = document.getElementById('agreement-doc')
-    if (!el) return null
+    const root = document.getElementById('agreement-doc')
+    if (!root) return null
     try {
-      // Force width to A4 before capture
-      const prev = el.style.width
-      el.style.width = '794px'
-      await new Promise(r => setTimeout(r, 150))
-      const canvas = await html2canvas(el, {
-        scale: 2, useCORS: true, allowTaint: true,
-        backgroundColor: '#ffffff', logging: false,
-        windowWidth: 794, scrollX: 0, scrollY: 0
-      })
-      el.style.width = prev
+      const pages = Array.from(root.querySelectorAll('.psk-page')) as HTMLElement[]
+      if (!pages.length) return null
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
       const pageW = pdf.internal.pageSize.getWidth()
       const pageH = pdf.internal.pageSize.getHeight()
-      const imgH = (canvas.height * pageW) / canvas.width
-      if (imgH <= pageH) {
-        pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pageW, imgH)
-      } else {
-        // Multi-page
-        let yPos = 0, page = 0
-        while (yPos < imgH) {
-          if (page > 0) pdf.addPage()
-          pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, -yPos, pageW, imgH)
-          yPos += pageH; page++
-        }
+      for (let i = 0; i < pages.length; i++) {
+        // Each .psk-page is exactly one A4 sheet, so it maps 1:1 onto a PDF page.
+        // No blind slicing -> no split rows, no overlapping content.
+        const canvas = await html2canvas(pages[i], {
+          scale: 2, useCORS: true, allowTaint: true,
+          backgroundColor: '#ffffff', logging: false,
+        })
+        if (i > 0) pdf.addPage()
+        pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pageW, pageH)
       }
       return pdf.output('blob')
     } catch (err) {
@@ -201,7 +217,8 @@ export default function RentalAgreements() {
   }
 
   async function downloadPDF() {
-    if (!selected) return
+    const doc = preview || selected
+    if (!doc) return
     setPdfBusy(true)
     try {
       const blob = await generatePDF()
@@ -209,7 +226,7 @@ export default function RentalAgreements() {
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `${selected.agreement_ref || 'PSK-Contract'}.pdf`
+      a.download = `${doc.agreement_ref || 'PSK-Contract'}.pdf`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -220,25 +237,22 @@ export default function RentalAgreements() {
   }
 
   async function shareWhatsApp() {
-    if (!selected) return
-    setPdfBusy(true)
-    try { await downloadPDF() } finally { setPdfBusy(false) }
-    // downloadPDF already resets busy, add small delay
-    await new Promise(r => setTimeout(r, 500))
-    setPdfBusy(false)
-    const phone = (selected.client_phone || '').replace(/\D/g, '')
-    const msg = encodeURIComponent(`Dear ${selected.client_name},\n\nPlease find your Trip Contract from PSK Safaris & Car Rentals.\n\nRef: ${selected.agreement_ref}\nVehicle: ${selected.vehicle_reg}\nDate: ${selected.pickup_date ? new Date(selected.pickup_date).toLocaleDateString('en-GB') : ''}\n\nThe PDF has been downloaded — please check your downloads folder.\n\nThank you for choosing PSK Safaris.\nTel: +254 751 855 180`)
+    const doc = preview || selected
+    if (!doc) return
+    await downloadPDF()
+    await new Promise(r => setTimeout(r, 400))
+    const phone = (doc.client_phone || '').replace(/\D/g, '')
+    const msg = encodeURIComponent(`Dear ${doc.client_name},\n\nPlease find your Trip Contract from PSK Safaris & Car Rentals.\n\nRef: ${doc.agreement_ref}\nVehicle: ${doc.vehicle_reg}\nDate: ${doc.pickup_date ? new Date(doc.pickup_date).toLocaleDateString('en-GB') : ''}\n\nThe PDF has been downloaded — please check your downloads folder.\n\nThank you for choosing PSK Safaris.\nTel: +254 751 855 180`)
     setTimeout(() => window.open(`https://wa.me/${phone}?text=${msg}`, '_blank'), 1200)
   }
 
   async function shareEmail() {
-    if (!selected) return
-    setPdfBusy(true)
+    const doc = preview || selected
+    if (!doc) return
     await downloadPDF()
-    setPdfBusy(false)
-    const subject = encodeURIComponent(`PSK Safaris — Trip Contract ${selected.agreement_ref}`)
-    const body = encodeURIComponent(`Dear ${selected.client_name},\n\nPlease find attached your Trip Contract from PSK Safaris & Car Rentals.\n\nRef: ${selected.agreement_ref}\nVehicle: ${selected.vehicle_reg}\n\nThank you for choosing PSK Safaris.\nTel: +254 751 855 180`)
-    setTimeout(() => window.open(`mailto:${selected.client_phone || ''}?subject=${subject}&body=${body}`, '_blank'), 1200)
+    const subject = encodeURIComponent(`PSK Safaris — Trip Contract ${doc.agreement_ref}`)
+    const body = encodeURIComponent(`Dear ${doc.client_name},\n\nPlease find attached your Trip Contract from PSK Safaris & Car Rentals.\n\nRef: ${doc.agreement_ref}\nVehicle: ${doc.vehicle_reg}\n\nThank you for choosing PSK Safaris.\nTel: +254 751 855 180`)
+    setTimeout(() => window.open(`mailto:?subject=${subject}&body=${body}`, '_blank'), 1200)
   }
 
   async function loadAll() {
@@ -475,23 +489,23 @@ export default function RentalAgreements() {
 
       {/* AGREEMENT PREVIEW — Concept B Warm Safari Template */}
       {preview && (
-        <div style={{ position:'fixed', inset:0, zIndex:200, display:'flex', alignItems:'flex-start', justifyContent:'center', background:'rgba(0,0,0,0.80)', backdropFilter:'blur(12px)', overflowY:'auto', padding:'40px 20px' }}>
-          <div style={{ width:'780px', maxWidth:'100%' }}>
+        <div style={{ position:'fixed', inset:0, zIndex:200, display:'flex', alignItems:'flex-start', justifyContent:'center', background:'rgba(0,0,0,0.80)', backdropFilter:'blur(12px)', overflowY:'auto', overflowX:'auto', padding:'40px 20px' }}>
+          <div style={{ width:'794px', maxWidth:'100%' }}>
             <div style={{ display:'flex', justifyContent:'flex-end', marginBottom:'16px', gap:'10px' }}>
               <button onClick={downloadPDF} disabled={pdfBusy}
                 style={{ padding:'8px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.22),rgba(255,149,0,0.14))', border:'1.5px solid rgba(255,215,0,0.45)', color:'rgba(255,215,0,0.98)', cursor:pdfBusy?'wait':'pointer', fontFamily:'inherit', opacity:pdfBusy?0.7:1 }}>
                 {pdfBusy ? '⏳ Generating...' : '⬇ Download PDF'}
               </button>
               <button onClick={async () => {
-                const el = document.querySelector('#agreement-doc') as HTMLElement
-                if (!el) { alert('Document not ready'); return }
-                // Clone and inline all computed styles
-                const clone = el.cloneNode(true) as HTMLElement
-                const allEls = [clone, ...Array.from(clone.querySelectorAll('*'))]
-                const srcEls = [el, ...Array.from(el.querySelectorAll('*'))]
+                const root = document.getElementById('agreement-doc')
+                if (!root) { alert('Document not ready'); return }
+                // Clone and inline all computed styles so the new window renders identically
+                const clone = root.cloneNode(true) as HTMLElement
+                const srcEls = [root, ...Array.from(root.querySelectorAll('*'))]
+                const dstEls = [clone, ...Array.from(clone.querySelectorAll('*'))]
                 srcEls.forEach((src, i) => {
                   const computed = window.getComputedStyle(src as Element)
-                  const target = allEls[i] as HTMLElement
+                  const target = dstEls[i] as HTMLElement
                   let styles = ''
                   for (let j = 0; j < computed.length; j++) {
                     const prop = computed[j]
@@ -499,12 +513,17 @@ export default function RentalAgreements() {
                   }
                   target.style.cssText = styles
                 })
+                // Absolute image URLs — relative paths break in a blank window
+                Array.from(clone.querySelectorAll('img')).forEach(img => {
+                  const im = img as HTMLImageElement
+                  im.src = new URL(im.getAttribute('src') || '', window.location.origin).href
+                })
                 const win = window.open('', '_blank')
                 if (!win) { alert('Allow popups to print'); return }
-                win.document.write('<html><head><title>PSK Document</title><style>@page{size:A4;margin:8mm} body{margin:0;padding:16px;background:#fff}</style></head><body></body></html>')
+                win.document.write('<html><head><title>PSK Trip Contract</title><style>@page{size:A4;margin:0}html,body{margin:0;padding:0;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}.psk-page{width:794px!important;height:1123px!important;margin:0!important;box-shadow:none!important;border-radius:0!important;overflow:hidden!important;page-break-after:always;break-after:page;page-break-inside:avoid;break-inside:avoid}.psk-page:last-child{page-break-after:auto;break-after:auto}</style></head><body></body></html>')
                 win.document.close()
                 win.document.body.appendChild(clone)
-                await new Promise(r => setTimeout(r, 600))
+                await new Promise(r => setTimeout(r, 800))
                 win.focus()
                 win.print()
                 setTimeout(() => win.close(), 2000)
@@ -523,192 +542,176 @@ export default function RentalAgreements() {
               <button onClick={() => setPreview(null)} style={{ padding:'8px 18px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.60)', cursor:'pointer', fontFamily:'inherit' }}>✕ Close</button>
             </div>
 
-            {/* THE DOCUMENT — PSK Trip Contract format */}
-            <div id="agreement-doc" style={{ background:'#fff', borderRadius:'8px', fontFamily:'Arial, sans-serif', color:'#1a1a1a', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact', width:'100%', fontSize:'12px' }}>
+            {/* THE DOCUMENT — PSK Trip Contract, fixed 2 × A4 pages */}
+            <div id="agreement-doc" style={{ fontFamily:'Arial, Helvetica, sans-serif', color:'#111', width:'794px', margin:'0 auto', fontSize:'12px' }}>
 
-              {/* Orange top stripe */}
-              <div style={{ background:'#FF9500', height:'8px', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }} />
+              {/* ═══════════════ PAGE 1 ═══════════════ */}
+              <div className="psk-page" style={PAGE}>
 
-              {/* Header */}
-              <div style={{ padding:'12px 14px', display:'flex', justifyContent:'space-between', alignItems:'flex-start', borderBottom:'1px solid #ddd', gap:'12px' }}>
-                <div style={{ display:'flex', alignItems:'center', gap:'14px' }}>
-                  <img src="/branding/psk-logo.png" alt="PSK" style={{ width:'60px', height:'60px', objectFit:'cover', borderRadius:'50%' }} />
-                  <div>
-                    <div style={{ fontSize:'18px', fontWeight:800, color:'#1a1a1a' }}>PSK SAFARIS & CAR RENTALS</div>
-                    <div style={{ fontSize:'11px', color:'#555', marginTop:'2px' }}>
-                      {preview.branch === 'eldoret' ? 'Sixty Four Plaza, P.O. Box 5079 - 30100, Eldoret.' : '174 Pamba Road, Tom Mboya, Kisumu.'}
-                    </div>
-                    <div style={{ fontSize:'11px', color:'#555' }}>
-                      {preview.branch === 'eldoret' ? 'Tel: +254 751 855 180 | +254 741 186 538' : 'Tel: +254 741 186 538 | +254 740 355 180'}
-                    </div>
-                    <div style={{ fontSize:'11px', color:'#555' }}>PIN No: P051664556P</div>
-                  </div>
-                </div>
-                <div style={{ textAlign:'center', marginTop:'8px' }}>
-                  <div style={{ fontSize:'16px', fontWeight:800, letterSpacing:'1px', color:'#1a1a1a', borderBottom:'2px solid #FF9500', paddingBottom:'4px', marginBottom:'8px', whiteSpace:'nowrap' }}>TRIP CONTRACT</div>
-                  <div style={{ fontSize:'11px', color:'#777' }}>Ref: <strong>{preview.agreement_ref}</strong></div>
-                  <div style={{ fontSize:'11px', color:'#777' }}>Date: <strong>{new Date().toLocaleDateString('en-GB')}</strong></div>
-                </div>
-              </div>
+                <div style={{ background:'#FF9500', height:'9px', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }} />
 
-              {/* Two-column body */}
-              <div style={{ display:'flex', minWidth:0 }}>
-
-                {/* Left — form fields */}
-                <div style={{ flex:1, padding:'12px 14px', minWidth:0 }}>
-
-                  {/* CLIENT INFORMATION */}
-                  <div style={{ borderTop:'2px solid #1B4D5C', borderBottom:'1px solid #1B4D5C', padding:'5px 8px', fontSize:'10px', fontWeight:800, letterSpacing:'2px', textAlign:'center', marginBottom:'8px', color:'#1B4D5C', background:'#f0f4f6' }}>CLIENT INFORMATION</div>
-                  {[
-                    ['FULL NAME', preview.client_name || ''],
-                    ['ID/PP. NO.', preview.client_id_number || ''],
-                    ['VALID DL', 'Yes'],
-                    ['PHYSICAL ADDRESS', ''],
-                    ['PHONE', preview.client_phone || ''],
-                  ].map(([label, value]) => (
-                    <div key={label} style={{ display:'flex', alignItems:'center', gap:'6px', marginBottom:'6px', borderBottom:'1px solid #ddd', paddingBottom:'4px' }}>
-                      <div style={{ fontSize:'9.5px', fontWeight:700, color:'#555', width:'110px', flexShrink:0 }}>{label}:</div>
-                      <div style={{ fontSize:'12px', fontWeight:600, color:'#1a1a1a', flex:1 }}>{value}</div>
-                    </div>
-                  ))}
-                  <div style={{ display:'flex', alignItems:'flex-end', gap:'6px', marginBottom:'10px', borderBottom:'1px solid #ddd', paddingBottom:'18px' }}>
-                    <div style={{ fontSize:'9.5px', fontWeight:700, color:'#555', width:'110px', flexShrink:0 }}>SIGNATURE:</div>
-                    <div style={{ flex:1, borderBottom:'1px solid #555', minHeight:'24px' }}></div>
-                  </div>
-
-                  {/* VEHICLE INFORMATION */}
-                  <div style={{ borderTop:'2px solid #1B4D5C', borderBottom:'1px solid #1B4D5C', padding:'5px 8px', fontSize:'10px', fontWeight:800, letterSpacing:'2px', textAlign:'center', marginBottom:'8px', color:'#1B4D5C', background:'#f0f4f6' }}>VEHICLE INFORMATION</div>
-                  {[
-                    ['REG NO.', preview.vehicle_reg || ''],
-                    ['CAR MAKE', `${preview.vehicle_make||''} ${preview.vehicle_model||''}`],
-                    ['COLOR', ''],
-                  ].map(([label, value]) => (
-                    <div key={label} style={{ display:'flex', alignItems:'center', gap:'6px', marginBottom:'6px', borderBottom:'1px solid #ddd', paddingBottom:'4px' }}>
-                      <div style={{ fontSize:'9.5px', fontWeight:700, color:'#555', width:'110px', flexShrink:0 }}>{label}:</div>
-                      <div style={{ fontSize:'12px', fontWeight:600, color:'#1a1a1a', flex:1 }}>{value}</div>
-                    </div>
-                  ))}
-
-                  {/* TRIP INFORMATION */}
-                  <div style={{ borderTop:'2px solid #1B4D5C', borderBottom:'1px solid #1B4D5C', padding:'5px 8px', fontSize:'10px', fontWeight:800, letterSpacing:'2px', textAlign:'center', margin:'10px 0 8px', color:'#1B4D5C', background:'#f0f4f6' }}>TRIP INFORMATION</div>
-                  {[
-                    ['PURPOSE OF HIRE', preview.trip_type || ''],
-                    ['FROM', preview.pickup_location || ''],
-                    ['TO', preview.dropoff_location || ''],
-                    ['HIRE TYPE', preview.trip_type || ''],
-                    ['START DATE/TIME', preview.pickup_date ? new Date(preview.pickup_date).toLocaleDateString('en-GB') : ''],
-                    ['RETURN DATE/TIME', preview.return_date ? new Date(preview.return_date).toLocaleDateString('en-GB') : ''],
-                    ['NO OF DAYS', preview.pickup_date && preview.return_date ? String(Math.max(1,Math.round((new Date(preview.return_date).getTime()-new Date(preview.pickup_date).getTime())/86400000))) : ''],
-                    ['DAILY RATE', preview.total_amount ? `KES ${preview.total_amount.toLocaleString()}` : ''],
-                    ['DEPOSIT PAID', preview.deposit_amount ? `KES ${preview.deposit_amount.toLocaleString()}` : ''],
-                    ['MILEAGE (KM)', ''],
-                  ].map(([label, value]) => (
-                    <div key={label} style={{ display:'flex', alignItems:'center', gap:'6px', marginBottom:'5px', borderBottom:'1px solid #ddd', paddingBottom:'3px' }}>
-                      <div style={{ fontSize:'9.5px', fontWeight:700, color:'#555', width:'110px', flexShrink:0 }}>{label}:</div>
-                      <div style={{ fontSize:'12px', fontWeight:600, color:'#1a1a1a', flex:1 }}>{value}</div>
-                    </div>
-                  ))}
-
-                  {/* TERMS OF SERVICE */}
-                  <div style={{ borderTop:'2px solid #1B4D5C', borderBottom:'1px solid #1B4D5C', padding:'5px 8px', fontSize:'10px', fontWeight:800, letterSpacing:'2px', textAlign:'center', margin:'10px 0 8px', color:'#1B4D5C', background:'#f0f4f6' }}>TERMS OF SERVICE</div>
-                  <div style={{ fontSize:'10px', color:'#555', marginBottom:'4px' }}>ANY OTHER OBSERVATION ON THE CAR:</div>
-                  <div style={{ borderBottom:'1px solid #ccc', height:'24px', marginBottom:'14px' }}></div>
-                  <div style={{ fontSize:'10px', color:'#555', marginBottom:'14px' }}>See full Terms & Conditions on page 2 of this contract.</div>
-
-                  {/* Signatures */}
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'16px', marginTop:'8px' }}>
+                {/* Header */}
+                <div style={{ padding:'14px 24px 12px', display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:'1.5px solid #bbb', gap:'16px' }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:'16px' }}>
+                    <img src="/branding/psk-logo.png" alt="PSK" style={{ width:'96px', height:'96px', objectFit:'cover', borderRadius:'50%', flexShrink:0 }} />
                     <div>
-                      <div style={{ fontSize:'9.5px', fontWeight:700, color:'#555', marginBottom:'3px' }}>CLIENT SIGNATURE:</div>
-                      <div style={{ borderBottom:'1px solid #1a1a1a', height:'32px', marginBottom:'4px', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                        {preview.client_signed && <div style={{ fontSize:'10px', color:'#2D5F3F', fontStyle:'italic' }}>✓ {preview.client_name}</div>}
+                      <div style={{ fontSize:'21px', fontWeight:800, color:'#111', letterSpacing:'0.2px' }}>PSK SAFARIS &amp; CAR RENTALS</div>
+                      <div style={{ fontSize:'11.5px', color:'#333', fontWeight:600, marginTop:'5px' }}>
+                        {preview.branch === 'eldoret' ? 'Sixty Four Plaza, P.O. Box 5079 - 30100, Eldoret.' : '174 Pamba Road, Tom Mboya, Kisumu.'}
+                      </div>
+                      <div style={{ fontSize:'11.5px', color:'#333', fontWeight:600, marginTop:'3px' }}>
+                        {preview.branch === 'eldoret' ? 'Tel: +254 751 855 180 | +254 741 186 538' : 'Tel: +254 741 186 538 | +254 740 355 180'}
+                      </div>
+                      <div style={{ fontSize:'11.5px', color:'#333', fontWeight:600, marginTop:'3px' }}>PIN No: P051664556P</div>
+                    </div>
+                  </div>
+                  <div style={{ textAlign:'right', flexShrink:0 }}>
+                    <div style={{ fontSize:'21px', fontWeight:800, letterSpacing:'1.5px', color:'#111', borderBottom:'2.5px solid #FF9500', paddingBottom:'6px', marginBottom:'9px', whiteSpace:'nowrap', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>TRIP CONTRACT</div>
+                    <div style={{ fontSize:'11.5px', color:'#333', fontWeight:600 }}>Ref: <strong style={{ color:'#111' }}>{preview.agreement_ref}</strong></div>
+                    <div style={{ fontSize:'11.5px', color:'#333', fontWeight:600, marginTop:'3px' }}>Date: <strong style={{ color:'#111' }}>{new Date().toLocaleDateString('en-GB')}</strong></div>
+                  </div>
+                </div>
+
+                {/* Two-column body */}
+                <div style={{ display:'flex', alignItems:'stretch' }}>
+
+                  {/* ── LEFT: client / vehicle / trip ── */}
+                  <div style={{ width:'452px', flexShrink:0, padding:'12px 16px 12px 24px', borderRight:'1.5px solid #1B4D5C' }}>
+
+                    <div style={SEC}>CLIENT INFORMATION</div>
+                    <Field label="FULL NAME"        value={preview.client_name} />
+                    <Field label="ID/PP. NO."       value={preview.client_id_number} />
+                    <Field label="VALID DL"         value="Yes" />
+                    <Field label="PHYSICAL ADDRESS" value="" />
+                    <Field label="PHONE"            value={preview.client_phone} />
+                    <div style={{ display:'flex', alignItems:'flex-end', gap:'6px', marginBottom:'10px', paddingBottom:'16px', borderBottom:'1px solid #999' }}>
+                      <div style={LBL}>SIGNATURE:</div>
+                      <div style={{ flex:1 }} />
+                    </div>
+
+                    <div style={SEC}>VEHICLE INFORMATION</div>
+                    <Field label="REG NO."  value={preview.vehicle_reg} />
+                    <Field label="CAR MAKE" value={`${preview.vehicle_make || ''} ${preview.vehicle_model || ''}`.trim()} />
+                    <Field label="COLOR"    value="" />
+
+                    <div style={{ ...SEC, marginTop:'12px' }}>TRIP INFORMATION</div>
+                    <Field label="PURPOSE OF HIRE"  value={preview.trip_type} />
+                    <Field label="FROM"             value={preview.pickup_location} />
+                    <Field label="TO"               value={preview.dropoff_location} />
+                    <Field label="HIRE TYPE"        value={preview.trip_type} />
+                    <Field label="START DATE/TIME"  value={preview.pickup_date ? new Date(preview.pickup_date).toLocaleDateString('en-GB') : ''} />
+                    <Field label="RETURN DATE/TIME" value={preview.return_date ? new Date(preview.return_date).toLocaleDateString('en-GB') : ''} />
+                    <Field label="NO OF DAYS"       value={preview.pickup_date && preview.return_date ? String(Math.max(1, Math.round((new Date(preview.return_date).getTime() - new Date(preview.pickup_date).getTime()) / 86400000))) : ''} />
+                    <Field label="DAILY RATE"       value={preview.total_amount ? `KES ${Number(preview.total_amount).toLocaleString()}` : ''} />
+                    <Field label="DEPOSIT PAID"     value={preview.deposit_amount ? `KES ${Number(preview.deposit_amount).toLocaleString()}` : ''} />
+                    <Field label="MILEAGE (KM)"     value="" />
+                  </div>
+
+                  {/* ── RIGHT: accessories checklist ── */}
+                  <div style={{ flex:1, padding:'12px 24px 12px 16px', minWidth:0 }}>
+
+                    <div style={SEC}>VEHICLE ACCESSORIES CHECKLIST</div>
+
+                    <table style={{ width:'100%', borderCollapse:'collapse', tableLayout:'fixed' }}>
+                      <thead>
+                        <tr>
+                          <th style={{ padding:'5px 3px', textAlign:'left', fontSize:'9.5px', fontWeight:800, color:'#1B4D5C', letterSpacing:'0.5px', borderBottom:'2px solid #1B4D5C' }}>ACCESSORY</th>
+                          <th style={{ padding:'5px 3px', textAlign:'center', fontSize:'9px', fontWeight:800, color:'#1B4D5C', letterSpacing:'0.3px', borderBottom:'2px solid #1B4D5C', width:'68px' }}>DEPARTURE</th>
+                          <th style={{ padding:'5px 3px', textAlign:'center', fontSize:'9px', fontWeight:800, color:'#1B4D5C', letterSpacing:'0.3px', borderBottom:'2px solid #1B4D5C', width:'68px' }}>ARRIVAL</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {ACCESSORIES.map(item => (
+                          <tr key={item}>
+                            <td style={{ padding:'5px 3px', fontSize:'10.5px', fontWeight:700, color:'#111', borderBottom:'1px solid #999', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{item}</td>
+                            <td style={{ padding:'5px 3px', borderBottom:'1px solid #999', textAlign:'center' }}><div style={BOX} /></td>
+                            <td style={{ padding:'5px 3px', borderBottom:'1px solid #999', textAlign:'center' }}><div style={BOX} /></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    <div style={{ ...LBL, width:'auto', marginTop:'16px', marginBottom:'6px' }}>ANY OTHER OBSERVATION ON THE CAR:</div>
+                    <div style={{ borderBottom:'1px solid #999', height:'22px' }} />
+                    <div style={{ borderBottom:'1px solid #999', height:'22px' }} />
+                    <div style={{ borderBottom:'1px solid #999', height:'22px' }} />
+                  </div>
+                </div>
+
+                {/* Page 1 footer — pinned to bottom of the A4 sheet */}
+                <div style={{ position:'absolute', left:0, right:0, bottom:0 }}>
+                  <div style={{ padding:'0 24px 14px' }}>
+                    <div style={{ borderTop:'1.5px solid #1B4D5C', paddingTop:'12px', display:'grid', gridTemplateColumns:'1fr 1fr 140px', gap:'24px', alignItems:'flex-end' }}>
+                      <div>
+                        <div style={{ ...LBL, width:'auto', marginBottom:'22px' }}>CLIENT SIGNATURE:</div>
+                        <div style={{ borderBottom:'1.5px solid #111', height:'1px' }} />
+                        {preview.client_signed && <div style={{ fontSize:'10px', color:'#2D5F3F', fontStyle:'italic', marginTop:'3px' }}>✓ {preview.client_name}</div>}
+                      </div>
+                      <div>
+                        <div style={{ ...LBL, width:'auto', marginBottom:'6px' }}>YOU WERE SERVED BY:</div>
+                        <div style={{ fontSize:'11.5px', fontWeight:700, color:'#111', height:'16px' }}>{(preview as any).staff_name || 'PSK Staff'}</div>
+                        <div style={{ borderBottom:'1.5px solid #111', height:'1px' }} />
+                      </div>
+                      <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
+                        <div style={{ width:'76px', height:'76px', borderRadius:'50%', border:'2px dashed #999', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'8px', fontWeight:700, color:'#888', textAlign:'center', lineHeight:'1.3' }}>COMPANY<br />STAMP</div>
+                        <div style={{ fontSize:'10px', fontWeight:700, color:'#333', marginTop:'5px' }}>Date: {new Date().toLocaleDateString('en-GB')}</div>
                       </div>
                     </div>
-                    <div>
-                      <div style={{ fontSize:'9.5px', fontWeight:700, color:'#555', marginBottom:'3px' }}>YOU WERE SERVED BY:</div>
-                      <div style={{ borderBottom:'1px solid #1a1a1a', height:'32px', marginBottom:'4px', display:'flex', alignItems:'center', paddingLeft:'4px' }}>
-                        <div style={{ fontSize:'11px', fontWeight:600 }}>{preview.staff_name || 'PSK Staff'}</div>
+                    <div style={{ fontSize:'9.5px', fontWeight:700, color:'#444', textAlign:'center', marginTop:'10px' }}>See full Terms &amp; Conditions on page 2 of this contract.</div>
+                  </div>
+                  <div style={{ background:'#FF9500', padding:'7px 20px', textAlign:'center', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>
+                    <div style={{ fontSize:'11px', color:'#fff', fontWeight:700 }}>Easy car rentals · Self drive/chauffeur driven · Airport transfers · Safaris and excursion</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ═══════════════ PAGE 2 — T&Cs + signatures ═══════════════ */}
+              <div className="psk-page" style={PAGE}>
+
+                <div style={{ background:'#FF9500', height:'9px', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }} />
+
+                <div style={{ padding:'20px 34px 0' }}>
+                  <div style={{ textAlign:'center', marginBottom:'16px' }}>
+                    <div style={{ fontSize:'20px', fontWeight:800, letterSpacing:'2px', color:'#111' }}>TERMS AND CONDITIONS</div>
+                    <div style={{ fontSize:'11px', color:'#444', fontWeight:600, marginTop:'4px' }}>PSK Safaris &amp; Car Rentals — Vehicle Hire Agreement</div>
+                    <div style={{ width:'70px', height:'3px', background:'#FF9500', margin:'9px auto 0', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }} />
+                  </div>
+
+                  {TERMS.map((term, i) => (
+                    <div key={i} style={{ display:'flex', gap:'10px', marginBottom:'9px', paddingBottom:'8px', borderBottom: i < TERMS.length - 1 ? '1px solid #ddd' : 'none' }}>
+                      <div style={{ fontSize:'12px', fontWeight:800, color:'#FF9500', minWidth:'19px', flexShrink:0, printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>{i + 1}.</div>
+                      <div style={{ fontSize:'11.5px', color:'#111', lineHeight:'1.55', textAlign:'justify' }}>{term}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Page 2 footer — declaration + signatures pinned to bottom */}
+                <div style={{ position:'absolute', left:0, right:0, bottom:0 }}>
+                  <div style={{ padding:'0 34px 16px' }}>
+                    <div style={{ border:'1.5px solid #FF9500', borderRadius:'4px', padding:'10px 14px', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>
+                      <div style={{ fontSize:'10px', fontWeight:800, color:'#CC7700', letterSpacing:'1.2px', marginBottom:'5px' }}>DECLARATION</div>
+                      <div style={{ fontSize:'11px', color:'#111', lineHeight:'1.5' }}>
+                        I, the undersigned hirer, confirm that I have read, understood and agree to all the terms and conditions stated above. I acknowledge receipt of the vehicle in good condition as described.
+                      </div>
+                    </div>
+
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'44px', marginTop:'26px' }}>
+                      <div>
+                        <div style={{ ...LBL, width:'auto', marginBottom:'30px' }}>HIRER SIGNATURE &amp; DATE</div>
+                        <div style={{ borderBottom:'1.5px solid #111', height:'1px' }} />
+                        <div style={{ fontSize:'10.5px', color:'#333', fontWeight:600, marginTop:'4px' }}>{preview.client_name}</div>
+                      </div>
+                      <div>
+                        <div style={{ ...LBL, width:'auto', marginBottom:'30px' }}>PSK AUTHORISED SIGNATURE &amp; DATE</div>
+                        <div style={{ borderBottom:'1.5px solid #111', height:'1px' }} />
+                        <div style={{ fontSize:'10.5px', color:'#333', fontWeight:600, marginTop:'4px' }}>For PSK Safaris &amp; Car Rentals</div>
                       </div>
                     </div>
                   </div>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'16px', marginTop:'10px' }}>
-                    <div>
-                      <div style={{ fontSize:'9.5px', fontWeight:700, color:'#555', marginBottom:'3px' }}>SIGNATURE:</div>
-                      <div style={{ borderBottom:'1px solid #1a1a1a', height:'32px', marginBottom:'8px' }}></div>
-                      <div style={{ fontSize:'9.5px', fontWeight:700, color:'#555', marginBottom:'3px' }}>PSK SAFARIS & CAR RENTALS (SIGNATURE):</div>
-                      <div style={{ borderBottom:'1px solid #1a1a1a', height:'32px' }}></div>
+                  <div style={{ background:'#FF9500', padding:'7px 20px', textAlign:'center', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>
+                    <div style={{ fontSize:'11px', color:'#fff', fontWeight:700 }}>
+                      PSK Safaris &amp; Car Rentals | {preview.branch === 'eldoret' ? 'Tel: +254 751 855 180' : 'Tel: +254 741 186 538'} | PIN: P051664556P
                     </div>
-                    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
-                      <div style={{ width:'70px', height:'70px', borderRadius:'50%', border:'2px dashed #bbb', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'8px', color:'#bbb', textAlign:'center' }}>COMPANY<br/>STAMP</div>
-                      <div style={{ fontSize:'10px', color:'#555', marginTop:'6px' }}>Date: {new Date().toLocaleDateString('en-GB')}</div>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Accessories checklist — full width below main content */}
-              <div style={{ padding:'10px 20px 14px', borderTop:'1px solid #ddd' }}>
-                <div style={{ fontSize:'10px', fontWeight:800, color:'#1B4D5C', letterSpacing:'1px', textTransform:'uppercase', marginBottom:'8px' }}>Vehicle Accessories Checklist</div>
-                <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'10px' }}>
-                  <thead>
-                    <tr style={{ borderBottom:'2px solid #1B4D5C' }}>
-                      <th style={{ padding:'5px 8px', color:'#1B4D5C', textAlign:'left', fontWeight:800, fontSize:'9px', width:'40%' }}>Accessory</th>
-                      <th style={{ padding:'5px 8px', color:'#1B4D5C', textAlign:'center', fontWeight:800, fontSize:'9px', width:'30%' }}>Departure ✓</th>
-                      <th style={{ padding:'5px 8px', color:'#1B4D5C', textAlign:'center', fontWeight:800, fontSize:'9px', width:'30%' }}>Arrival ✓</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {['Floor Mats','Power Window','Jack & Jack Handles','Wheel Caps','Alloy Rims','Rearview Mirror','Safety Belts','Infotainment System','Speakers','Tool Kit (W. Spanner)','Door Handles','Head Lights','Rear Lights','Spare Wheel','Oil Level','ATF','P/Steering Fluid'].map((item,i)=>(
-                      <tr key={item} style={{ borderBottom:'1px solid #eee', background:i%2===0?'#fafafa':'#fff' }}>
-                        <td style={{ padding:'5px 8px', fontSize:'10px', fontWeight:600 }}>{item}</td>
-                        <td style={{ padding:'5px 8px', textAlign:'center', fontSize:'12px' }}>✓</td>
-                        <td style={{ padding:'5px 8px', textAlign:'center', fontSize:'10px', color:'#ccc' }}>___</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Bottom strip */}
-              <div style={{ background:'#FF9500', padding:'7px 20px', textAlign:'center', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>
-                <div style={{ fontSize:'11px', color:'#fff', fontWeight:600 }}>Easy car rentals · Self drive/chauffeur driven · Airport transfers · Safaris and excursion</div>
-              </div>
-
-              {/* ═══ PAGE 2: T&Cs ═══ */}
-              <div style={{ pageBreakBefore:'always', breakBefore:'page', padding:'18px 22px' }}>
-                <div style={{ background:'#FF9500', height:'8px', margin:'-24px -32px 20px', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }} />
-                <div style={{ textAlign:'center', marginBottom:'20px' }}>
-                  <div style={{ fontSize:'20px', fontWeight:800, letterSpacing:'2px' }}>TERMS AND CONDITIONS</div>
-                  <div style={{ fontSize:'12px', color:'#555', marginTop:'4px' }}>PSK Safaris & Car Rentals — Vehicle Hire Agreement</div>
-                  <div style={{ width:'60px', height:'3px', background:'#FF9500', margin:'10px auto 0', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }} />
-                </div>
-                {TERMS.map((term, i) => (
-                  <div key={i} style={{ display:'flex', gap:'12px', marginBottom:'12px', padding:'10px 14px', background:i%2===0?'#f9f9f9':'#fff', borderLeft:'3px solid #FF9500', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>
-                    <div style={{ fontSize:'13px', fontWeight:800, color:'#FF9500', flexShrink:0, minWidth:'20px', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>{i+1}.</div>
-                    <div style={{ fontSize:'12px', color:'#333', lineHeight:'1.7' }}>{term}</div>
-                  </div>
-                ))}
-                <div style={{ marginTop:'24px', padding:'16px', background:'#fff8e0', border:'1px solid #FF9500', borderRadius:'6px' }}>
-                  <div style={{ fontSize:'11px', fontWeight:700, color:'#CC7700', marginBottom:'6px' }}>DECLARATION</div>
-                  <div style={{ fontSize:'11px', color:'#555', lineHeight:'1.7' }}>
-                    I, the undersigned hirer, confirm that I have read, understood and agree to all the terms and conditions stated above. I acknowledge receipt of the vehicle in good condition as described.
-                  </div>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'32px', marginTop:'24px' }}>
-                    <div>
-                      <div style={{ fontSize:'10px', fontWeight:700, color:'#555', marginBottom:'4px' }}>HIRER SIGNATURE & DATE</div>
-                      <div style={{ borderBottom:'1px solid #1a1a1a', height:'40px', marginBottom:'6px' }}></div>
-                      <div style={{ fontSize:'11px', color:'#777' }}>{preview.client_name}</div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize:'10px', fontWeight:700, color:'#555', marginBottom:'4px' }}>PSK AUTHORISED SIGNATURE & DATE</div>
-                      <div style={{ borderBottom:'1px solid #1a1a1a', height:'40px', marginBottom:'6px' }}></div>
-                      <div style={{ fontSize:'11px', color:'#777' }}>For PSK Safaris & Car Rentals</div>
-                    </div>
-                  </div>
-                </div>
-                <div style={{ background:'#FF9500', padding:'8px 0', textAlign:'center', margin:'20px -22px -18px', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>
-                  <div style={{ fontSize:'11px', color:'#fff', fontWeight:600 }}>
-                    PSK Safaris & Car Rentals | {preview.branch === 'eldoret' ? 'Tel: +254 751 855 180' : 'Tel: +254 741 186 538'} | PIN: P051664556P
                   </div>
                 </div>
               </div>
