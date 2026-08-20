@@ -503,26 +503,32 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
 
                 {/* Photo capture - 5 slots */}
                 <div style={{ marginBottom:'14px' }}>
-                  <div style={{ fontSize:'10px', fontWeight:600, color:'rgba(255,255,255,0.38)', letterSpacing:'0.5px', marginBottom:'10px', textTransform:'uppercase' }}>Photos — up to 5 (ID, licence, vehicle, etc.)</div>
+                  <div style={{ fontSize:'10px', fontWeight:600, color:'rgba(255,255,255,0.38)', letterSpacing:'0.5px', marginBottom:'10px', textTransform:'uppercase' }}>Documents & Photos — up to 5 slots (images or PDF)</div>
                   <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:'8px' }}>
                     {photos.map((photo,idx)=>(
                       <div key={idx} style={{ aspectRatio:'1', borderRadius:'8px', border:`1.5px dashed ${photo?'rgba(129,199,132,0.50)':'rgba(255,255,255,0.14)'}`, background:photo?'transparent':'rgba(255,255,255,0.03)', overflow:'hidden', position:'relative', cursor:'pointer' }}
                         onClick={()=>photoRefs[idx].current?.click()}>
-                        <input type="file" accept="image/*,application/pdf" ref={photoRefs[idx]}
+                        <input type="file" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" ref={photoRefs[idx]}
                           onChange={e=>{ if(e.target.files?.[0]){ const r=new FileReader(); r.onload=ev=>{ const arr=[...photos]; arr[idx]=(ev.target?.result as string)||''; setPhotos(arr); if(idx===0)setIdPhoto(arr[0]) }; r.readAsDataURL(e.target.files[0]) } }}
                           style={{ display:'none' }} />
                         {photo
-                          ? <img src={photo} alt={`Photo ${idx+1}`} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                          ? (photo.startsWith('data:application/pdf') || photo.startsWith('data:application/msword')
+                              ? <div style={{ width:'100%', height:'100%', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'4px', background:'rgba(255,255,255,0.06)' }}>
+                                  <span style={{ fontSize:'24px' }}>📄</span>
+                                  <span style={{ fontSize:'8px', color:'rgba(255,255,255,0.50)', textAlign:'center' }}>PDF/Doc</span>
+                                </div>
+                              : <img src={photo} alt={`Photo ${idx+1}`} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                            )
                           : <div style={{ width:'100%', height:'100%', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'4px' }}>
-                              <span style={{ fontSize:'18px' }}>📷</span>
-                              <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.25)' }}>{idx===0?'ID front':idx===1?'ID back':idx===2?'Licence':'Photo '+(idx+1)}</span>
+                              <span style={{ fontSize:'18px' }}>{idx < 3 ? '📷' : '📎'}</span>
+                              <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.25)' }}>{idx===0?'ID front':idx===1?'ID back':idx===2?'Licence':idx===3?'Contract':'Doc '+(idx+1)}</span>
                             </div>}
                         {photo && <button onClick={e=>{e.stopPropagation();const arr=[...photos];arr[idx]='';setPhotos(arr);if(idx===0)setIdPhoto('')}}
                           style={{ position:'absolute', top:'2px', right:'2px', width:'16px', height:'16px', borderRadius:'50%', background:'rgba(231,76,60,0.80)', border:'none', color:'white', fontSize:'9px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700 }}>✕</button>}
                       </div>
                     ))}
                   </div>
-                  <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.25)', marginTop:'6px' }}>Tap any slot to take or choose a photo. First slot is the primary ID photo.</div>
+                  <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.25)', marginTop:'6px' }}>Tap any slot to upload image or PDF. Accepts: JPG, PNG, PDF. First slot is the primary ID photo.</div>
                 </div>
               </>}
 
