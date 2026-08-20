@@ -699,12 +699,12 @@ export default function RentalAgreements() {
                       <div>
                         <div style={{ ...LBL, width:'auto', marginBottom:'30px' }}>HIRER SIGNATURE &amp; DATE</div>
                         <div style={{ borderBottom:'1.5px solid #111', height:'1px' }} />
-                        <div style={{ fontSize:'10.5px', color:'#333', fontWeight:600, marginTop:'4px' }}>{preview.client_name}</div>
+                        <div style={{ fontSize:'12px', color:'#111', fontWeight:800, marginTop:'4px' }}>{preview.client_name}</div>
                       </div>
                       <div>
                         <div style={{ ...LBL, width:'auto', marginBottom:'30px' }}>PSK AUTHORISED SIGNATURE &amp; DATE</div>
                         <div style={{ borderBottom:'1.5px solid #111', height:'1px' }} />
-                        <div style={{ fontSize:'10.5px', color:'#333', fontWeight:600, marginTop:'4px' }}>For PSK Safaris &amp; Car Rentals</div>
+                        <div style={{ fontSize:'12px', color:'#111', fontWeight:800, marginTop:'4px' }}>For PSK Safaris &amp; Car Rentals</div>
                       </div>
                     </div>
                   </div>
