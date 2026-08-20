@@ -644,27 +644,29 @@ export default function RentalAgreements() {
                   </div>
                 </div>
 
-                {/* Right — accessories checklist */}
-                <div style={{ width:'140px', flexShrink:0, padding:'10px 8px' }}>
-                  <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'9.5px' }}>
-                    <thead>
-                      <tr style={{ borderBottom:'2px solid #1B4D5C' }}>
-                        <th style={{ padding:'4px 5px', color:'#1B4D5C', textAlign:'left', fontWeight:800, fontSize:'9px', borderBottom:'2px solid #1B4D5C' }}>Accessories</th>
-                        <th style={{ padding:'4px 3px', color:'#1B4D5C', textAlign:'center', fontWeight:800, fontSize:'9px', borderBottom:'2px solid #1B4D5C' }}>DEP</th>
-                        <th style={{ padding:'4px 3px', color:'#1B4D5C', textAlign:'center', fontWeight:800, fontSize:'9px', borderBottom:'2px solid #1B4D5C' }}>ARR</th>
+              </div>
+
+              {/* Accessories checklist — full width below main content */}
+              <div style={{ padding:'10px 20px 14px', borderTop:'1px solid #ddd' }}>
+                <div style={{ fontSize:'10px', fontWeight:800, color:'#1B4D5C', letterSpacing:'1px', textTransform:'uppercase', marginBottom:'8px' }}>Vehicle Accessories Checklist</div>
+                <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'10px' }}>
+                  <thead>
+                    <tr style={{ borderBottom:'2px solid #1B4D5C' }}>
+                      <th style={{ padding:'5px 8px', color:'#1B4D5C', textAlign:'left', fontWeight:800, fontSize:'9px', width:'40%' }}>Accessory</th>
+                      <th style={{ padding:'5px 8px', color:'#1B4D5C', textAlign:'center', fontWeight:800, fontSize:'9px', width:'30%' }}>Departure ✓</th>
+                      <th style={{ padding:'5px 8px', color:'#1B4D5C', textAlign:'center', fontWeight:800, fontSize:'9px', width:'30%' }}>Arrival ✓</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {['Floor Mats','Power Window','Jack & Jack Handles','Wheel Caps','Alloy Rims','Rearview Mirror','Safety Belts','Infotainment System','Speakers','Tool Kit (W. Spanner)','Door Handles','Head Lights','Rear Lights','Spare Wheel','Oil Level','ATF','P/Steering Fluid'].map((item,i)=>(
+                      <tr key={item} style={{ borderBottom:'1px solid #eee', background:i%2===0?'#fafafa':'#fff' }}>
+                        <td style={{ padding:'5px 8px', fontSize:'10px', fontWeight:600 }}>{item}</td>
+                        <td style={{ padding:'5px 8px', textAlign:'center', fontSize:'12px' }}>✓</td>
+                        <td style={{ padding:'5px 8px', textAlign:'center', fontSize:'10px', color:'#ccc' }}>___</td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {['Floor Mats','Power Window','Jack & Jack Handles','Wheel Caps','Alloy Rims','Rearview Mirror','Safety Belts','Infotainment System','Speakers','Tool Kit (W. Spanner)','Door Handles','Head lights','Rear lights','Spare Wheel','Oil Level','ATF','P/Steering Fluid'].map((item,i)=>(
-                        <tr key={item} style={{ borderBottom:'1px solid #eee', background:i%2===0?'#fafafa':'#fff' }}>
-                          <td style={{ padding:'4px 5px', fontSize:'9px' }}>{item}</td>
-                          <td style={{ padding:'4px 3px', textAlign:'center', fontSize:'12px' }}>✓</td>
-                          <td style={{ padding:'4px 3px', textAlign:'center', fontSize:'9px', color:'#ccc' }}>__</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                    ))}
+                  </tbody>
+                </table>
               </div>
 
               {/* Bottom strip */}
