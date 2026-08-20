@@ -238,6 +238,10 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
     const cfg  = DOC_CONFIG[doc.doc_type]
     const sc   = STATUS_CFG[doc.status] || STATUS_CFG.draft
     const items: LineItem[] = Array.isArray(doc.line_items) ? doc.line_items : []
+    const autoSubtotal = items.reduce((sum, i) => sum + ((i.qty||0) * (i.unitPrice||0)), 0)
+    const autoVat = doc.vat_rate > 0 ? Math.round(autoSubtotal * (doc.vat_rate||0) / 100) : 0
+    const autoTotal = autoSubtotal + autoVat
+    const autoBalance = doc.doc_type === 'invoice' ? Math.max(0, autoTotal - (doc.amount_paid||0)) : 0
 
     const [pdfBusy, setPdfBusy] = useState(false)
     const [pdfReady, setPdfReady] = useState(false)
