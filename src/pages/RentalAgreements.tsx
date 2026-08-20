@@ -81,7 +81,7 @@ function Field({ label, value }: { label: string; value?: string }) {
   )
 }
 
-const ACCESSORIES = ['Floor Mats','Power Window','Jack & Jack Handles','Wheel Caps','Alloy Rims','Rearview Mirror','Safety Belts','Infotainment System','Speakers','Tool Kit (W. Spanner)','Door Handles','Head Lights','Rear Lights','Spare Wheel','Oil Level','ATF','P/Steering Fluid']
+const ACCESSORIES = ['Floor Mats','Power Window','Jack & Jack Handles','Wheel Caps','Alloy Rims','Rearview Mirror','Safety Belts','Entertainment System','Speakers','Tool Kit (W. Spanner)','Door Handles','Head Lights','Rear Lights','Spare Wheel','Oil Level','ATF','P/Steering Fluid']
 
 export default function RentalAgreements() {
   const navigate = useNavigate()
@@ -621,7 +621,7 @@ export default function RentalAgreements() {
 
                     {ACCESSORIES.map(item => (
                       <div key={item} style={{ display:'flex', alignItems:'center', borderBottom:'1px solid #999', padding:'7px 0' }}>
-                        <div style={{ flex:1, fontSize:'13px', fontWeight:800, color:'#000' }}>{item}</div>
+                        <div style={{ flex:1, fontSize:'11.5px', fontWeight:700, color:'#111' }}>{item}</div>
                         <div style={{ width:'54px', display:'flex', justifyContent:'center' }}><div style={BOX} /></div>
                         <div style={{ width:'54px', display:'flex', justifyContent:'center' }}><div style={BOX} /></div>
                       </div>
