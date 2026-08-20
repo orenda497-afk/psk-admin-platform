@@ -323,7 +323,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
     }
 
     return (
-      <div style={{ position:'fixed', inset:0, zIndex:200, display:'flex', alignItems:'flex-start', justifyContent:'center', background:'rgba(0,0,0,0.82)', backdropFilter:'blur(12px)', overflowY:'auto', padding:'32px 20px' }}>
+      <div style={{ position:'fixed', inset:0, zIndex:99999, display:'flex', alignItems:'flex-start', justifyContent:'center', background:'rgba(0,0,0,0.95)', overflowY:'auto', padding:'32px 20px' }}>
         <div style={{ width:'760px', maxWidth:'100%' }}>
           {/* Action bar */}
           <div className="psk-no-print" style={{ display:'flex', justifyContent:'space-between', marginBottom:'16px', flexWrap:'wrap', gap:'8px' }}>
