@@ -246,11 +246,34 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
     const generatePDF = async (): Promise<Blob | null> => {
       const el = document.querySelector('.psk-document') as HTMLElement
       if (!el) return null
-      const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#FFFDF7' })
+      // Force A4 width (794px = 210mm at 96dpi) before capture
+      const prevWidth = el.style.width
+      const prevMaxWidth = el.style.maxWidth
+      el.style.width = '794px'
+      el.style.maxWidth = '794px'
+      await new Promise(r => setTimeout(r, 120)) // let layout reflow
+      const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#F8F6F1', windowWidth: 794, scrollX: 0, scrollY: 0 })
+      el.style.width = prevWidth
+      el.style.maxWidth = prevMaxWidth
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
-      const w = pdf.internal.pageSize.getWidth()
-      const h = (canvas.height * w) / canvas.width
-      pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, w, h)
+      const pageW = pdf.internal.pageSize.getWidth()
+      const pageH = pdf.internal.pageSize.getHeight()
+      const imgH = (canvas.height * pageW) / canvas.width
+      // Multi-page support if content is taller than one A4 page
+      if (imgH <= pageH) {
+        pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pageW, imgH)
+      } else {
+        let yPos = 0
+        let remaining = imgH
+        let page = 0
+        while (remaining > 0) {
+          if (page > 0) pdf.addPage()
+          pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, -yPos, pageW, imgH)
+          yPos += pageH
+          remaining -= pageH
+          page++
+        }
+      }
       return pdf.output('blob')
     }
 
@@ -396,7 +419,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
                     <div style={{ fontSize:'11px', fontWeight:900, letterSpacing:'2px', textTransform:'uppercase', color:'#1B4D5C' }}>Amount Received</div>
                     <div style={{ fontSize:'28px', fontWeight:900, color:'#111', letterSpacing:'1px' }}>
                       <span style={{ fontSize:'14px', fontWeight:700, color:'#555', marginRight:'6px' }}>Kshs.</span>
-                      {doc.total?.toLocaleString()}
+                      {(autoSubtotal + autoVat).toLocaleString()}
                     </div>
                   </div>
 
@@ -507,11 +530,11 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
               <div style={{ display:'flex', justifyContent:'flex-end', borderTop:'2.5px solid #1B4D5C', marginBottom:'40px' }}>
                 <div style={{ minWidth:'250px', borderLeft:'2px solid #1B4D5C' }}>
                   {[
-                    { label:'Subtotal', value:`KES ${doc.subtotal?.toLocaleString()}`, grand:false },
-                    ...(doc.vat_rate > 0 ? [{ label:`VAT (${doc.vat_rate}%)`, value:`KES ${doc.vat_amount?.toLocaleString()}`, grand:false }] : []),
-                    ...(doc.amount_paid && doc.amount_paid > 0 ? [{ label:'Amount Paid', value:`KES ${doc.amount_paid?.toLocaleString()}`, grand:false }] : []),
-                    { label: doc.doc_type === 'receipt' ? 'Total Received' : doc.doc_type === 'credit_note' ? 'Total Credit' : doc.doc_type === 'debit_note' ? 'Additional Amount Due' : 'Total Amount', value:`KES ${doc.total?.toLocaleString()}`, grand:true },
-                    ...(doc.doc_type === 'invoice' && doc.balance && doc.balance > 0 ? [{ label:'Balance Due', value:`KES ${doc.balance?.toLocaleString()}`, grand:true, red:true }] : []),
+                    { label:'Subtotal', value:`KES ${autoSubtotal.toLocaleString()}`, grand:false },
+                    ...(doc.vat_rate > 0 ? [{ label:`VAT (${doc.vat_rate}%)`, value:`KES ${autoVat.toLocaleString()}`, grand:false }] : []),
+                    ...(doc.amount_paid && doc.amount_paid > 0 ? [{ label:'Amount Paid', value:`KES ${(doc.amount_paid || 0).toLocaleString()}`, grand:false }] : []),
+                    { label: doc.doc_type === 'receipt' ? 'Total Received' : doc.doc_type === 'credit_note' ? 'Total Credit' : doc.doc_type === 'debit_note' ? 'Additional Amount Due' : 'Total Amount', value:`KES ${(autoSubtotal + autoVat).toLocaleString()}`, grand:true },
+                    ...(doc.doc_type === 'invoice' && autoBalance > 0 ? [{ label:'Balance Due', value:`KES ${autoBalance.toLocaleString()}`, grand:true, red:true }] : []),
                   ].map((row:any, i) => (
                     <div key={i} style={{ display:'flex', justifyContent:'space-between', padding:'9px 14px', borderBottom: row.grand ? 'none' : '1px solid #e0ddd6', borderTop: row.grand ? '2.5px solid #1B4D5C' : 'none' }}>
                       <span style={{ fontSize: row.grand ? '13px' : '12px', fontWeight:900, color: row.red ? '#c00' : row.grand ? '#1B4D5C' : '#555' }}>{row.label}</span>
