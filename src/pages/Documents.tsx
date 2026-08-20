@@ -579,15 +579,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
               </div>
             </div>
 
-            {/* FOOTER */}
-            <div style={{ background:'#2D5F3F', padding:'12px 32px', textAlign:'center', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }}>
-              <div style={{ fontSize:'11px', color:'#FFFFFF', fontWeight:500 }}>
-                Easy car rentals · Self drive/chauffeur driven · Airport transfers · Safaris and excursion
-              </div>
-              <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.80)', marginTop:'3px' }}>
-                {br.name} | {br.tel} | PIN: {br.pin}
-              </div>
-            </div>
+
           </div>
         </div>
       </div>
