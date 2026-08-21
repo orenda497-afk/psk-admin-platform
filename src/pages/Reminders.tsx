@@ -50,6 +50,7 @@ export default function Reminders() {
   const [loading, setLoading]     = useState(true)
   const [filter, setFilter]       = useState<FilterType>('all')
   const [showAdd, setShowAdd]     = useState(false)
+  const [editRId, setEditRId]     = useState<string|null>(null)
   const [showResolved, setShowResolved] = useState(false)
   const [form, setForm] = useState({
     branch: 'eldoret', priority: 'amber', category: 'manual',
@@ -188,16 +189,21 @@ export default function Reminders() {
 
   async function saveManual() {
     if (!form.title) return
-    await supabase.from('reminders').insert([{
-      branch: form.branch, type: 'manual', category: 'manual',
-      priority: form.priority, title: form.title,
-      detail: form.detail || null, due_date: form.due_date || null, resolved: false,
+    const payload = {
+      branch: form.branch, priority: form.priority,
+      title: form.title, detail: form.detail || null, due_date: form.due_date || null,
       car_plate: form.car_plate || null, company_name: form.company_name || null,
       pickup_time: form.pickup_time || null, drop_off_time: (form as any).drop_off_time || null, car_type: form.car_type || null,
       start_location: form.start_location || null, drop_location: form.drop_location || null,
-    }])
+    }
+    const { error } = editRId
+      ? await supabase.from('reminders').update(payload).eq('id', editRId)
+      : await supabase.from('reminders').insert([{ ...payload, type: 'manual', category: 'manual', resolved: false }])
+    if (error) { alert('Could not save reminder: ' + error.message); return }
     setShowAdd(false)
-    setForm({ branch:'eldoret', priority:'amber', category:'manual', title:'', detail:'', due_date:'' })
+    setEditRId(null)
+    setForm({ branch:'eldoret', priority:'amber', category:'manual', title:'', detail:'', due_date:'',
+      car_plate:'', company_name:'', pickup_time:'', drop_off_time:'', car_type:'', start_location:'', drop_location:'' })
     load()
   }
 
@@ -242,7 +248,7 @@ export default function Reminders() {
           </button>
           {reminders.length > 0 && !showResolved && <button onClick={resolveAll} style={{ padding:'6px 14px', borderRadius:'9px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(129,199,132,0.08)', border:'1px solid rgba(129,199,132,0.22)', color:'rgba(129,199,132,0.80)' }}>✓ Resolve all</button>}
           <button onClick={() => load()} style={{ padding:'6px 14px', borderRadius:'9px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.10)', color:'rgba(255,255,255,0.45)' }}>🔄 Refresh</button>
-          <button onClick={() => setShowAdd(true)} style={{ padding:'6px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'linear-gradient(135deg,rgba(255,215,0,0.16),rgba(255,149,0,0.09))', border:'1.5px solid rgba(255,215,0,0.32)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit' }}>+ Add reminder</button>
+          <button onClick={() => { setEditRId(null); setShowAdd(true) }} style={{ padding:'6px 16px', borderRadius:'9px', fontSize:'12px', fontWeight:600, background:'linear-gradient(135deg,rgba(255,215,0,0.16),rgba(255,149,0,0.09))', border:'1.5px solid rgba(255,215,0,0.32)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit' }}>+ Add reminder</button>
         </div>
       </div>
 
@@ -281,7 +287,7 @@ export default function Reminders() {
               {showResolved ? 'Resolved reminders will appear here' : 'Reminders are generated automatically from overdue bookings, expiring documents and outstanding payments.'}
             </div>
             {!showResolved && (
-              <button onClick={() => setShowAdd(true)} style={{ padding:'10px 22px', borderRadius:'10px', fontSize:'12px', fontWeight:600, background:'linear-gradient(135deg,rgba(255,215,0,0.16),rgba(255,149,0,0.09))', border:'1.5px solid rgba(255,215,0,0.32)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit' }}>+ Add manual reminder</button>
+              <button onClick={() => { setEditRId(null); setShowAdd(true) }} style={{ padding:'10px 22px', borderRadius:'10px', fontSize:'12px', fontWeight:600, background:'linear-gradient(135deg,rgba(255,215,0,0.16),rgba(255,149,0,0.09))', border:'1.5px solid rgba(255,215,0,0.32)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit' }}>+ Add manual reminder</button>
             )}
           </div>
         ) : (
@@ -324,7 +330,9 @@ export default function Reminders() {
                 )}
                 {!showResolved && (<>
                   <button onClick={() => resolve(r.id)} style={{ padding:'6px 14px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(129,199,132,0.10)', border:'1px solid rgba(129,199,132,0.28)', color:'rgba(129,199,132,0.90)' }}>✓ Resolve</button>
-                  <button onClick={()=>{ setForm({branch:r.branch||'eldoret',priority:r.priority||'medium',title:r.title||'',detail:r.detail||'',due_date:r.due_date||'',entity:r.entity||'',entity_id:r.entity_id||''}); setEditRId(r.id); setShowAdd(true) }}
+                  <button onClick={()=>{ setForm({branch:r.branch||'eldoret',priority:r.priority||'amber',category:'manual',title:r.title||'',detail:r.detail||'',due_date:r.due_date||'',
+                    car_plate:(r as any).car_plate||'',company_name:(r as any).company_name||'',pickup_time:(r as any).pickup_time||'',drop_off_time:(r as any).drop_off_time||'',
+                    car_type:(r as any).car_type||'',start_location:(r as any).start_location||'',drop_location:(r as any).drop_location||''}); setEditRId(r.id); setShowAdd(true) }}
                     style={{ padding:'6px 14px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.22)', color:'rgba(255,215,0,0.80)' }}>✏️ Edit</button>
                 </>)}
               </div>
@@ -338,8 +346,8 @@ export default function Reminders() {
         <div style={{ position:'fixed', inset:0, zIndex:100, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(0,0,0,0.65)', backdropFilter:'blur(8px)' }}>
           <div style={{ background:'rgba(8,18,30,0.97)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'18px', width:'480px', boxShadow:'0 24px 80px rgba(0,0,0,0.65)', padding:'24px 28px' }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'20px' }}>
-              <div style={{ fontSize:'15px', fontWeight:700, color:'rgba(255,255,255,0.92)' }}>Add Reminder</div>
-              <button onClick={() => setShowAdd(false)} style={{ width:'28px', height:'28px', borderRadius:'8px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.10)', color:'rgba(255,255,255,0.45)', cursor:'pointer', fontFamily:'inherit' }}>✕</button>
+              <div style={{ fontSize:'15px', fontWeight:700, color:'rgba(255,255,255,0.92)' }}>{editRId ? 'Edit Reminder' : 'Add Reminder'}</div>
+              <button onClick={() => { setShowAdd(false); setEditRId(null) }} style={{ width:'28px', height:'28px', borderRadius:'8px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.10)', color:'rgba(255,255,255,0.45)', cursor:'pointer', fontFamily:'inherit' }}>✕</button>
             </div>
 
             {/* Priority */}
@@ -437,8 +445,8 @@ export default function Reminders() {
             </div>
 
             <div style={{ display:'flex', gap:'10px' }}>
-              <button onClick={() => setShowAdd(false)} style={{ flex:1, padding:'12px', borderRadius:'10px', fontSize:'12px', fontWeight:600, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.55)', cursor:'pointer', fontFamily:'inherit' }}>Cancel</button>
-              <button onClick={saveManual} style={{ flex:2, padding:'12px', borderRadius:'10px', fontSize:'13px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,149,0,0.10))', border:'1.5px solid rgba(255,215,0,0.38)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit' }}>Save Reminder</button>
+              <button onClick={() => { setShowAdd(false); setEditRId(null) }} style={{ flex:1, padding:'12px', borderRadius:'10px', fontSize:'12px', fontWeight:600, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.55)', cursor:'pointer', fontFamily:'inherit' }}>Cancel</button>
+              <button onClick={saveManual} style={{ flex:2, padding:'12px', borderRadius:'10px', fontSize:'13px', fontWeight:700, background:'linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,149,0,0.10))', border:'1.5px solid rgba(255,215,0,0.38)', color:'rgba(255,215,0,0.95)', cursor:'pointer', fontFamily:'inherit' }}>{editRId ? 'Save Changes' : 'Save Reminder'}</button>
             </div>
           </div>
         </div>
