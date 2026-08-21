@@ -27,6 +27,7 @@ export const NAVIGATION_STRUCTURE: NavCategory[] = [
       { id:'handover',   label:'Handover checklists',  icon:'📷', route:'/handover' },
       { id:'documents',  label:'Documents',            icon:'📄', route:'/documents' },
       { id:'reminders',  label:'Reminders',            icon:'🔔', route:'/reminders',  badge:0, badgeColor:'red' },
+      { id:'add-expense', label:'Add Expense',         icon:'💸', route:'/add-expense' },
     ]
   },
   {

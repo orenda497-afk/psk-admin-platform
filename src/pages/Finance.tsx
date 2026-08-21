@@ -49,7 +49,7 @@ const EXPENSE_CATS = [
 ]
 const MPESA_TYPES  = ['Customer payment','Deposit received','Refund sent','Owner payout','Expense payment','Other']
 
-export default function Finance({ currentBranch='eldoret', defaultTab='dashboard', userRole='owner' }: { currentBranch?:string; defaultTab?:string; userRole?:string }) {
+export default function Finance({ currentBranch='eldoret', defaultTab='dashboard', userRole='owner', staffName='' }: { currentBranch?:string; defaultTab?:string; userRole?:string; staffName?:string }) {
   const navigate = useNavigate()
   const [tab, setTab]           = useState(defaultTab)
 
@@ -64,13 +64,14 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
   const [loading, setLoading]   = useState(true)
   const [saving, setSaving]     = useState(false)
   const [showExp, setShowExp]   = useState(false)
+  const [editExpId, setEditExpId] = useState<string|null>(null)
   const [showMp,  setShowMp]    = useState(false)
   const [showPo,  setShowPo]    = useState(false)
   const [receipt, setReceipt]   = useState('')
   const camRef = useRef<HTMLInputElement>(null)
   const uplRef = useRef<HTMLInputElement>(null)
 
-  const [ef, setEf] = useState({ date:new Date().toISOString().split('T')[0], account:'M-Pesa', category:'Cost of Gas/Fuel', description:'', amount:'' as any, vehicle_id:'', branch:currentBranch, notes:'' })
+  const [ef, setEf] = useState({ name:staffName, date:new Date().toISOString().split('T')[0], account:'M-Pesa', category:'Cost of Gas/Fuel', description:'', amount:'' as any, vehicle_id:'', branch:currentBranch, notes:'' })
   const [mf, setMf] = useState({ date:new Date().toISOString().split('T')[0], mpesa_ref:'', type:'Customer payment', amount:'' as any, phone:'', name:'', invoice_ref:'', booking_ref:'', branch:currentBranch, notes:'' })
   const [pf, setPf] = useState({ owner_id:'', period:'', vehicle_id:'', gross_revenue:0, expenses:0, method:'M-Pesa', notes:'' })
 
@@ -106,15 +107,16 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
   const monExp      = expenses.filter(e=>e.date?.startsWith(mon)).reduce((s,e)=>s+(e.amount||0),0)
 
   async function saveExp() {
+    if(!ef.name.trim()){alert('Your name is required');return}
     if(!ef.description||!ef.amount){alert('Description and amount required');return}
     setSaving(true)
     const {error} = await supabase.from('expenses').insert([{
       date:ef.date, account:ef.account, category:ef.category, description:ef.description,
       amount:ef.amount, vehicle_id:ef.vehicle_id||null, branch:ef.branch,
-      receipt_url:receipt||null, notes:ef.notes||null,
+      receipt_url:receipt||null, notes:ef.notes||null, submitted_by:ef.name.trim(),
     }])
     setSaving(false)
-    if(!error){setShowExp(false);setReceipt('');setEf({date:new Date().toISOString().split('T')[0],account:'M-Pesa',category:'Cost of Gas/Fuel',description:'',amount:'' as any,vehicle_id:'',branch:currentBranch,notes:''});load()}
+    if(!error){setShowExp(false);setReceipt('');setEf({name:staffName,date:new Date().toISOString().split('T')[0],account:'M-Pesa',category:'Cost of Gas/Fuel',description:'',amount:'' as any,vehicle_id:'',branch:currentBranch,notes:''});load()}
     else alert(error.message)
   }
 
@@ -382,13 +384,14 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
               </div>
             ) : (
               <table style={{width:'100%',borderCollapse:'collapse'}}>
-                <thead><tr style={{borderBottom:'1px solid rgba(255,255,255,0.08)'}}>{['Date','Category','Description','Vehicle','Amount','Receipt','Branch'].map(h=><th key={h} style={{...gl.lbl,padding:'0 10px 10px',textAlign:h==='Amount'?'right':'left'}}>{h}</th>)}</tr></thead>
+                <thead><tr style={{borderBottom:'1px solid rgba(255,255,255,0.08)'}}>{['Date','Category','Description','Submitted By','Vehicle','Amount','Receipt','Branch'].map(h=><th key={h} style={{...gl.lbl,padding:'0 10px 10px',textAlign:h==='Amount'?'right':'left'}}>{h}</th>)}</tr></thead>
                 <tbody>{expenses.map(e=>{
                   const v = vehicles.find(x=>x.id===e.vehicle_id)
                   return <tr key={e.id} style={{borderBottom:'1px solid rgba(255,255,255,0.05)'}} onMouseEnter={x=>(x.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.03)'} onMouseLeave={x=>(x.currentTarget as HTMLElement).style.background='transparent'}>
                     <td style={{padding:'11px 10px',fontSize:'11px',color:'rgba(255,255,255,0.55)'}}>{e.date?new Date(e.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'—'}</td>
                     <td style={{padding:'11px 10px'}}><span style={{fontSize:'10px',fontWeight:600,padding:'2px 8px',borderRadius:'20px',background:'rgba(255,183,77,0.09)',border:'1px solid rgba(255,183,77,0.25)',color:'rgba(255,183,77,0.90)'}}>{e.category}</span></td>
                     <td style={{padding:'11px 10px',fontSize:'12px',color:'rgba(255,255,255,0.80)'}}>{e.description}</td>
+                    <td style={{padding:'11px 10px',fontSize:'11px',color:'rgba(255,255,255,0.55)'}}>{e.submitted_by||'—'}</td>
                     <td style={{padding:'11px 10px',fontSize:'11px',color:'rgba(255,215,0,0.60)'}}>{v?`${v.reg} ${v.make}`:'—'}</td>
                     <td style={{padding:'11px 10px',textAlign:'right',fontSize:'13px',fontWeight:700,color:'rgba(255,183,77,0.90)'}}>KES {e.amount?.toLocaleString()}</td>
                     <td style={{padding:'11px 10px'}}>{e.receipt_url?<button onClick={()=>window.open(e.receipt_url,'_blank')} style={{padding:'3px 8px',borderRadius:'6px',fontSize:'10px',background:'rgba(100,181,246,0.08)',border:'1px solid rgba(100,181,246,0.22)',color:'rgba(100,181,246,0.80)',cursor:'pointer',fontFamily:'inherit'}}>📎 View</button>:<span style={{fontSize:'10px',color:'rgba(255,255,255,0.25)'}}>—</span>}</td>
@@ -644,6 +647,7 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
               <button onClick={()=>{setShowExp(false);setReceipt('');setEditExpId(null)}} style={{width:'28px',height:'28px',borderRadius:'8px',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.10)',color:'rgba(255,255,255,0.45)',cursor:'pointer',fontFamily:'inherit'}}>✕</button>
             </div>
             <div style={{padding:'22px 26px'}}>
+              {F('Your Name *',I(ef.name,(v:string)=>setEf(f=>({...f,name:v})),'text','e.g. Miriam Wanjiku'),true)}
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
                 {F('Date',I(ef.date,(v:string)=>setEf(f=>({...f,date:v})),'date'))}
                 {F('Account',S(ef.account,(v:string)=>setEf(f=>({...f,account:v})),EXPENSE_ACCOUNTS.map(c=>({value:c,label:c}))))}

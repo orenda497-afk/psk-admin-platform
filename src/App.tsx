@@ -21,6 +21,7 @@ import Reminders from './pages/Reminders'
 import Settings from './pages/Settings'
 import RentalAgreements from './pages/RentalAgreements'
 import HandoverChecklists from './pages/HandoverChecklists'
+import AddExpense from './pages/AddExpense'
 
 interface PSKUser { name:string; role:string; title:string; email:string }
 
@@ -377,6 +378,7 @@ function App() {
           <Route path="/handover" element={<HandoverChecklists />} />
           <Route path="/operations/reminders" element={<Reminders />} />
           <Route path="/reminders" element={<Reminders />} />
+          <Route path="/add-expense" element={<AddExpense currentBranch={currentBranch} staffName={user?.name||''} />} />
 
           {/* CLIENTS */}
           <Route path="/clients" element={<Clients />} />
@@ -408,14 +410,14 @@ function App() {
           <Route path="/owner-portal" element={<VehicleOwners defaultTab="portal" />} />
 
           {/* FINANCE — blocked for branch manager role */}
-          <Route path="/finance" element={['manager','intern','social_media'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} userRole={user?.role||'manager'} />} />
+          <Route path="/finance" element={['manager','intern','social_media'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} userRole={user?.role||'manager'} staffName={user?.name||''} />} />
           <Route path="/finance/documents" element={<Documents />} />
-          <Route path="/finance/mpesa" element={['manager','intern','social_media'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} defaultTab="mpesa" userRole={user?.role||'manager'} />} />
-          <Route path="/finance/expenses" element={['manager','intern','social_media'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} defaultTab="expenses" userRole={user?.role||'manager'} />} />
-          <Route path="/finance/pl" element={['manager','intern','social_media'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} defaultTab="pl" userRole={user?.role||'manager'} />} />
-          <Route path="/finance/payouts" element={['manager','intern','social_media'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} defaultTab="payouts" userRole={user?.role||'manager'} />} />
-          <Route path="/finance/receivables" element={['manager','intern','social_media'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} defaultTab="receivables" userRole={user?.role||'manager'} />} />
-          <Route path="/finance/reports" element={['manager','intern','social_media'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} defaultTab="reports" userRole={user?.role||'manager'} />} />
+          <Route path="/finance/mpesa" element={['manager','intern','social_media'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} defaultTab="mpesa" userRole={user?.role||'manager'} staffName={user?.name||''} />} />
+          <Route path="/finance/expenses" element={['manager','intern','social_media'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} defaultTab="expenses" userRole={user?.role||'manager'} staffName={user?.name||''} />} />
+          <Route path="/finance/pl" element={['manager','intern','social_media'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} defaultTab="pl" userRole={user?.role||'manager'} staffName={user?.name||''} />} />
+          <Route path="/finance/payouts" element={['manager','intern','social_media'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} defaultTab="payouts" userRole={user?.role||'manager'} staffName={user?.name||''} />} />
+          <Route path="/finance/receivables" element={['manager','intern','social_media'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} defaultTab="receivables" userRole={user?.role||'manager'} staffName={user?.name||''} />} />
+          <Route path="/finance/reports" element={['manager','intern','social_media'].includes(user?.role||'') ? <FinanceBlocked /> : <Finance currentBranch={currentBranch} defaultTab="reports" userRole={user?.role||'manager'} staffName={user?.name||''} />} />
 
           {/* INTELLIGENCE */}
           <Route path="/analytics" element={<Analytics />} />

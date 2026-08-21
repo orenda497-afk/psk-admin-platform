@@ -13,6 +13,7 @@ export default function LoginPage({ onLogin }: Props) {
   const [error, setError]       = useState('')
   const [loading, setLoading]   = useState(false)
   const [showPw, setShowPw]     = useState(false)
+  const [showConfirmPw, setShowConfirmPw] = useState(false)
   const [loggedInUser, setLoggedInUser] = useState<any>(null)
 
   // Change password state
