@@ -34,6 +34,7 @@ const EXPENSE_CATS = [
   'Furniture',
   'Hire Payments',
   'Commissions',
+  'Director\'s Expense',
   'Rent',
   'Charities/Bonus',
   'Renovations & Office Repairs',

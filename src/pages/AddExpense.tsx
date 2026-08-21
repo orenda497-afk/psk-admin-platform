@@ -8,6 +8,7 @@ const EXPENSE_CATS = [
   'Branch Expenses','Repairs & Maintenance','Remittances','Professional Expert','Employees Wages & Deductibles',
   'Insurance','Tires','Licences, Permits & Fees','Shipping','Taxes','Bad Debts','Transactional Costs',
   'Office Cleaning & Hygiene','Park Fees','Office Supplies','Airtime','Furniture','Hire Payments','Commissions',
+  'Director\'s Expense',
   'Rent','Charities/Bonus','Renovations & Office Repairs','Computer & Accessories','Web Hosting & Domain',
   'Depreciation','Legal Fees','Interest Income','Income from Other Cars','Cost of Outsourcing Cars',
   'Account Transfer','Miscellaneous/Others',
