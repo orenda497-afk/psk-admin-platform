@@ -776,6 +776,8 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
                       <option>Pickup Truck — Chauffeured</option>
                       <option>Minibus 25-Seater — Chauffeured</option>
                       <option>Noah/Van — Chauffeured</option>
+                      <option>Land Cruiser 4x4 — Chauffeured</option>
+                      <option>Land Cruiser 4x4 — Self Drive</option>
                       <option>Sub Driver</option>
                     </select>)}
                     {fld('Pickup Location', inp('trip_pickup_location','text','e.g. PSK Office, Eldoret'))}
