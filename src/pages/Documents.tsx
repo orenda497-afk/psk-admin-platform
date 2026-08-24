@@ -364,7 +364,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
             <div style={{ width:'12px', background:'#1B4D5C', flexShrink:0, printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }} />
 
             {/* MAIN CONTENT */}
-            <div style={{ flex:1, padding:'40px 44px' }}>
+            <div style={{ flex:1, padding:'28px 44px' }}>
 
               {/* HEADER — logo + company left, doc type + ref right */}
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:0 }}>
@@ -394,7 +394,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
               </div>
 
               {/* TEAL RULE */}
-              <div style={{ height:'2.5px', background:'#1B4D5C', margin:'22px 0', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }} />
+              <div style={{ height:'2.5px', background:'#1B4D5C', margin:'16px 0', printColorAdjust:'exact', WebkitPrintColorAdjust:'exact' }} />
 
               {/* LINKED DOC (credit/debit note) */}
               {doc.linked_doc_ref && (
@@ -449,10 +449,10 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
                   </div>
                 </>
               ) : doc.doc_type === 'quotation' ? (
-                <div style={{ marginBottom:'22px', paddingBottom:'18px', borderBottom:'1px solid #ddd' }}>
-                  <div style={{ fontSize:'16px', fontWeight:900, textTransform:'uppercase', color:'#1B4D5C', marginBottom:'10px' }}>Quotation For</div>
-                  <div style={{ fontSize:'13px', fontWeight:900, color:'#111', marginBottom:'5px' }}>{doc.client_name}</div>
-                  <div style={{ fontSize:'11.5px', fontWeight:900, color:'#222', lineHeight:1.85 }}>
+                <div style={{ marginBottom:'14px', paddingBottom:'12px', borderBottom:'1px solid #ddd' }}>
+                  <div style={{ fontSize:'15px', fontWeight:900, textTransform:'uppercase', color:'#1B4D5C', marginBottom:'7px' }}>Quotation For</div>
+                  <div style={{ fontSize:'13px', fontWeight:900, color:'#111', marginBottom:'4px' }}>{doc.client_name}</div>
+                  <div style={{ fontSize:'11.5px', fontWeight:900, color:'#222', lineHeight:1.55 }}>
                     {doc.client_address && <div>{doc.client_address}</div>}
                     {doc.client_phone && <div>Tel: {doc.client_phone}</div>}
                     {doc.client_email && <div>{doc.client_email}</div>}
@@ -490,8 +490,8 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
 
               {/* TRIP DETAILS BLOCK — quotation only */}
               {doc.doc_type === 'quotation' && ((doc as any).trip_purpose || (doc as any).trip_vehicle_type) && (
-                <div style={{ border:'1.5px solid #1B4D5C', marginBottom:'26px' }}>
-                  <div style={{ fontSize:'14px', fontWeight:900, letterSpacing:'2px', textTransform:'uppercase', color:'#1B4D5C', background:'rgba(27,77,92,0.12)', padding:'8px 14px' }}>TRIP DETAILS</div>
+                <div style={{ border:'1.5px solid #1B4D5C', marginBottom:'16px' }}>
+                  <div style={{ fontSize:'13px', fontWeight:900, letterSpacing:'1.5px', textTransform:'uppercase', color:'#1B4D5C', background:'rgba(27,77,92,0.12)', padding:'6px 14px' }}>TRIP DETAILS</div>
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr' }}>
                     {[
                       ['Purpose of Trip', (doc as any).trip_purpose],
@@ -503,13 +503,13 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
                       ['Number of Days', (doc as any).trip_days],
                       ['Number of Passengers', (doc as any).trip_passengers],
                     ].filter(([,v]) => v).map(([label, value], i, arr) => (
-                      <div key={label as string} style={{ padding:'12px 14px', borderBottom: i < arr.length - 2 ? '1px solid #ddd' : 'none', borderRight: i % 2 === 0 ? '1px solid #ddd' : 'none' }}>
+                      <div key={label as string} style={{ padding:'8px 14px', borderBottom: i < arr.length - 2 ? '1px solid #ddd' : 'none', borderRight: i % 2 === 0 ? '1px solid #ddd' : 'none' }}>
                         <div style={{ fontSize:'8px', fontWeight:900, letterSpacing:'1.5px', textTransform:'uppercase', color:'#1B4D5C', marginBottom:'4px' }}>{label as string}</div>
                         <div style={{ fontSize:'13px', fontWeight:900, color:'#111' }}>{value as string}</div>
                       </div>
                     ))}
                     {(doc as any).trip_instructions && (
-                      <div style={{ gridColumn:'1/-1', padding:'12px 14px', borderTop:'1px solid #ddd' }}>
+                      <div style={{ gridColumn:'1/-1', padding:'8px 14px', borderTop:'1px solid #ddd' }}>
                         <div style={{ fontSize:'8px', fontWeight:900, letterSpacing:'1.5px', textTransform:'uppercase', color:'#1B4D5C', marginBottom:'4px' }}>Special Instructions</div>
                         <div style={{ fontSize:'13px', fontWeight:900, color:'#111' }}>{(doc as any).trip_instructions}</div>
                       </div>
@@ -541,7 +541,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
               </table>
 
               {/* TOTALS */}
-              <div style={{ display:'flex', justifyContent:'flex-end', borderTop:'2.5px solid #1B4D5C', marginBottom:'40px' }}>
+              <div style={{ display:'flex', justifyContent:'flex-end', borderTop:'2.5px solid #1B4D5C', marginBottom:'22px' }}>
                 <div style={{ minWidth:'250px', borderLeft:'2px solid #1B4D5C' }}>
                   {[
                     { label:'Subtotal', value:`KES ${autoSubtotal.toLocaleString()}`, grand:false },
@@ -550,7 +550,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
                     { label: doc.doc_type === 'receipt' ? 'Total Received' : doc.doc_type === 'credit_note' ? 'Total Credit' : doc.doc_type === 'debit_note' ? 'Additional Amount Due' : 'Total Amount', value:`KES ${(autoSubtotal + autoVat).toLocaleString()}`, grand:true },
                     ...(doc.doc_type === 'invoice' && autoBalance > 0 ? [{ label:'Balance Due', value:`KES ${autoBalance.toLocaleString()}`, grand:true, red:true }] : []),
                   ].map((row:any, i) => (
-                    <div key={i} style={{ display:'flex', justifyContent:'space-between', padding:'9px 14px', borderBottom: row.grand ? 'none' : '1px solid #e0ddd6', borderTop: row.grand ? '2.5px solid #1B4D5C' : 'none' }}>
+                    <div key={i} style={{ display:'flex', justifyContent:'space-between', padding:'6px 14px', borderBottom: row.grand ? 'none' : '1px solid #e0ddd6', borderTop: row.grand ? '2.5px solid #1B4D5C' : 'none' }}>
                       <span style={{ fontSize: row.grand ? '13px' : '12px', fontWeight:900, color: row.red ? '#c00' : row.grand ? '#1B4D5C' : '#555' }}>{row.label}</span>
                       <span style={{ fontSize: row.grand ? '16px' : '12px', fontWeight:900, color: row.red ? '#c00' : row.grand ? '#1B4D5C' : '#111' }}>{row.value}</span>
                     </div>
@@ -560,20 +560,20 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
 
               {/* NOTES (only if not linked doc — already shown above) */}
               {doc.notes && !doc.linked_doc_ref && (
-                <div style={{ borderLeft:'3px solid #1B4D5C', paddingLeft:'14px', marginBottom:'28px' }}>
-                  <div style={{ fontSize:'9px', fontWeight:900, letterSpacing:'1.5px', textTransform:'uppercase', color:'#1B4D5C', marginBottom:'5px' }}>Notes</div>
-                  <div style={{ fontSize:'11px', fontWeight:700, color:'#444', lineHeight:1.75 }}>{doc.notes}</div>
+                <div style={{ borderLeft:'3px solid #1B4D5C', paddingLeft:'14px', marginBottom:'16px' }}>
+                  <div style={{ fontSize:'9px', fontWeight:900, letterSpacing:'1.5px', textTransform:'uppercase', color:'#1B4D5C', marginBottom:'4px' }}>Notes</div>
+                  <div style={{ fontSize:'11px', fontWeight:700, color:'#444', lineHeight:1.5 }}>{doc.notes}</div>
                 </div>
               )}
 
               {/* SIGNATURES — Date left, Signature right only */}
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', borderTop:'1.5px solid #333', paddingTop:'30px' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', borderTop:'1.5px solid #333', paddingTop:'18px' }}>
                 <div>
-                  <div style={{ borderBottom:'1.5px solid #333', width:'220px', marginBottom:'8px', height:'44px' }} />
+                  <div style={{ borderBottom:'1.5px solid #333', width:'220px', marginBottom:'6px', height:'30px' }} />
                   <div style={{ fontSize:'10px', fontWeight:900, color:'#333', letterSpacing:'0.5px' }}>Date</div>
                 </div>
                 <div>
-                  <div style={{ borderBottom:'1.5px solid #333', width:'220px', marginBottom:'8px', height:'44px' }} />
+                  <div style={{ borderBottom:'1.5px solid #333', width:'220px', marginBottom:'6px', height:'30px' }} />
                   <div style={{ fontSize:'10px', fontWeight:900, color:'#333', letterSpacing:'0.5px' }}>Signature</div>
                 </div>
               </div>
