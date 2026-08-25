@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import DocumentEditor from '../components/DocumentEditor'
 
 interface Driver {
   id: string; name: string; phone: string; email?: string
@@ -48,6 +49,7 @@ export default function Drivers() {
   const [showAdd, setShowAdd]   = useState(false)
   const [selected, setSelected] = useState<Driver|null>(null)
   const [photo, setPhoto]       = useState('')
+  const [editingPhoto, setEditingPhoto] = useState(false)
   const camRef = useRef<HTMLInputElement>(null)
   const uplRef = useRef<HTMLInputElement>(null)
 
@@ -340,11 +342,12 @@ export default function Drivers() {
                 </div>
                 <div>
                   <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.40)', marginBottom:'8px' }}>Driver photo (optional)</div>
-                  <input type="file" accept="image/*" capture="environment" ref={camRef} onChange={e=>{if(e.target.files?.[0]){const r=new FileReader();r.onload=ev=>setPhoto(ev.target?.result as string);r.readAsDataURL(e.target.files![0])}}} style={{ display:'none' }} />
-                  <input type="file" accept="image/*" ref={uplRef} onChange={e=>{if(e.target.files?.[0]){const r=new FileReader();r.onload=ev=>setPhoto(ev.target?.result as string);r.readAsDataURL(e.target.files![0])}}} style={{ display:'none' }} />
+                  <input type="file" accept="image/*" capture="environment" ref={camRef} onChange={e=>{if(e.target.files?.[0]){const r=new FileReader();r.onload=ev=>{setPhoto(ev.target?.result as string);setEditingPhoto(true)};r.readAsDataURL(e.target.files![0])}}} style={{ display:'none' }} />
+                  <input type="file" accept="image/*" ref={uplRef} onChange={e=>{if(e.target.files?.[0]){const r=new FileReader();r.onload=ev=>{setPhoto(ev.target?.result as string);setEditingPhoto(true)};r.readAsDataURL(e.target.files![0])}}} style={{ display:'none' }} />
                   <div style={{ display:'flex', gap:'8px' }}>
                     <button type="button" onClick={()=>camRef.current?.click()} style={{ padding:'6px 12px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.22)', color:'rgba(255,215,0,0.80)' }}>📷 Camera</button>
                     <button type="button" onClick={()=>uplRef.current?.click()} style={{ padding:'6px 12px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.14)', color:'rgba(255,255,255,0.55)' }}>📁 Upload</button>
+                    {photo && <button type="button" onClick={()=>setEditingPhoto(true)} style={{ padding:'6px 10px', borderRadius:'8px', fontSize:'11px', cursor:'pointer', fontFamily:'inherit', background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.20)', color:'rgba(255,215,0,0.75)' }}>✏️ Edit</button>}
                     {photo && <button type="button" onClick={()=>setPhoto('')} style={{ padding:'6px 10px', borderRadius:'8px', fontSize:'11px', cursor:'pointer', fontFamily:'inherit', background:'rgba(231,76,60,0.08)', border:'1px solid rgba(231,76,60,0.20)', color:'rgba(239,154,154,0.70)' }}>✕</button>}
                   </div>
                 </div>
@@ -386,6 +389,15 @@ export default function Drivers() {
             </div>
           </div>
         </div>
+      )}
+
+      {editingPhoto && photo && (
+        <DocumentEditor
+          fileUrl={photo}
+          fileName="driver-photo"
+          onClose={() => setEditingPhoto(false)}
+          onSave={(edited) => { setPhoto(edited); setEditingPhoto(false) }}
+        />
       )}
     </div>
   )

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import DocumentEditor from '../components/DocumentEditor'
 
 const gl = {
   panel: { background:'rgba(10,22,34,0.70)', border:'1.5px solid rgba(255,255,255,0.09)', borderRadius:'14px', backdropFilter:'blur(14px)', boxShadow:'0 4px 24px rgba(0,0,0,0.22)' } as React.CSSProperties,
@@ -69,6 +70,7 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
   const [showMp,  setShowMp]    = useState(false)
   const [showPo,  setShowPo]    = useState(false)
   const [receipt, setReceipt]   = useState('')
+  const [editingReceipt, setEditingReceipt] = useState(false)
   const camRef = useRef<HTMLInputElement>(null)
   const uplRef = useRef<HTMLInputElement>(null)
 
@@ -660,14 +662,15 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
               {F('Amount (KES) *',I(ef.amount,(v:number)=>setEf(f=>({...f,amount:v})),'number','0'),true)}
               <div style={{marginBottom:'14px'}}>
                 <div style={{fontSize:'10px',fontWeight:600,color:'rgba(255,255,255,0.38)',letterSpacing:'0.5px',marginBottom:'8px',textTransform:'uppercase'}}>Receipt (optional)</div>
-                <input type="file" accept="image/*" capture="environment" ref={camRef} onChange={e=>{if(e.target.files?.[0]){const r=new FileReader();r.onload=ev=>setReceipt(ev.target?.result as string);r.readAsDataURL(e.target.files![0])}}} style={{display:'none'}} />
-                <input type="file" accept="image/*,application/pdf" ref={uplRef} onChange={e=>{if(e.target.files?.[0]){const r=new FileReader();r.onload=ev=>setReceipt(ev.target?.result as string);r.readAsDataURL(e.target.files![0])}}} style={{display:'none'}} />
+                <input type="file" accept="image/*" capture="environment" ref={camRef} onChange={e=>{if(e.target.files?.[0]){const r=new FileReader();r.onload=ev=>{setReceipt(ev.target?.result as string);setEditingReceipt(true)};r.readAsDataURL(e.target.files![0])}}} style={{display:'none'}} />
+                <input type="file" accept="image/*,application/pdf" ref={uplRef} onChange={e=>{if(e.target.files?.[0]){const r=new FileReader();r.onload=ev=>{setReceipt(ev.target?.result as string);setEditingReceipt(true)};r.readAsDataURL(e.target.files![0])}}} style={{display:'none'}} />
                 <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
                   <button type="button" onClick={()=>camRef.current?.click()} style={{padding:'7px 14px',borderRadius:'8px',fontSize:'11px',fontWeight:600,cursor:'pointer',fontFamily:'inherit',background:'rgba(255,215,0,0.08)',border:'1px solid rgba(255,215,0,0.22)',color:'rgba(255,215,0,0.80)'}}>📷 Camera</button>
                   <button type="button" onClick={()=>uplRef.current?.click()} style={{padding:'7px 14px',borderRadius:'8px',fontSize:'11px',fontWeight:600,cursor:'pointer',fontFamily:'inherit',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.14)',color:'rgba(255,255,255,0.55)'}}>📁 Upload</button>
+                  {receipt&&<button type="button" onClick={()=>setEditingReceipt(true)} style={{padding:'7px 14px',borderRadius:'8px',fontSize:'11px',fontWeight:600,cursor:'pointer',fontFamily:'inherit',background:'rgba(255,215,0,0.08)',border:'1px solid rgba(255,215,0,0.20)',color:'rgba(255,215,0,0.75)'}}>✏️ Edit</button>}
                   {receipt&&<span style={{fontSize:'11px',color:'rgba(129,199,132,0.90)'}}>✓ Receipt attached</span>}
                 </div>
-                {receipt&&<img src={receipt} alt="Receipt" style={{width:'100%',maxHeight:'120px',objectFit:'cover',borderRadius:'8px',marginTop:'10px',border:'1px solid rgba(255,255,255,0.10)'}} />}
+                {receipt&&<img src={receipt} alt="Receipt" onClick={()=>setEditingReceipt(true)} style={{width:'100%',maxHeight:'120px',objectFit:'cover',borderRadius:'8px',marginTop:'10px',border:'1px solid rgba(255,255,255,0.10)',cursor:'pointer'}} />}
               </div>
               {F('Notes',<textarea value={ef.notes} onChange={e=>setEf(f=>({...f,notes:e.target.value}))} style={{width:'100%',padding:'10px 12px',borderRadius:'9px',fontSize:'12px',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.12)',color:'rgba(255,255,255,0.80)',outline:'none',fontFamily:'inherit',height:'56px',resize:'none'}} />)}
               <div style={{display:'flex',gap:'10px',marginTop:'20px'}}>
@@ -746,6 +749,15 @@ export default function Finance({ currentBranch='eldoret', defaultTab='dashboard
             </div>
           </div>
         </div>
+      )}
+
+      {editingReceipt && receipt && (
+        <DocumentEditor
+          fileUrl={receipt}
+          fileName="expense-receipt"
+          onClose={() => setEditingReceipt(false)}
+          onSave={(edited) => { setReceipt(edited); setEditingReceipt(false) }}
+        />
       )}
     </div>
   )

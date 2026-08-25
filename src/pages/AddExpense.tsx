@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { supabase } from '../lib/supabase'
+import DocumentEditor from '../components/DocumentEditor'
 
 const EXPENSE_ACCOUNTS = ['M-Pesa','Cash','SBM/KEN','KCB','I&M Bank','Written off','Liability','Non Cash Receipts']
 
@@ -26,6 +27,7 @@ export default function AddExpense({ currentBranch='eldoret', staffName='' }: { 
     notes: '',
   })
   const [receipt, setReceipt] = useState('')
+  const [editingReceipt, setEditingReceipt] = useState(false)
   const [saving, setSaving] = useState(false)
   const [err, setErr] = useState('')
   const [done, setDone] = useState(false)
@@ -112,15 +114,16 @@ export default function AddExpense({ currentBranch='eldoret', staffName='' }: { 
         {field('Receipt (optional)', (
           <>
             <input type="file" accept="image/*" capture="environment" ref={camRef} style={{ display:'none' }}
-              onChange={e => { if (e.target.files?.[0]) { const r = new FileReader(); r.onload = ev => setReceipt(ev.target?.result as string); r.readAsDataURL(e.target.files[0]) } }} />
+              onChange={e => { if (e.target.files?.[0]) { const r = new FileReader(); r.onload = ev => { setReceipt(ev.target?.result as string); setEditingReceipt(true) }; r.readAsDataURL(e.target.files[0]) } }} />
             <input type="file" accept="image/*,application/pdf" ref={uplRef} style={{ display:'none' }}
-              onChange={e => { if (e.target.files?.[0]) { const r = new FileReader(); r.onload = ev => setReceipt(ev.target?.result as string); r.readAsDataURL(e.target.files[0]) } }} />
+              onChange={e => { if (e.target.files?.[0]) { const r = new FileReader(); r.onload = ev => { setReceipt(ev.target?.result as string); setEditingReceipt(true) }; r.readAsDataURL(e.target.files[0]) } }} />
             <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
               <button type="button" onClick={() => camRef.current?.click()} style={{ padding:'8px 14px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.22)', color:'rgba(255,215,0,0.80)' }}>📷 Camera</button>
               <button type="button" onClick={() => uplRef.current?.click()} style={{ padding:'8px 14px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.14)', color:'rgba(255,255,255,0.55)' }}>📁 Upload</button>
+              {receipt && <button type="button" onClick={() => setEditingReceipt(true)} style={{ padding:'8px 14px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.20)', color:'rgba(255,215,0,0.75)' }}>✏️ Edit</button>}
               {receipt && <span style={{ fontSize:'11px', color:'rgba(129,199,132,0.90)' }}>✓ Attached</span>}
             </div>
-            {receipt && <img src={receipt} alt="Receipt" style={{ width:'100%', maxHeight:'140px', objectFit:'cover', borderRadius:'8px', marginTop:'10px', border:'1px solid rgba(255,255,255,0.10)' }} />}
+            {receipt && <img src={receipt} alt="Receipt" onClick={() => setEditingReceipt(true)} style={{ width:'100%', maxHeight:'140px', objectFit:'cover', borderRadius:'8px', marginTop:'10px', border:'1px solid rgba(255,255,255,0.10)', cursor:'pointer' }} />}
           </>
         ))}
 
@@ -136,6 +139,15 @@ export default function AddExpense({ currentBranch='eldoret', staffName='' }: { 
           {saving ? 'Saving…' : 'Save Expense'}
         </button>
       </div>
+
+      {editingReceipt && receipt && (
+        <DocumentEditor
+          fileUrl={receipt}
+          fileName="expense-receipt"
+          onClose={() => setEditingReceipt(false)}
+          onSave={(edited) => { setReceipt(edited); setEditingReceipt(false) }}
+        />
+      )}
     </div>
   )
 }

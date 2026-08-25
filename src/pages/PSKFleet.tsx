@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import DocumentEditor from '../components/DocumentEditor'
 
 const gl = {
   panel: { background:'rgba(10,22,34,0.70)', border:'1.5px solid rgba(255,255,255,0.09)', borderRadius:'14px', backdropFilter:'blur(14px)', boxShadow:'0 4px 24px rgba(0,0,0,0.22)' } as React.CSSProperties,
@@ -52,7 +53,10 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
   const [saving, setSaving]       = useState(false)
   const receiptRef = useRef<HTMLInputElement>(null)
   const [selectedSvc, setSelectedSvc] = useState<any>(null)
+  const [editingSvcReceipt, setEditingSvcReceipt] = useState(false)
+  const [pendingSvcReceipt, setPendingSvcReceipt] = useState('')
   const [receiptPhoto, setReceiptPhoto] = useState('')
+  const [editingReceiptPhoto, setEditingReceiptPhoto] = useState(false)
 
   const [svcForm, setSvcForm] = useState({ vehicle_id:'', service_type:'Routine', service_date: new Date().toISOString().split('T')[0], odometer_at_service:0, vendor:'', next_service_km:0, notes:'' })
   const [fuelForm, setFuelForm] = useState({ vehicle_id:'', driver_id:'', fuel_date: new Date().toISOString().split('T')[0], litres:0, amount_kes:0, odometer:0, station:'' })
@@ -418,9 +422,8 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
                     const r = new FileReader()
                     r.onload = async ev => {
                       const url = ev.target?.result as string
-                      await supabase.from('maintenance_logs').update({ receipt_url: url }).eq('id', selectedSvc.id)
-                      setSelectedSvc({...selectedSvc, receipt_url: url})
-                      loadAll()
+                      setPendingSvcReceipt(url)
+                      setEditingSvcReceipt(true)
                     }
                     r.readAsDataURL(e.target.files[0])
                   }} />
@@ -436,8 +439,8 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
               selectedSvc.receipt_url.toLowerCase().includes('.pdf')
               ? <iframe src={selectedSvc.receipt_url} style={{ width:'100%', height:'500px', border:'none', borderRadius:'10px' }} />
               : <img src={selectedSvc.receipt_url} alt="Receipt" style={{ width:'100%', borderRadius:'10px', border:'1px solid rgba(255,255,255,0.10)', cursor:'pointer' }} onClick={()=>{
-              const url=selectedSvc.receipt_url
-              if(url.startsWith('data:')){const arr=url.split(','),mime=arr[0].match(/:(.*?);/)?.[1]||'image/jpeg',bstr=atob(arr[1]),n=bstr.length,u8=new Uint8Array(n);for(let i=0;i<n;i++)u8[i]=bstr.charCodeAt(i);window.open(URL.createObjectURL(new Blob([u8],{type:mime})),'_blank')}else window.open(url,'_blank')
+              setPendingSvcReceipt(selectedSvc.receipt_url)
+              setEditingSvcReceipt(true)
             }} />
             )}
 
@@ -730,9 +733,10 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
               {/* Receipt upload */}
               <div style={{ marginBottom:'16px' }}>
                 <div style={{ fontSize:'10px', fontWeight:600, color:'rgba(255,255,255,0.38)', letterSpacing:'0.5px', marginBottom:'8px', textTransform:'uppercase' }}>Receipt (optional)</div>
-                <input type="file" accept="image/*,application/pdf" ref={receiptRef} onChange={e=>{ if(e.target.files?.[0]) { const r=new FileReader(); r.onload=ev=>setReceiptPhoto(ev.target?.result as string); r.readAsDataURL(e.target.files![0]) }}} style={{ display:'none' }} />
+                <input type="file" accept="image/*,application/pdf" ref={receiptRef} onChange={e=>{ if(e.target.files?.[0]) { const r=new FileReader(); r.onload=ev=>{ setReceiptPhoto(ev.target?.result as string); setEditingReceiptPhoto(true) }; r.readAsDataURL(e.target.files![0]) }}} style={{ display:'none' }} />
                 <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
                   <button type="button" onClick={()=>receiptRef.current?.click()} style={{ padding:'7px 14px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.14)', color:'rgba(255,255,255,0.55)' }}>📁 Upload receipt</button>
+                  {receiptPhoto && <button type="button" onClick={()=>setEditingReceiptPhoto(true)} style={{ padding:'7px 14px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.20)', color:'rgba(255,215,0,0.75)' }}>✏️ Edit</button>}
                   {receiptPhoto && <span style={{ fontSize:'11px', color:'rgba(129,199,132,0.90)' }}>✓ Receipt attached</span>}
                 </div>
               </div>
@@ -778,9 +782,10 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
               {/* Receipt */}
               <div style={{ marginBottom:'16px' }}>
                 <div style={{ fontSize:'10px', fontWeight:600, color:'rgba(255,255,255,0.38)', letterSpacing:'0.5px', marginBottom:'8px', textTransform:'uppercase' }}>Receipt (optional)</div>
-                <input type="file" accept="image/*,application/pdf" ref={receiptRef} onChange={e=>{ if(e.target.files?.[0]) { const r=new FileReader(); r.onload=ev=>setReceiptPhoto(ev.target?.result as string); r.readAsDataURL(e.target.files![0]) }}} style={{ display:'none' }} />
+                <input type="file" accept="image/*,application/pdf" ref={receiptRef} onChange={e=>{ if(e.target.files?.[0]) { const r=new FileReader(); r.onload=ev=>{ setReceiptPhoto(ev.target?.result as string); setEditingReceiptPhoto(true) }; r.readAsDataURL(e.target.files![0]) }}} style={{ display:'none' }} />
                 <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
                   <button type="button" onClick={()=>receiptRef.current?.click()} style={{ padding:'7px 14px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.14)', color:'rgba(255,255,255,0.55)' }}>📁 Upload receipt</button>
+                  {receiptPhoto && <button type="button" onClick={()=>setEditingReceiptPhoto(true)} style={{ padding:'7px 14px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.20)', color:'rgba(255,215,0,0.75)' }}>✏️ Edit</button>}
                   {receiptPhoto && <span style={{ fontSize:'11px', color:'rgba(129,199,132,0.90)' }}>✓ Receipt attached</span>}
                 </div>
               </div>
@@ -792,6 +797,30 @@ export default function PSKFleet({ defaultTab = 'vehicles' }: { defaultTab?: str
             </div>
           </div>
         </div>
+      )}
+
+      {editingSvcReceipt && pendingSvcReceipt && selectedSvc && (
+        <DocumentEditor
+          fileUrl={pendingSvcReceipt}
+          fileName="maintenance-receipt"
+          onClose={() => { setEditingSvcReceipt(false); setPendingSvcReceipt('') }}
+          onSave={async (edited) => {
+            await supabase.from('maintenance_logs').update({ receipt_url: edited }).eq('id', selectedSvc.id)
+            setSelectedSvc({ ...selectedSvc, receipt_url: edited })
+            setEditingSvcReceipt(false)
+            setPendingSvcReceipt('')
+            loadAll()
+          }}
+        />
+      )}
+
+      {editingReceiptPhoto && receiptPhoto && (
+        <DocumentEditor
+          fileUrl={receiptPhoto}
+          fileName="fleet-receipt"
+          onClose={() => setEditingReceiptPhoto(false)}
+          onSave={(edited) => { setReceiptPhoto(edited); setEditingReceiptPhoto(false) }}
+        />
       )}
     </div>
   )

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import DocumentEditor from '../components/DocumentEditor'
 
 interface Checklist {
   id: string
@@ -45,6 +46,7 @@ export default function HandoverChecklists() {
   const [selected, setSelected]       = useState<Checklist | null>(null)
   const [printChecklist, setPrintChecklist] = useState<Checklist | null>(null)
   const [photos, setPhotos]           = useState<Record<string, string>>({})
+  const [editingSpot, setEditingSpot] = useState<string | null>(null)
   const cameraRefs = useRef<Record<string, HTMLInputElement | null>>({})
 
   const [form, setForm] = useState({
@@ -98,6 +100,7 @@ export default function HandoverChecklists() {
     const reader = new FileReader()
     reader.onload = e => {
       setPhotos(p => ({ ...p, [spot]: e.target?.result as string }))
+      setEditingSpot(spot)
     }
     reader.readAsDataURL(file)
   }
@@ -452,7 +455,9 @@ export default function HandoverChecklists() {
                   <button type="button" onClick={() => cameraRefs.current['paper_camera']?.click()} style={{ padding:'8px 16px', borderRadius:'8px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.20)', color:'rgba(255,215,0,0.70)' }}>
                     📷 Take photo of form
                   </button>
-                  {photos['paper_form'] && <span style={{ fontSize:'11px', color:'rgba(129,199,132,0.90)', display:'flex', alignItems:'center' }}>✓ Form uploaded</span>}
+                  {photos['paper_form'] && <span style={{ fontSize:'11px', color:'rgba(129,199,132,0.90)', display:'flex', alignItems:'center', gap:'8px' }}>✓ Form uploaded
+                    <button type="button" onClick={() => setEditingSpot('paper_form')} style={{ fontSize:'10px', padding:'3px 9px', borderRadius:'6px', cursor:'pointer', fontFamily:'inherit', background:'rgba(255,215,0,0.10)', border:'1px solid rgba(255,215,0,0.25)', color:'rgba(255,215,0,0.80)' }}>✏️ Edit</button>
+                  </span>}
                 </div>
               </div>
 
@@ -473,7 +478,7 @@ export default function HandoverChecklists() {
                     <div style={{ borderRadius:'10px', overflow:'hidden', background: photos[spot] ? 'transparent' : 'rgba(255,255,255,0.05)', border: photos[spot] ? '1px solid rgba(129,199,132,0.35)' : '1px dashed rgba(255,255,255,0.15)', aspectRatio:'1', position:'relative' }}>
                       {photos[spot] ? (
                         <>
-                          <img src={photos[spot]} alt={spot} style={{ width:'100%', height:'100%', objectFit:'cover', position:'absolute', inset:0 }} />
+                          <img src={photos[spot]} alt={spot} onClick={() => setEditingSpot(spot)} style={{ width:'100%', height:'100%', objectFit:'cover', position:'absolute', inset:0, cursor:'pointer' }} />
                           <div style={{ position:'absolute', bottom:0, left:0, right:0, background:'rgba(0,0,0,0.55)', padding:'4px', fontSize:'8px', color:'rgba(255,255,255,0.85)', textAlign:'center' }}>✓ {spot}</div>
                           <button type="button" onClick={() => { cameraRefs.current[spot+'_cam']?.click() }} style={{ position:'absolute', top:4, right:4, fontSize:'10px', padding:'2px 6px', borderRadius:'4px', cursor:'pointer', fontFamily:'inherit', background:'rgba(0,0,0,0.55)', border:'1px solid rgba(255,255,255,0.20)', color:'white' }}>📷</button>
                         </>
@@ -599,6 +604,18 @@ export default function HandoverChecklists() {
             </div>
           </div>
         </div>
+      )}
+
+      {editingSpot && photos[editingSpot] && (
+        <DocumentEditor
+          fileUrl={photos[editingSpot]}
+          fileName={`handover-${editingSpot}`}
+          onClose={() => setEditingSpot(null)}
+          onSave={(edited) => {
+            setPhotos(p => ({ ...p, [editingSpot]: edited }))
+            setEditingSpot(null)
+          }}
+        />
       )}
     </div>
   )

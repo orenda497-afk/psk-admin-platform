@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import DocumentEditor from '../components/DocumentEditor'
 
 type ClientType = 'individual' | 'corporate' | 'agency' | 'government'
 
@@ -119,6 +120,7 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
   const [clientType, setClientType] = useState<ClientType>('individual')
   const [idPhoto, setIdPhoto]     = useState<string>('')
   const [photos, setPhotos]         = useState<string[]>(['','','','',''])
+  const [editingPhotoIdx, setEditingPhotoIdx] = useState<number|null>(null)
   const [county, setCounty]         = useState('')
   const [customTown, setCustomTown] = useState('')
   const [showCustomTown, setShowCustomTown] = useState(false)
@@ -507,9 +509,11 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
                   <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:'8px' }}>
                     {photos.map((photo,idx)=>(
                       <div key={idx} style={{ aspectRatio:'1', borderRadius:'8px', border:`1.5px dashed ${photo?'rgba(129,199,132,0.50)':'rgba(255,255,255,0.14)'}`, background:photo?'transparent':'rgba(255,255,255,0.03)', overflow:'hidden', position:'relative', cursor:'pointer' }}
-                        onClick={()=>photoRefs[idx].current?.click()}>
+                        onClick={()=>{ const p=photos[idx]; if(p && (p.startsWith('data:image')||p.startsWith('data:application/pdf'))) setEditingPhotoIdx(idx); else photoRefs[idx].current?.click() }}>
                         <input type="file" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" ref={photoRefs[idx]}
-                          onChange={e=>{ if(e.target.files?.[0]){ const r=new FileReader(); r.onload=ev=>{ const arr=[...photos]; arr[idx]=(ev.target?.result as string)||''; setPhotos(arr); if(idx===0)setIdPhoto(arr[0]) }; r.readAsDataURL(e.target.files[0]) } }}
+                          onChange={e=>{ if(e.target.files?.[0]){ const f=e.target.files[0]; const r=new FileReader(); r.onload=ev=>{ const raw=(ev.target?.result as string)||''
+                            if (raw.startsWith('data:image')||raw.startsWith('data:application/pdf')) { const arr=[...photos]; arr[idx]=raw; setPhotos(arr); setEditingPhotoIdx(idx) }
+                            else { const arr=[...photos]; arr[idx]=raw; setPhotos(arr); if(idx===0)setIdPhoto(arr[0]) } }; r.readAsDataURL(f) } }}
                           style={{ display:'none' }} />
                         {photo
                           ? (photo.startsWith('data:application/pdf') || photo.startsWith('data:application/msword')
@@ -556,6 +560,19 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
             </div>
           </div>
         </div>
+      )}
+
+      {editingPhotoIdx !== null && photos[editingPhotoIdx] && (
+        <DocumentEditor
+          fileUrl={photos[editingPhotoIdx]}
+          fileName={`client-doc-${editingPhotoIdx+1}`}
+          onClose={() => setEditingPhotoIdx(null)}
+          onSave={(edited) => {
+            const arr = [...photos]; arr[editingPhotoIdx] = edited; setPhotos(arr)
+            if (editingPhotoIdx === 0) setIdPhoto(edited)
+            setEditingPhotoIdx(null)
+          }}
+        />
       )}
     </div>
   )
