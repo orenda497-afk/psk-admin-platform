@@ -117,6 +117,7 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
   const [search, setSearch]       = useState('')
   const [showAdd, setShowAdd]     = useState(false)
   const [selected, setSelected]   = useState<Client | null>(null)
+  const [clientAgreements, setClientAgreements] = useState<any[]>([])
   const [clientType, setClientType] = useState<ClientType>('individual')
   const [idPhoto, setIdPhoto]     = useState<string>('')
   const [photos, setPhotos]         = useState<string[]>(['','','','',''])
@@ -138,6 +139,21 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
   })
 
   useEffect(() => { load() }, [])
+
+  useEffect(() => {
+    if (!selected?.name) { setClientAgreements([]); return }
+    let cancelled = false
+    supabase.from('rental_agreements')
+      .select('id, agreement_ref, vehicle_reg, pickup_date')
+      .eq('client_name', selected.name)
+      .order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (cancelled) return
+        if (error) { console.error('Could not load client agreements:', error.message); setClientAgreements([]); return }
+        setClientAgreements(data || [])
+      })
+    return () => { cancelled = true }
+  }, [selected?.name])
 
   async function load() {
     setLoading(true)
