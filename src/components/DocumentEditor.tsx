@@ -14,20 +14,32 @@ function isPdf(url: string) { return url.startsWith('data:application/pdf') }
 
 async function getRotatedCroppedImage(imgEl: HTMLImageElement, crop: Crop | undefined, rotateDeg: number, brightness: number, contrast: number): Promise<string> {
   const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d')!
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('Canvas not supported in this browser')
+
   const scaleX = imgEl.naturalWidth / imgEl.width
   const scaleY = imgEl.naturalHeight / imgEl.height
 
   const rot = ((rotateDeg % 360) + 360) % 360
   const swap = rot === 90 || rot === 270
 
-  const cropX = crop ? crop.x * scaleX : 0
-  const cropY = crop ? crop.y * scaleY : 0
-  const cropW = crop ? crop.width * scaleX : imgEl.naturalWidth
-  const cropH = crop ? crop.height * scaleY : imgEl.naturalHeight
+  // crop.x/y/width/height are in % of the RENDERED image when unit === '%' — must convert to
+  // rendered-pixel coordinates before scaling up to the natural-resolution image, or the
+  // extracted region ends up wildly wrong (or degenerate) and can crash the canvas draw.
+  const toPx = (val: number, dim: number) => crop?.unit === '%' ? (val / 100) * dim : val
 
-  canvas.width  = swap ? cropH : cropW
-  canvas.height = swap ? cropW : cropH
+  const cropXpx = crop ? toPx(crop.x, imgEl.width)  : 0
+  const cropYpx = crop ? toPx(crop.y, imgEl.height) : 0
+  const cropWpx = crop ? toPx(crop.width,  imgEl.width)  : imgEl.width
+  const cropHpx = crop ? toPx(crop.height, imgEl.height) : imgEl.height
+
+  const cropX = cropXpx * scaleX
+  const cropY = cropYpx * scaleY
+  const cropW = Math.max(1, cropWpx * scaleX)
+  const cropH = Math.max(1, cropHpx * scaleY)
+
+  canvas.width  = Math.max(1, swap ? cropH : cropW)
+  canvas.height = Math.max(1, swap ? cropW : cropH)
 
   ctx.filter = `brightness(${brightness}%) contrast(${contrast}%)`
   ctx.save()
@@ -48,6 +60,7 @@ export default function DocumentEditor({ fileUrl, fileName = 'document', onSave,
   const [contrast, setContrast] = useState(100)
   const [busy, setBusy] = useState(false)
   const [previewUrl, setPreviewUrl] = useState(fileUrl)
+  const [error, setError] = useState('')
 
   function onImgLoad(e: React.SyntheticEvent<HTMLImageElement>) {
     const { width, height } = e.currentTarget
@@ -61,19 +74,33 @@ export default function DocumentEditor({ fileUrl, fileName = 'document', onSave,
   }, [crop, rotate, brightness, contrast, fileUrl])
 
   async function handleSave() {
+    setError('')
     setBusy(true)
-    const out = pdf ? fileUrl : await applyEdits()
-    setBusy(false)
-    onSave(out)
+    try {
+      const out = pdf ? fileUrl : await applyEdits()
+      onSave(out)
+    } catch (err: any) {
+      setError('Could not save the edited image: ' + (err?.message || 'unknown error') + '. You can still save the original unedited version.')
+    } finally {
+      setBusy(false)
+    }
   }
 
   async function handlePreview() {
     if (pdf) return
+    setError('')
     setBusy(true)
-    const out = await applyEdits()
-    setPreviewUrl(out)
-    setBusy(false)
+    try {
+      const out = await applyEdits()
+      setPreviewUrl(out)
+    } catch (err: any) {
+      setError('Could not apply edits: ' + (err?.message || 'unknown error'))
+    } finally {
+      setBusy(false)
+    }
   }
+
+  function handleSaveOriginal() { setError(''); onSave(fileUrl) }
 
   function handlePrint() {
     const win = window.open('', '_blank')
@@ -146,6 +173,15 @@ export default function DocumentEditor({ fileUrl, fileName = 'document', onSave,
                 </div>
               </div>
             </>
+          )}
+
+          {error && (
+            <div style={{ fontSize:'12px', color:'rgba(239,154,154,0.90)', marginTop:'14px', padding:'10px 13px', background:'rgba(231,76,60,0.10)', borderRadius:'8px', lineHeight:1.5 }}>
+              {error}
+              <div style={{ marginTop:'8px' }}>
+                <button onClick={handleSaveOriginal} style={{ padding:'6px 12px', borderRadius:'7px', fontSize:'11px', fontWeight:600, cursor:'pointer', fontFamily:'inherit', background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.16)', color:'rgba(255,255,255,0.80)' }}>Save original (no edits)</button>
+              </div>
+            </div>
           )}
 
           <div style={{ display:'flex', gap:'10px', marginTop:'20px', flexWrap:'wrap' }}>

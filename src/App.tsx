@@ -22,6 +22,7 @@ import Settings from './pages/Settings'
 import RentalAgreements from './pages/RentalAgreements'
 import HandoverChecklists from './pages/HandoverChecklists'
 import AddExpense from './pages/AddExpense'
+import ErrorBoundary from './components/ErrorBoundary'
 
 interface PSKUser { name:string; role:string; title:string; email:string }
 
@@ -355,6 +356,7 @@ function App() {
     )}
     <Router>
       <Layout onLogout={async () => { await supabase.rpc('log_action', { p_action:'Signed out', p_detail:null, p_entity:'auth', p_entity_id:null, p_icon:'\u{1F6AA}' }); await supabase.auth.signOut(); sessionStorage.clear(); setUser(null); localStorage.removeItem('psk_user') }} currentBranch={currentBranch} userRole={user?.role||'manager'} userName={user?.name||''} currentUser={user?.email||''}>
+        <ErrorBoundary>
         <Routes>
           {/* HOME */}
           <Route path="/" element={<Home />} />
@@ -430,6 +432,7 @@ function App() {
           {/* CATCH ALL */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </ErrorBoundary>
       </Layout>
     </Router>
   )
