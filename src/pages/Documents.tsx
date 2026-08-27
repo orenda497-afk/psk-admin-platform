@@ -567,7 +567,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
               )}
 
               {/* SIGNATURES — Date left, Signature right only */}
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', borderTop:'1.5px solid #333', paddingTop:'18px' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', borderTop:'1.5px solid #333', paddingTop:'18px' }}>
                 <div>
                   <div style={{ borderBottom:'1.5px solid #333', width:'220px', marginBottom:'6px', height:'30px' }} />
                   <div style={{ fontSize:'10px', fontWeight:900, color:'#333', letterSpacing:'0.5px' }}>Date</div>

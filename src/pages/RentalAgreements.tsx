@@ -637,7 +637,7 @@ export default function RentalAgreements() {
                 {/* Page 1 footer — pinned to bottom of the A4 sheet */}
                 <div style={{ position:'absolute', left:0, right:0, bottom:0 }}>
                   <div style={{ padding:'0 24px 14px' }}>
-                    <div style={{ borderTop:'1.5px solid #1B4D5C', paddingTop:'12px', display:'grid', gridTemplateColumns:'1fr 1fr 160px', gap:'20px', alignItems:'flex-end' }}>
+                    <div style={{ borderTop:'1.5px solid #1B4D5C', paddingTop:'12px', display:'grid', gridTemplateColumns:'1fr 1fr 160px', gap:'20px', alignItems:'center' }}>
                       <div>
                         <div style={{ ...LBL, width:'auto', marginBottom:'22px' }}>CLIENT SIGNATURE:</div>
                         <div style={{ borderBottom:'1.5px solid #111', height:'1px' }} />
