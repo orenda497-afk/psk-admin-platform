@@ -637,7 +637,7 @@ export default function RentalAgreements() {
                 {/* Page 1 footer — pinned to bottom of the A4 sheet */}
                 <div style={{ position:'absolute', left:0, right:0, bottom:0 }}>
                   <div style={{ padding:'0 24px 14px' }}>
-                    <div style={{ borderTop:'1.5px solid #1B4D5C', paddingTop:'12px', display:'grid', gridTemplateColumns:'1fr 1fr 140px', gap:'24px', alignItems:'flex-end' }}>
+                    <div style={{ borderTop:'1.5px solid #1B4D5C', paddingTop:'12px', display:'grid', gridTemplateColumns:'1fr 1fr 160px', gap:'20px', alignItems:'flex-end' }}>
                       <div>
                         <div style={{ ...LBL, width:'auto', marginBottom:'22px' }}>CLIENT SIGNATURE:</div>
                         <div style={{ borderBottom:'1.5px solid #111', height:'1px' }} />
@@ -649,7 +649,7 @@ export default function RentalAgreements() {
                         <div style={{ borderBottom:'1.5px solid #111', height:'1px' }} />
                       </div>
                       <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
-                        <img src={preview.branch === 'eldoret' ? '/branding/stamp-eldoret.png' : '/branding/stamp-kisumu.png'} alt="Company Stamp" style={{ width:'88px', height:'88px', objectFit:'contain' }} />
+                        <img src={preview.branch === 'eldoret' ? '/branding/stamp-eldoret.png' : '/branding/stamp-kisumu.png'} alt="Company Stamp" style={{ width:'140px', height:'140px', objectFit:'contain' }} />
                       </div>
                     </div>
                     <div style={{ fontSize:'9.5px', fontWeight:700, color:'#444', textAlign:'center', marginTop:'10px' }}>See full Terms &amp; Conditions on page 2 of this contract.</div>
