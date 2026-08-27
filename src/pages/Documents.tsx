@@ -572,6 +572,7 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
                   <div style={{ borderBottom:'1.5px solid #333', width:'220px', marginBottom:'6px', height:'30px' }} />
                   <div style={{ fontSize:'10px', fontWeight:900, color:'#333', letterSpacing:'0.5px' }}>Date</div>
                 </div>
+                <img src={doc.branch === 'eldoret' ? '/branding/stamp-eldoret.png' : '/branding/stamp-kisumu.png'} alt="Company Stamp" style={{ width:'78px', height:'78px', objectFit:'contain' }} />
                 <div>
                   <div style={{ borderBottom:'1.5px solid #333', width:'220px', marginBottom:'6px', height:'30px' }} />
                   <div style={{ fontSize:'10px', fontWeight:900, color:'#333', letterSpacing:'0.5px' }}>Signature</div>

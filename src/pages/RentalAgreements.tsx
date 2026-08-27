@@ -649,8 +649,7 @@ export default function RentalAgreements() {
                         <div style={{ borderBottom:'1.5px solid #111', height:'1px' }} />
                       </div>
                       <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
-                        <div style={{ width:'76px', height:'76px', borderRadius:'50%', border:'2px dashed #999', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'8px', fontWeight:700, color:'#888', textAlign:'center', lineHeight:'1.3' }}>COMPANY<br />STAMP</div>
-                        <div style={{ fontSize:'10px', fontWeight:700, color:'#333', marginTop:'5px' }}>Date: {new Date().toLocaleDateString('en-GB')}</div>
+                        <img src={preview.branch === 'eldoret' ? '/branding/stamp-eldoret.png' : '/branding/stamp-kisumu.png'} alt="Company Stamp" style={{ width:'88px', height:'88px', objectFit:'contain' }} />
                       </div>
                     </div>
                     <div style={{ fontSize:'9.5px', fontWeight:700, color:'#444', textAlign:'center', marginTop:'10px' }}>See full Terms &amp; Conditions on page 2 of this contract.</div>
