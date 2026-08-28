@@ -157,9 +157,16 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
 
   async function load() {
     setLoading(true)
-    const { data } = await supabase.from('clients').select('id,type,name,phone,secondary_phone,email,id_type,id_number,id_photo_url,photos,address,city,county,branch,notes,kra_pin,credit_limit,payment_terms,created_at').order('name', { ascending: true })
+    const { data } = await supabase.from('clients').select('id,type,name,phone,secondary_phone,email,id_type,id_number,address,city,county,branch,notes,kra_pin,credit_limit,payment_terms,created_at').order('name', { ascending: true })
     if (data) setClients(data as Client[])
     setLoading(false)
+  }
+
+  async function openClient(c: Client) {
+    setSelected(c)
+    const { data, error } = await supabase.from('clients').select('id_photo_url,photos').eq('id', c.id).single()
+    if (error) { console.error('Could not load client photos:', error.message); return }
+    setSelected(prev => prev && prev.id === c.id ? { ...prev, ...data } : prev)
   }
 
   async function saveClient() {
@@ -328,7 +335,7 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
               {filtered.map(c => {
                 const tc = TYPE_COLORS[c.type]
                 return (
-                  <tr key={c.id} onClick={()=>setSelected(c)} style={{ borderBottom:'1px solid rgba(255,255,255,0.05)', cursor:'pointer' }}
+                  <tr key={c.id} onClick={()=>openClient(c)} style={{ borderBottom:'1px solid rgba(255,255,255,0.05)', cursor:'pointer' }}
                     onMouseEnter={e=>(e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.03)'}
                     onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background='transparent'}>
                     <td style={{ padding:'12px' }}>
@@ -342,7 +349,7 @@ export default function Clients({ defaultTab = 'all' }: { defaultTab?: string })
                     <td style={{ padding:'12px' }}><div style={{ fontSize:'11px', color:'rgba(255,255,255,0.45)' }}>{c.branch === 'eldoret' ? 'Eldoret HQ' : 'Kisumu'}</div></td>
                     <td style={{ padding:'12px' }}>
                       <div style={{ display:'flex', gap:'5px' }}>
-                        <button onClick={e=>{e.stopPropagation();setSelected(c)}} style={{ padding:'4px 10px', borderRadius:'7px', fontSize:'11px', background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.22)', color:'rgba(255,215,0,0.80)', cursor:'pointer', fontFamily:'inherit' }}>View</button>
+                        <button onClick={e=>{e.stopPropagation();openClient(c)}} style={{ padding:'4px 10px', borderRadius:'7px', fontSize:'11px', background:'rgba(255,215,0,0.08)', border:'1px solid rgba(255,215,0,0.22)', color:'rgba(255,215,0,0.80)', cursor:'pointer', fontFamily:'inherit' }}>View</button>
                         <button onClick={e=>{e.stopPropagation(); const msg=`Hi ${c.name}, this is PSK Safaris. How can we assist you today?`; window.open(`https://wa.me/${c.phone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`,'_blank')}} style={{ padding:'4px 10px', borderRadius:'7px', fontSize:'11px', background:'rgba(37,211,102,0.08)', border:'1px solid rgba(37,211,102,0.22)', color:'rgba(37,211,102,0.80)', cursor:'pointer', fontFamily:'inherit' }}>📱</button>
                       </div>
                     </td>
