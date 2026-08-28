@@ -38,14 +38,27 @@ async function getRotatedCroppedImage(imgEl: HTMLImageElement, crop: Crop | unde
   const cropW = Math.max(1, cropWpx * scaleX)
   const cropH = Math.max(1, cropHpx * scaleY)
 
-  canvas.width  = Math.max(1, swap ? cropH : cropW)
-  canvas.height = Math.max(1, swap ? cropW : cropH)
+  const rawOutW = swap ? cropH : cropW
+  const rawOutH = swap ? cropW : cropH
+
+  // Cap output resolution — phone camera photos are often 3000-4000px+, but these images are
+  // only ever shown as small thumbnails or printed on an A4 document. Saving at full resolution
+  // bloats every insert, and every later fetch of that record, for no visible benefit.
+  const MAX_DIM = 1600
+  const outScale = Math.min(1, MAX_DIM / Math.max(rawOutW, rawOutH))
+  const outW = Math.max(1, rawOutW * outScale)
+  const outH = Math.max(1, rawOutH * outScale)
+
+  canvas.width  = outW
+  canvas.height = outH
 
   ctx.filter = `brightness(${brightness}%) contrast(${contrast}%)`
   ctx.save()
   ctx.translate(canvas.width / 2, canvas.height / 2)
   ctx.rotate((rot * Math.PI) / 180)
-  ctx.drawImage(imgEl, cropX, cropY, cropW, cropH, -cropW / 2, -cropH / 2, cropW, cropH)
+  const drawW = cropW * outScale
+  const drawH = cropH * outScale
+  ctx.drawImage(imgEl, cropX, cropY, cropW, cropH, -drawW / 2, -drawH / 2, drawW, drawH)
   ctx.restore()
 
   return canvas.toDataURL('image/jpeg', 0.92)
