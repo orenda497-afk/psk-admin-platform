@@ -437,15 +437,10 @@ export default function Documents({ defaultTab }: { defaultTab?: string }) {
                     </div>
                   </div>
 
-                  {/* With Thanks + stamp */}
-                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom:'40px' }}>
-                    <div>
-                      <div style={{ fontSize:'16px', fontWeight:900, color:'#1B4D5C', marginBottom:'8px', letterSpacing:'0.5px' }}>With Thanks</div>
-                      <div style={{ fontSize:'11px', fontWeight:800, color:'#444' }}>For PSK Safaris & Car Rentals</div>
-                    </div>
-                    <div style={{ width:'110px', height:'110px', borderRadius:'50%', border:'3px solid #1B4D5C', display:'flex', alignItems:'center', justifyContent:'center', opacity:0.25 }}>
-                      <div style={{ fontSize:'8px', fontWeight:900, color:'#1B4D5C', textAlign:'center', textTransform:'uppercase', letterSpacing:'1px', lineHeight:1.6 }}>PSK Safaris<br/>&amp; Car<br/>Rentals Ltd<br/>★ Eldoret ★</div>
-                    </div>
+                  {/* With Thanks */}
+                  <div style={{ marginBottom:'20px' }}>
+                    <div style={{ fontSize:'16px', fontWeight:900, color:'#1B4D5C', marginBottom:'6px', letterSpacing:'0.5px' }}>With Thanks</div>
+                    <div style={{ fontSize:'11px', fontWeight:800, color:'#444' }}>For PSK Safaris & Car Rentals</div>
                   </div>
                 </>
               ) : doc.doc_type === 'quotation' ? (
