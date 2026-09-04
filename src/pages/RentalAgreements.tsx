@@ -130,7 +130,7 @@ export default function RentalAgreements() {
     const viewId = params.get('view')
     if (viewId) {
       supabase.from('rental_agreements').select('*').eq('id', viewId).single().then(({ data }) => {
-        if (data) { setSelected(data); window.history.replaceState({}, '', '/rental-agreements') }
+        if (data) { setSelected(data); window.history.replaceState({}, '', '/agreements') }
       })
     }
   }, [])
@@ -159,7 +159,7 @@ export default function RentalAgreements() {
           booking_id: navState.booking_id || '',
         }))
         setShowAdd(true)
-        navigate('/rental-agreements', { replace: true, state: null })
+        navigate('/agreements', { replace: true, state: null })
         return
       }
       const params = new URLSearchParams(window.location.search)
@@ -183,7 +183,7 @@ export default function RentalAgreements() {
         }))
         setShowAdd(true)
         // Clean URL
-        window.history.replaceState({}, '', '/rental-agreements')
+        window.history.replaceState({}, '', '/agreements')
       }
     })
   }, [])

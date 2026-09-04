@@ -340,7 +340,7 @@ export default function Bookings() {
               <button
                 onClick={() => {
                   // Navigate to rental agreements with booking prefilled
-                  navigate('/rental-agreements', { state: {
+                  navigate('/agreements', { state: {
                     openAdd: true,
                     fromBooking: true,
                     booking_id: selected.id,
